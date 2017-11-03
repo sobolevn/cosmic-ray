@@ -35,11 +35,13 @@ def test_runner_names():
     return ExtensionManager('cosmic_ray.test_runners').names()
 
 
-def get_execution_engine(name):
+def get_execution_engine(engine_config):
+    engine_args = engine_config.get('args', {})
     manager = driver.DriverManager(
         namespace='cosmic_ray.execution_engines',
-        name=name,
-        invoke_on_load=True)
+        name=engine_config['name'],
+        invoke_on_load=True,
+        invoke_args=(engine_args,))
 
     return manager.driver
 
