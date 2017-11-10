@@ -1,3 +1,4 @@
 """Cosmic Ray version info."""
 
-__version__ = '3.0.0a1'
+__version_info__ = (3, 0, 6)
+__version__ = '.'.join(map(str, __version_info__))

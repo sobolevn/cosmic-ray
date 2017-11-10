@@ -1,29 +1,37 @@
 import io
 import os
-import re
 import sys
 
 from setuptools import setup, find_packages
 
 
-def read(*names, **kwargs):
+def local_file(*name):
+    return os.path.join(
+        os.path.dirname(__file__),
+        *name)
+
+
+def read(name, **kwargs):
     with io.open(
-        os.path.join(os.path.dirname(__file__), *names),
+        name,
         encoding=kwargs.get("encoding", "utf8")
     ) as handle:
         return handle.read()
 
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+# This is unfortunately duplicated from scripts/cosmic_ray_tooling.py. I
+# couldn't find a way to use the original version and still have tox
+# work...hmmm...
+def read_version():
+    "Read the `(version-string, version-info)` from `cosmic_ray/version.py`."
+    version_file = local_file('cosmic_ray', 'version.py')
+    local_vars = {}
+    with open(version_file) as handle:
+        exec(handle.read(), {}, local_vars)  # pylint: disable=exec-used
+    return (local_vars['__version__'], local_vars['__version_info__'])
 
 
-LONG_DESCRIPTION = read('README.rst', mode='rt')
+LONG_DESCRIPTION = read(local_file('README.rst'), mode='rt')
 
 OPERATORS = [
     'number_replacer = '
@@ -80,7 +88,7 @@ if sys.version_info < (3, 4):
 
 setup(
     name='cosmic_ray',
-    version=find_version('cosmic_ray/version.py'),
+    version=read_version()[0],
     packages=find_packages(),
 
     author='Sixty North AS',
@@ -110,7 +118,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'test': ['hypothesis', 'pytest'],
+        'test': ['hypothesis', 'pytest', 'tox'],
         'docs': ['sphinx', 'sphinx_rtd_theme']
     },
     entry_points={
