@@ -48,6 +48,7 @@ Example::
 
 from contextlib import contextmanager
 from functools import wraps
+import logging
 
 # Currently installed zero-argument callables used to report progress.
 import sys
@@ -73,7 +74,7 @@ def progress_reporter(reporter):
     """A context manager to install and remove a progress reporting function.
 
     Args:
-        reporter: A zero-argument callable to report progress.
+        reporter: A one-argument callable to report progress.
             The callable provided should have the means to both
             retrieve and display current progress information.
     """
@@ -124,3 +125,43 @@ def uninstall_progress_reporter(reporter):
             install_progress_reporter().
     """
     _reporters.remove(reporter)
+
+
+# Custom logging level for progress messages
+PROGRESS = 1337
+
+
+class ProgressLogHandler(logging.Handler):
+    "LogHandler that stores PROGRESS-level messages for later reporting."
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self._installed:
+            install_progress_reporter(self._report)
+            ProgressLogHandler._installed = True
+
+    # Indicates if the reporter been installed
+    _installed = False
+
+    # The latest PROGRESS-level record
+    _record = None
+
+    @classmethod
+    def _report(cls, stream):
+        "Print the latest report, if any."
+        if cls._record is not None:
+            print(cls._record.getMessage(),
+                  file=stream)
+
+    def close(self):
+        "Remove handler from progress reporting."
+        if ProgressLogHandler._installed:
+            uninstall_progress_reporter(self._report)
+            ProgressLogHandler._installed = False
+
+        super().close()
+
+    def emit(self, record):
+        "Store `record` if its level is PROGRESS."
+        if record.levelno == PROGRESS:
+            ProgressLogHandler._record = record
