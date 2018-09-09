@@ -33,6 +33,7 @@ from cosmic_ray.work_item import WorkItemJsonEncoder
 
 log = logging.getLogger()
 
+
 @dsc.command()
 def handle_baseline(args):
     """usage: cosmic-ray baseline <config-file>

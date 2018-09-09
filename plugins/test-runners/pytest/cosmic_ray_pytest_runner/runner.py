@@ -1,11 +1,15 @@
 "Implementation of a test-runner for pytest-based tests."
 
+import logging
 from io import StringIO
 
 import pytest
 
 from cosmic_ray.testing.test_runner import TestRunner, TestRunnerFailure
 from cosmic_ray.util import redirect_stdout
+
+
+log = logging.getLogger(__name__)
 
 
 class ResultCollector:
@@ -40,7 +44,7 @@ class PytestRunner(TestRunner):
         with StringIO() as stdout:
             with redirect_stdout(stdout):
                 exit_code = pytest.main(args, plugins=[collector])
-
+                
             # pytest exit codes:
             # 0: All tests were collected and passed successfully
             # 1: Tests were collected and run but some of the tests failed

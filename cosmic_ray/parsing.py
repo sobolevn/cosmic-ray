@@ -1,43 +1,30 @@
 """Facilities for generating ASTs from modules."""
 
 import ast
-import inspect
 import logging
 
-log = logging.getLogger()
 
+LOG = logging.getLogger()
 
-# This is where we can do different things for different kinds of modules.
-# Right now we only really handle normal source-code, text-file modules.
+# TODO: This is where we can do different things for different kinds of
+# modules. Right now we only really handle normal source-code, text-file
+# modules.
 
-
-def get_ast(module):
-    """Generate an AST from a module object.
+def get_ast(source_file):
+    """Generate an AST from a source file.
 
     This will be the AST for the contents of the module.
 
+    Args:
+        source_file: The path to the source file to be read.
+
+    Returns: A tuple of the form `(source-code, ast)`. The `source-code`
+        element is simply a string of the code in the file. The `ast` element
+        is the AST of that code.
+
     Raises:
-        OSError: If the source code for `module` can't be found.
-        TypeError: If the source file for `module` can't be found.
+        OSError: If `source_file` can't be opened.
     """
-    try:
-        source_file = inspect.getsourcefile(module)
-    except TypeError:
-        log.error("Unable to get source file for object %s", module)
-        raise
-
-    try:
-        source = inspect.getsource(module)
-    except OSError:
-        # workaround for empty __init__.py files, see
-        # http://bugs.python.org/issue27578
-        if source_file.endswith('__init__.py'):
-            source = ''
-        else:
-            log.info('inspect.getsource() failed.'
-                     'Attempting to read source directly: %s',
-                     module)
-            with open(source_file, mode='rt') as handle:
-                source = handle.read()
-
-    return ast.parse(source, source_file, 'exec')
+    with open(source_file, mode='rt') as f:
+        source = f.read()
+    return (source, ast.parse(source, source_file, 'exec'))

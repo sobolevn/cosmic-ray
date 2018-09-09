@@ -72,7 +72,7 @@ def init(modules,
         for op_name in operators:
             core = WorkDBInitCore(module, op_name, work_db)
             operator = get_operator(op_name)(core)
-            module_ast = get_ast(module)
+            _, module_ast = get_ast(module.__file__)
             operator.visit(module_ast)
 
     apply_interceptors(work_db)

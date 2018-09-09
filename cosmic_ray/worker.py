@@ -5,20 +5,14 @@ one location with one operator, runs the tests, reports the results, and dies.
 """
 
 import difflib
-import importlib
-import inspect
 import logging
 import subprocess
 import sys
 import traceback
 
-import astunparse
-
 import cosmic_ray.compat.json
 from cosmic_ray.config import serialize_config
-from cosmic_ray.importing import preserve_modules, using_ast
-from cosmic_ray.mutating import MutatingCore
-from cosmic_ray.parsing import get_ast
+from cosmic_ray.importing import using_mutant
 from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import StrEnum
 from cosmic_ray.work_item import WorkItem, WorkItemJsonDecoder
@@ -75,51 +69,42 @@ def worker(module_name,
 
     Raises: This will generally not raise any exceptions. Rather, exceptions
         will be reported using the 'exception' result-type in the return value.
-
     """
     try:
-        with preserve_modules():
-            module = importlib.import_module(module_name)
-            module_source_file = inspect.getsourcefile(module)
-            module_ast = get_ast(module)
-            module_source = astunparse.unparse(module_ast)
+        with using_mutant(module_name, operator_class, occurrence) as context:
+            item = test_runner()
 
-            core = MutatingCore(occurrence)
-            operator = operator_class(core)
-            # note: after this step module_ast and modified_ast
-            # appear to be the same
-            modified_ast = operator.visit(module_ast)
-            modified_source = astunparse.unparse(modified_ast)
-
-            if not core.activation_record:
+            if not context.activation_record:
                 return WorkItem(
                     worker_outcome=WorkerOutcome.NO_TEST)
 
-            # generate a source diff to visualize how the mutation
-            # operator has changed the code
-            module_diff = ["--- mutation diff ---"]
-            for line in difflib.unified_diff(module_source.split('\n'),
-                                             modified_source.split('\n'),
-                                             fromfile="a" + module_source_file,
-                                             tofile="b" + module_source_file,
-                                             lineterm=""):
-                module_diff.append(line)
-
-        with using_ast(module_name, module_ast):
-            rec = test_runner()
-
-        rec.update({
-            'diff': module_diff,
-            'worker_outcome': WorkerOutcome.NORMAL
-        })
-        rec.update(core.activation_record)
-        return rec
+            item.update({
+                'diff': _generate_diff(context),
+                'worker_outcome': WorkerOutcome.NORMAL
+            })
+            item.update(context.activation_record)
+            return item
 
     except Exception:  # noqa # pylint: disable=broad-except
         return WorkItem(
             data=traceback.format_exception(*sys.exc_info()),
             test_outcome=TestOutcome.INCOMPETENT,
             worker_outcome=WorkerOutcome.EXCEPTION)
+
+
+def _generate_diff(context):
+    """Generate a source diff to visualize how the mutation
+    operator has changed the code.
+    """
+    module_diff = ["--- mutation diff ---"]
+    for line in difflib.unified_diff(
+            context.module_source.split('\n'),
+            context.modified_source.split('\n'),
+            fromfile="a" + context.module_source_file,
+            tofile="b" + context.module_source_file,
+            lineterm=""):
+        module_diff.append(line)
+    return module_diff
 
 
 def worker_process(work_item,
