@@ -50,3 +50,9 @@ class OperatorVisitor(Visitor):
         pass
 
 
+def get_ast(module_path, python_version):
+    with module_path.open(mode='rt', encoding='utf-8') as handle:
+            source = handle.read()
+
+    return parso.parse(source, version=python_version)
+

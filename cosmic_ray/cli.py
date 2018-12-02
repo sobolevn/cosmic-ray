@@ -7,7 +7,7 @@ import itertools
 import json
 import logging
 import os
-import pathlib
+from pathlib import Path
 import pprint
 import signal
 import subprocess
@@ -18,7 +18,6 @@ import docopt_subcommands as dsc
 from kfg.config import ConfigError, ConfigValueError
 
 import cosmic_ray.commands
-import cosmic_ray.counting
 import cosmic_ray.modules
 import cosmic_ray.plugins
 import cosmic_ray.worker
@@ -129,10 +128,9 @@ def handle_init(args):
 
     modules = set(
         cosmic_ray.modules.find_modules(
-            cosmic_ray.modules.fixup_module_name(config['module']),
-            config.get('exclude-modules', default=None)))
+            Path(config['module-path'])))
 
-    log.info('Modules discovered: %s', [m.__name__ for m in modules])
+    log.info('Modules discovered: %s', [m for m in modules])
 
     db_name = get_db_name(args['<session-file>'])
 
@@ -293,7 +291,7 @@ def handle_worker(args):
     with open(os.devnull, 'w') as devnull:
         with redirect_stdout(sys.stdout if args['--keep-stdout'] else devnull):
             work_item = cosmic_ray.worker.worker(
-                pathlib.Path(args['<module-path>']),
+                Path(args['<module-path>']),
                 cosmic_ray.plugins.get_operator(args['<operator>'])(),
                 int(args['<occurrence>']),
                 cosmic_ray.plugins.get_test_runner(

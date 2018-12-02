@@ -12,6 +12,7 @@ import traceback
 
 import parso
 
+from cosmic_ray.ast import get_ast
 import cosmic_ray.compat.json
 import cosmic_ray.mutating
 from cosmic_ray.testing.test_runner import TestOutcome
@@ -41,16 +42,13 @@ class WorkerOutcome(StrEnum):
 
 @contextmanager
 def _apply_mutation(module_path, operator, occurrence):
-    with module_path.open(mode='rt', encoding='utf-8') as handle:
-        source = handle.read()
-
     # TODO: how do we communicate the python version?
-    module_ast = parso.parse(source, version="3.6")
+    module_ast = get_ast(module_path, python_version="3.6")
+    source = module_ast.get_code()
 
     visitor = cosmic_ray.mutating.MutationVisitor(occurrence,
                                                   operator)
     mutated_ast = visitor.walk(module_ast)
-
     modified_source = mutated_ast.get_code()
 
     # generate a source diff to visualize how the mutation

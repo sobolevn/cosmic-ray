@@ -9,6 +9,7 @@ import json
 from collections import MutableMapping
 
 
+# TODO: This should probably be reworked. Perhaps split into the pre-exec part and post-exec results.
 class WorkItem(MutableMapping):
     """The details of a specific mutation and test run in Cosmic Ray.
     """
@@ -27,17 +28,14 @@ class WorkItem(MutableMapping):
         # The diff produced by the operators
         'diff',
 
-        # the module to be mutated
-        'module',
+        # the path to the module to be mutated
+        'module_path',
 
         # The name of the operator
         'operator',
 
         # The occurrence on which the operator was applied.
         'occurrence',
-
-        # The name of the mutated source file
-        'filename',
 
         # The line number at which the operator was applied.
         'line_number',

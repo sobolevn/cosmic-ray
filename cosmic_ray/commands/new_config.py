@@ -5,7 +5,7 @@ import qprompt
 from cosmic_ray.plugins import (execution_engine_names,
                                 test_runner_names)
 
-TEMPLATE = '''module: {module}
+TEMPLATE = '''module-path: {module_path}
 
 baseline: 10
 
@@ -25,7 +25,7 @@ def new_config():
 
     Returns: A new configuration as a single string.
     """
-    conf = {'module': qprompt.ask_str("Top-level module")}
+    conf = {'module_path': qprompt.ask_str("Top-level module path")}
 
     menu = qprompt.Menu()
     test_runners = test_runner_names()

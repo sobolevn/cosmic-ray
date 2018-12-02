@@ -18,3 +18,4 @@ test_project/*.json
 .tox
 
 deploy_key
+.vscode/.ropeproject/objectdb
