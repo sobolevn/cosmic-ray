@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "/Users/sixtynorth/.virtualenvs/cosmic-ray/bin/python",
+    "python.unitTest.unittestEnabled": false,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.pyTestEnabled": true,
+    "python.unitTest.cwd": null
+}

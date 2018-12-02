@@ -7,6 +7,7 @@ import itertools
 import json
 import logging
 import os
+import pathlib
 import pprint
 import signal
 import subprocess
@@ -272,11 +273,11 @@ def handle_interceptors(args):
 @dsc.command()
 def handle_worker(args):
     """usage: {program} worker \
-    [options] <module> <operator> <occurrence> [<config-file>]
+    [options] <module-path> <operator> <occurrence> [<config-file>]
 
     Run a worker process which performs a single mutation and test run.
     Each worker does a minimal, isolated chunk of work: it mutates the
-    <occurence>-th instance of <operator> in <module>, runs the test
+    <occurence>-th instance of <operator> in <module-path>, runs the test
     suite defined in the configuration, prints the results, and exits.
 
     Normally you won't run this directly. Rather, it will be launched
@@ -289,13 +290,10 @@ def handle_worker(args):
     """
     config = load_config(args.get('<config-file>'))
 
-    if config.get('local-imports', default=True):
-        sys.path.insert(0, '')
-
     with open(os.devnull, 'w') as devnull:
         with redirect_stdout(sys.stdout if args['--keep-stdout'] else devnull):
             work_item = cosmic_ray.worker.worker(
-                args['<module>'],
+                pathlib.Path(args['<module-path>']),
                 cosmic_ray.plugins.get_operator(args['<operator>']),
                 int(args['<occurrence>']),
                 cosmic_ray.plugins.get_test_runner(

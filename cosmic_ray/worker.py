@@ -4,20 +4,17 @@ A worker is intended to run as a process that imports a module, mutates it in
 one location with one operator, runs the tests, reports the results, and dies.
 """
 
+from contextlib import contextmanager
 import difflib
-import importlib
-import inspect
 import logging
 import multiprocessing.pool
 import sys
 import traceback
 
-import astunparse
+import parso
 
 import cosmic_ray.compat.json
-from cosmic_ray.importing import preserve_modules, using_ast
 from cosmic_ray.mutating import MutatingCore
-from cosmic_ray.parsing import get_ast
 from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import StrEnum
 from cosmic_ray.work_item import WorkItem
@@ -45,7 +42,34 @@ class WorkerOutcome(StrEnum):
     SKIPPED = 'skipped'     # The job was skipped (worker was not executed)
 
 
-def worker(module_name,
+@contextmanager
+def _apply_mutation(module_path, operator, occurrence):
+    with module_path.open(mode='rt', encoding='utf-8') as handle:
+        source = handle.read()
+
+    # TODO: how do we communicate the python version?
+    module_ast = parso.parse(source, version="3.6")
+
+    core = MutatingCore(occurrence)
+    operator = operator(core)
+    modified_ast = operator.visit(module_ast)
+
+    if not core.activation_record:
+        return WorkItem(
+            worker_outcome=WorkerOutcome.NO_TEST)
+
+    modified_source = modified_ast.get_code()
+
+    try:
+        with module_path.open(mode='wt', encoding='utf-8') as handle:
+            handle.write(modified_source)
+        yield core
+    finally:
+        with module_path.open(mode='wt', encoding='utf-8') as handle:
+            handle.write(source)
+
+
+def worker(module_path,
            operator,
            occurrence,
            test_runner):
@@ -71,7 +95,7 @@ def worker(module_name,
     incompetent - in a structured way.
 
     Args:
-        module_name: The name of the module to be mutated
+        module_name: The path to the module to mutate
         operator: The operator be applied
         occurrence: The occurrence of the operator to apply
         test_runner: The test runner plugin to use
@@ -83,46 +107,31 @@ def worker(module_name,
 
     """
     try:
-        # TODO: What should we be doing here? This feels too hacky.
-        sys.path.insert(0, '')
-
-        with preserve_modules():
-            module = importlib.import_module(module_name)
-            module_source_file = inspect.getsourcefile(module)
-            module_ast = get_ast(module)
-            module_source = astunparse.unparse(module_ast)
-
-            core = MutatingCore(occurrence)
-            operator = operator(core)
-            # note: after this step module_ast and modified_ast
-            # appear to be the same
-            modified_ast = operator.visit(module_ast)
-            modified_source = astunparse.unparse(modified_ast)
-
+        with _apply_mutation(module_path, operator, occurrence) as core:
             if not core.activation_record:
                 return WorkItem(
                     worker_outcome=WorkerOutcome.NO_TEST)
+
+            item = test_runner()
 
             # generate a source diff to visualize how the mutation
             # operator has changed the code
             module_diff = ["--- mutation diff ---"]
             for line in difflib.unified_diff(module_source.split('\n'),
-                                             modified_source.split('\n'),
-                                             fromfile="a" + module_source_file,
-                                             tofile="b" + module_source_file,
-                                             lineterm=""):
+                                            modified_source.split('\n'),
+                                            fromfile="a" + module_source_file,
+                                            tofile="b" + module_source_file,
+                                            lineterm=""):
                 module_diff.append(line)
 
-        with using_ast(module_name, module_ast):
-            item = test_runner()
+            item.update({
+                'diff': module_diff,
+                'worker_outcome': WorkerOutcome.NORMAL,
+                'occurrence': core.activation_record['occurrence'],
+                'line_number': core.activation_record['line_number'],
+            })
 
-        item.update({
-            'diff': module_diff,
-            'worker_outcome': WorkerOutcome.NORMAL,
-            'occurrence': core.activation_record['occurrence'],
-            'line_number': core.activation_record['line_number'],
-        })
-        return item
+            return item
 
     except Exception:  # noqa # pylint: disable=broad-except
         return WorkItem(

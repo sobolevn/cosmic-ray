@@ -77,6 +77,7 @@ INSTALL_REQUIRES = [
     'decorator',
     'docopt_subcommands>=2.3.0',
     'kfg',
+    'parso',
     'pathlib',
     'qprompt',
     'spor==1.0.2',
