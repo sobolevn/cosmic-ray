@@ -1,63 +1,27 @@
 "Implementation of operator base class."
 
-from abc import ABCMeta, abstractmethod
-import ast
+from abc import ABC, abstractmethod
 
 
-class Operator(ast.NodeTransformer):
-    """
-    A base class for all mutation operators.
-
-    This takes care of the basic book-keeping that all operators need
-    to do. All operators *must* derive from this class since that's
-    how we keep track of them.
-    """
-
-    def __init__(self, core):
-        self._core = core
-
-    @property
-    def core(self):
-        """The core behavior of the operator."""
-        return self._core
-
-    def repr_args(self):
-        "Extra arguments to display in operator reprs."
-        return self.core.repr_args()
-
-    def visit_mutation_site(self, node, num_mutations=1):
-        """Subclasses call this when they encounter a node they can
-         potentially mutate.
-
-        This functions delegates to the core, letting it do whatever it needs
-        to do.
+class Operator(ABC):
+    @abstractmethod
+    def mutation_count(self, node):
+        """Get the number of mutation this operator can perform at this site.
         """
-        return self.core.visit_mutation_site(node, self, num_mutations)
+        pass
 
-    def mutate(self, node, idx):
+    @abstractmethod
+    def mutate(self, node, index):
         """Mutate a node in an operator-specific manner.
 
         Return the new, mutated node. Return `None` if the node has
         been deleted. Return `node` if there is no mutation at all for
         some reason.
         """
-        raise NotImplementedError(
-            'Mutation operators must implement "mutate()".')
-
-    def __repr__(self):
-        repr_args = [('core', self.core.__class__.__name__)]
-        repr_args.extend(self.core.repr_args())
-        args = ['{}={}'.format(k, v)
-                for k, v
-                in repr_args]
-
-        return '{}({})'.format(
-            self.__class__.__name__,
-            ', '.join(args))
-
+        pass
 
 def _op_name(from_op, to_op):
-    assert from_op or to_op, 'Cannot make replacement operator from None to None'
+    assert from_op or to_op, 'Cannot make replacement operator from None to None' 
 
     if from_op is None:
         return 'Insert_{}'.format(to_op.__name__)

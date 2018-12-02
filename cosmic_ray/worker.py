@@ -6,7 +6,6 @@ one location with one operator, runs the tests, reports the results, and dies.
 
 from contextlib import contextmanager
 import difflib
-import logging
 import multiprocessing.pool
 import sys
 import traceback
@@ -14,7 +13,7 @@ import traceback
 import parso
 
 import cosmic_ray.compat.json
-from cosmic_ray.mutating import MutatingCore
+import cosmic_ray.mutating
 from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import StrEnum
 from cosmic_ray.work_item import WorkItem
@@ -22,20 +21,18 @@ from cosmic_ray.work_item import WorkItem
 
 try:
     import typing      # the typing module does some fancy stuff at import time
-                       # which we shall not do twice... by loading it here,
-                       # preserve_modules does not delete it and therefore
-                       # fancy stuff happens only once
+    # which we shall not do twice... by loading it here,
+    # preserve_modules does not delete it and therefore
+    # fancy stuff happens only once
 except ImportError:
     pass
-
-log = logging.getLogger()
 
 
 class WorkerOutcome(StrEnum):
     """Possible outcomes for a worker.
     """
     NORMAL = 'normal'       # The worker exited normally, producing valid output
-    EXCEPTION = 'exception' # The worker exited with an exception
+    EXCEPTION = 'exception'  # The worker exited with an exception
     ABNORMAL = 'abnormal'   # The worker did not exit normally or with an exception (e.g. a segfault)
     NO_TEST = 'no-test'     # The worker had no test to run
     TIMEOUT = 'timeout'     # The worker timed out
@@ -50,20 +47,26 @@ def _apply_mutation(module_path, operator, occurrence):
     # TODO: how do we communicate the python version?
     module_ast = parso.parse(source, version="3.6")
 
-    core = MutatingCore(occurrence)
-    operator = operator(core)
-    modified_ast = operator.visit(module_ast)
+    visitor = cosmic_ray.mutating.MutationVisitor(occurrence,
+                                                  operator)
+    mutated_ast = visitor.walk(module_ast)
 
-    if not core.activation_record:
-        return WorkItem(
-            worker_outcome=WorkerOutcome.NO_TEST)
+    modified_source = mutated_ast.get_code()
 
-    modified_source = modified_ast.get_code()
+    # generate a source diff to visualize how the mutation
+    # operator has changed the code
+    module_diff = ["--- mutation diff ---"]
+    for line in difflib.unified_diff(source.split('\n'),
+                                     modified_source.split('\n'),
+                                     fromfile="a" + str(module_path),
+                                     tofile="b" + str(module_path),
+                                     lineterm=""):
+        module_diff.append(line)
 
     try:
         with module_path.open(mode='wt', encoding='utf-8') as handle:
             handle.write(modified_source)
-        yield core
+        yield visitor, module_diff
     finally:
         with module_path.open(mode='wt', encoding='utf-8') as handle:
             handle.write(source)
@@ -107,28 +110,18 @@ def worker(module_path,
 
     """
     try:
-        with _apply_mutation(module_path, operator, occurrence) as core:
-            if not core.activation_record:
+        with _apply_mutation(module_path, operator, occurrence) as (visitor, diff):
+            if not visitor.activation_record:
                 return WorkItem(
                     worker_outcome=WorkerOutcome.NO_TEST)
 
             item = test_runner()
-
-            # generate a source diff to visualize how the mutation
-            # operator has changed the code
-            module_diff = ["--- mutation diff ---"]
-            for line in difflib.unified_diff(module_source.split('\n'),
-                                            modified_source.split('\n'),
-                                            fromfile="a" + module_source_file,
-                                            tofile="b" + module_source_file,
-                                            lineterm=""):
-                module_diff.append(line)
-
+            
             item.update({
-                'diff': module_diff,
+                'diff': diff,
                 'worker_outcome': WorkerOutcome.NORMAL,
-                'occurrence': core.activation_record['occurrence'],
-                'line_number': core.activation_record['line_number'],
+                'occurrence': visitor.activation_record['occurrence'],
+                'line_number': visitor.activation_record['line_number'],
             })
 
             return item

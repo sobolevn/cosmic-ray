@@ -33,44 +33,6 @@ def read_version():
 
 LONG_DESCRIPTION = read(local_file('README.rst'), mode='rt')
 
-OPERATORS = [
-    'number_replacer = '
-    'cosmic_ray.operators.number_replacer:NumberReplacer',
-
-    'mutate_comparison_operator = '
-    'cosmic_ray.operators.comparison_operator_replacement:'
-    'MutateComparisonOperator',
-
-    'replace_true_false = '
-    'cosmic_ray.operators.boolean_replacer:ReplaceTrueFalse',
-
-    'replace_and_with_or = '
-    'cosmic_ray.operators.boolean_replacer:ReplaceAndWithOr',
-
-    'replace_or_with_and = '
-    'cosmic_ray.operators.boolean_replacer:ReplaceOrWithAnd',
-
-    'add_not = '
-    'cosmic_ray.operators.boolean_replacer:AddNot',
-
-    'mutate_unary_operator ='
-    'cosmic_ray.operators.unary_operator_replacement:MutateUnaryOperator',
-
-    'mutate_binary_operator ='
-    'cosmic_ray.operators.binary_operator_replacement:MutateBinaryOperator',
-
-    'break_continue_replacement ='
-    'cosmic_ray.operators.break_continue:ReplaceBreakWithContinue',
-
-    'exception_replacer ='
-    'cosmic_ray.operators.exception_replacer:ExceptionReplacer',
-
-    'zero_iteration_loop ='
-    'cosmic_ray.operators.zero_iteration_loop:ZeroIterationLoop',
-
-    'remove_decorator ='
-    'cosmic_ray.operators.remove_decorator:RemoveDecorator',
-]
 
 INSTALL_REQUIRES = [
     'astunparse',

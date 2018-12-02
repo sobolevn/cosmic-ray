@@ -3,32 +3,24 @@
 import ast
 import sys
 
+import parso.python.tree
+
 from .operator import Operator
 
 
 class ReplaceTrueFalse(Operator):
     """An operator that modifies True/False constants."""
 
-    def visit_NameConstant(self, node):  # noqa # pylint: disable=invalid-name
-        """New in version 3.4: Previously, these constants were instances of
-        ``Name``:
-        http://greentreesnakes.readthedocs.io/en/latest/nodes.html#NameConstant
-        """
-        if node.value in [True, False]:
-            return self.visit_mutation_site(node)
-        return node
+    def mutation_count(self, node):
+        if isinstance(node, parso.python.tree.Keyword):
+            if node.value == 'True' or node.value == 'False':
+                return 1
 
-    def visit_Name(self, node):  # noqa # pylint: disable=invalid-name
-        """For backward compatibility with Python 3.3."""
-        if node.id in ['True', 'False']:
-            return self.visit_mutation_site(node)
-        return node
+        return 0
 
-    def mutate(self, node, _):
-        """Modify the boolean value on `node`."""
-        if sys.version_info >= (3, 4):
-            return ast.NameConstant(value=not node.value)
-        return ast.Name(id=not ast.literal_eval(node.id), ctx=node.ctx)
+    def mutate(self, node, index):
+        node.value = 'True' if node.value == 'False' else 'False'
+        return node
 
 
 class ReplaceAndWithOr(Operator):

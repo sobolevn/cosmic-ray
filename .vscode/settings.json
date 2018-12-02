@@ -1,7 +1,10 @@
 {
-    "python.pythonPath": "/Users/sixtynorth/.virtualenvs/cosmic-ray/bin/python",
+    "python.pythonPath": "/Users/sixtynorth/.virtualenvs/cosmic-ray/bin/python3.7",
     "python.unitTest.unittestEnabled": false,
     "python.unitTest.nosetestsEnabled": false,
     "python.unitTest.pyTestEnabled": true,
-    "python.unitTest.cwd": null
+    "python.unitTest.pyTestArgs": [
+        "test"
+    ],
+    "python.formatting.provider": "autopep8",
 }
