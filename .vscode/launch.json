@@ -73,7 +73,6 @@
                 "deleteme.json"
             ]
         },
-
         {
             "name": "Python: All debug Options",
             "type": "python",

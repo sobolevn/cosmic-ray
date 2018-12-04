@@ -8,6 +8,7 @@ _THIS_DIR = Path(
     os.path.dirname(
         os.path.realpath(__file__)))
 
+# TODO: this should be a fixture.
 DATA_DIR = _THIS_DIR / 'data'
 
 
@@ -24,6 +25,7 @@ def excursion(directory):
         os.chdir(old_dir)
 
 
+# TODO: Still necessary?
 @contextlib.contextmanager
 def extend_path(directory):
     """Put `directory` at the front of `sys.path` temporarily.
