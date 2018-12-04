@@ -10,8 +10,6 @@ import multiprocessing.pool
 import sys
 import traceback
 
-import parso
-
 from cosmic_ray.ast import get_ast
 import cosmic_ray.compat.json
 import cosmic_ray.mutating
@@ -20,6 +18,7 @@ from cosmic_ray.util import StrEnum
 from cosmic_ray.work_item import WorkItem
 
 
+# TODO: Is this still necessary?
 try:
     import typing      # the typing module does some fancy stuff at import time
     # which we shall not do twice... by loading it here,
@@ -71,7 +70,7 @@ def _apply_mutation(module_path, operator, occurrence):
 
 
 def worker(module_path,
-           operator,
+           operator_class,
            occurrence,
            test_runner):
     """Mutate the OCCURRENCE-th site for OPERATOR_CLASS in MODULE_NAME, run the
@@ -97,7 +96,7 @@ def worker(module_path,
 
     Args:
         module_name: The path to the module to mutate
-        operator: The operator be applied
+        operator: The operator class (not instance) to be applied
         occurrence: The occurrence of the operator to apply
         test_runner: The test runner plugin to use
 
@@ -108,21 +107,19 @@ def worker(module_path,
 
     """
     try:
-        with _apply_mutation(module_path, operator, occurrence) as (visitor, diff):
+        with _apply_mutation(module_path, operator_class(), occurrence) as (visitor, diff):
             if not visitor.activation_record:
                 return WorkItem(
                     worker_outcome=WorkerOutcome.NO_TEST)
 
-            item = test_runner()
-            
-            item.update({
-                'diff': diff,
-                'worker_outcome': WorkerOutcome.NORMAL,
-                'occurrence': visitor.activation_record['occurrence'],
-                'line_number': visitor.activation_record['line_number'],
-            })
+            outcome, data = test_runner()
 
-            return item
+            return WorkItem(
+                diff=diff,
+                worker_outcome=outcome,
+                occurrence=visitor.activation_record['occurrence'],
+                line_number=visitor.activation_record['line_number'],
+            )
 
     except Exception:  # noqa # pylint: disable=broad-except
         return WorkItem(
@@ -159,7 +156,7 @@ def execute_work_item(work_item,
     proc = multiprocessing.Process(
         target=_worker_multiprocessing_wrapper,
         args=(child_conn,
-              work_item.module,
+              work_item.module_path,
               cosmic_ray.plugins.get_operator(work_item.operator),
               work_item.occurrence,
               cosmic_ray.plugins.get_test_runner(
@@ -170,12 +167,14 @@ def execute_work_item(work_item,
 
     if parent_conn.poll(timeout):
         result = parent_conn.recv()
-        work_item.update({
+        work_item_dict = work_item.as_dict()
+        work_item_dict.update({
             k: v
             for k, v
-            in result.items()
+            in result.as_dict().items()
             if v is not None
         })
+        work_item = WorkItem(**work_item_dict)
     else:  # timeout
         work_item.worker_outcome = WorkerOutcome.TIMEOUT
         work_item.data = timeout
@@ -186,7 +185,7 @@ def execute_work_item(work_item,
     # TODO: This is in an awkward place now...we don't use the command any
     # more. Where would be a better place? Or should we generate this another
     # way? This command line is useful for debugging, but meaningless here.
-    command = 'cosmic-ray worker {module} {operator} {occurrence}'.format(
-        **work_item)
+    command = 'cosmic-ray worker {module_path} {operator} {occurrence}'.format(
+        **work_item.as_dict())
     work_item.command_line = command
     return work_item

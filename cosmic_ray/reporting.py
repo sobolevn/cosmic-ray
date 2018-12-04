@@ -14,7 +14,7 @@ def _print_item(work_item, full_report):
         'job ID {}:{}:{}'.format(
             work_item.job_id,
             outcome,
-            work_item.module),
+            work_item.module_path),
         'command: {}'.format(work_item.command_line or '')
     ]
     if outcome in {TestOutcome.KILLED, TestOutcome.INCOMPETENT} and not full_report:

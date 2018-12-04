@@ -6,114 +6,74 @@ to be done and work that has been done, and it indicates how test sessions have
 completed.
 """
 import json
-from collections import MutableMapping
+import pathlib
 
 
-# TODO: This should probably be reworked. Perhaps split into the pre-exec part and post-exec results.
-class WorkItem(MutableMapping):
-    """The details of a specific mutation and test run in Cosmic Ray.
-    """
+class WorkItem:
+    def __init__(self,
+                 data=None,
+                 test_outcome=None,
+                 worker_outcome=None,
+                 diff=None,
+                 module_path=None,
+                 operator=None,
+                 occurrence=None,
+                 line_number=None,
+                 col_offset=None,
+                 command_line=None,
+                 job_id=None):
+        self.data = data
+        self.test_outcome = test_outcome
+        self.worker_outcome = worker_outcome
+        self.diff = diff
+        self.module_path = module_path
+        self.operator = operator
+        self.occurrence = occurrence
+        self.line_number = line_number
+        self.col_offset = col_offset
+        self.command_line = command_line
+        self._job_id = job_id
 
-    FIELDS = [
-        # Arbitrary data returned by the concrete TestRunner to provide more
-        # information about the test results.
-        'data',
+    @property
+    def module_path(self):
+        "Path to module being mutated."
+        return self._module_path
 
-        # A test_runner.TestOutcome from the test run.
-        'test_outcome',
+    @module_path.setter
+    def module_path(self, p):
+        self._module_path = None if p is None else pathlib.Path(p)
 
-        # A worker.WorkOutcome describing how the worker completed.
-        'worker_outcome',
-
-        # The diff produced by the operators
-        'diff',
-
-        # the path to the module to be mutated
-        'module_path',
-
-        # The name of the operator
-        'operator',
-
-        # The occurrence on which the operator was applied.
-        'occurrence',
-
-        # The line number at which the operator was applied.
-        'line_number',
-
-        # The column offset at which the operator was applied
-        'col_offset',
-
-        'command_line',
-
-        'job_id'
-    ]
-
-    def __init__(self, vals=None, **kwargs):
-        super().__setattr__('_dict', dict.fromkeys(WorkItem.FIELDS))
-        values = vals or dict()
-        kwargs.update(values)
-        for key, value in kwargs.items():
-            self[key] = value
-
-    def __len__(self):
-        return len(self._dict)
-
-    def __iter__(self):
-        return iter(self._dict)
-
-    def __contains__(self, name):
-        return name in WorkItem.FIELDS
-
-    def __getattr__(self, name):
-        if name not in WorkItem.FIELDS:
-            raise AttributeError('No attribute {!r} in {}'.format(name, self.__class__.__name__))
-        return self._dict[name]
-
-    def __setattr__(self, name, value):
-        if name not in WorkItem.FIELDS:
-            raise AttributeError('No attribute {!r} in {}'.format(name, self.__class__.__name__))
-        self._dict[name] = value
-
-    def __getitem__(self, name):
-        if name not in WorkItem.FIELDS:
-            raise KeyError('No field {!r} in {}'.format(name, self.__class__.__name__))
-        return self._dict[name]
-
-    def __setitem__(self, name, value):
-        if name not in WorkItem.FIELDS:
-            raise KeyError('No field {!r} in {}'.format(name, self.__class__.__name__))
-        self._dict[name] = value
-
-    def __delitem__(self, name):  # pylint: disable=unused-argument
-        msg = '{} does not support deleting fields: {!r}'.format(self.__class__.__name__, name)
-        raise KeyError(msg)
-
-    def __getstate__(self):
-        return self.as_dict()
-
-    def __setstate__(self, state):
-        # Avoids __setitem__
-        super().__setattr__('_dict', dict())
-        self._dict.update(state)
-
-    def __repr__(self):
-        return "{}({})".format(
-            self.__class__.__name__,
-            ', '.join("{key!s}={value!r}".format(key=name, value=self[name]) for name in self.FIELDS))
+    @property
+    def job_id(self):
+        "The unique ID of the job"
+        return self._job_id
 
     def as_dict(self):
-        return self._dict.copy()
+        """Get fields as a dict.
+        """
+        return {
+            'data': self.data,
+            'test_outcome': self.test_outcome,
+            'worker_outcome': self.worker_outcome,
+            'diff': self.diff,
+            'module_path': str(self.module_path),
+            'operator': self.operator,
+            'occurrence': self.occurrence,
+            'line_number': self.line_number,
+            'col_offset': self.col_offset,
+            'command_line': self.command_line,
+            'job_id': self.job_id,
+        }
 
 
 class WorkItemJsonEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj, WorkItem):
+    def default(self, o):
+        if isinstance(o, WorkItem):
             return {
                 "_type": "WorkItem",
-                "values": obj.as_dict()
+                "values": o.as_dict()
             }
-        return super().default(obj)
+        return super().default(o)
 
 
 class WorkItemJsonDecoder(json.JSONDecoder):
@@ -124,5 +84,5 @@ class WorkItemJsonDecoder(json.JSONDecoder):
     def object_hook(self, obj):
         if ('_type' in obj) and (obj['_type'] == 'WorkItem') and ('values' in obj):
             values = obj['values']
-            return WorkItem(vals=values)
+            return WorkItem(**values)
         return obj

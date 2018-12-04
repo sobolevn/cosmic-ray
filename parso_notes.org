@@ -1,0 +1,14 @@
+* TODO Exclusion should be done via interceptors
+
+    Rather than exclude modules at init time, we should exclude them using the interceptor system.
+
+* TODO Re-enable interceptors
+
+* TODO Re-enable all oeprators
+
+    These largely need to be rewritten, so do them one at a time.
+
+* TODO All tests need to pass
+
+* TODO Remove faffing around with sys.path. 
+  It seems unnecessary now.

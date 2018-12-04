@@ -42,6 +42,7 @@ def handle_baseline(args):
     a baseline run doesn't mutate the code.
 
     """
+    # TODO: Can this be removed? I think so.
     sys.path.insert(0, '')
 
     config = load_config(args['<config-file>'])
@@ -50,18 +51,18 @@ def handle_baseline(args):
         config['test-runner', 'name'],
         config['test-runner', 'args'])
 
-    work_item = test_runner()
+    outcome, data = test_runner()
     # note: test_runner() results are meant to represent
     # status codes when executed against mutants.
     # SURVIVED means that the test suite executed without any error
     # hence CR thinks the mutant survived. However when running the
     # baseline execution we don't have mutations and really want the
     # test suite to report PASS, hence the comparison below!
-    if work_item.test_outcome != TestOutcome.SURVIVED:
+    if outcome != TestOutcome.SURVIVED:
         # baseline failed, print whatever was returned
         # from the test runner and exit
         log.error('baseline failed')
-        print(''.join(work_item.data))
+        print(''.join(data))
         return 2
 
     return ExitCode.OK
@@ -292,7 +293,7 @@ def handle_worker(args):
         with redirect_stdout(sys.stdout if args['--keep-stdout'] else devnull):
             work_item = cosmic_ray.worker.worker(
                 Path(args['<module-path>']),
-                cosmic_ray.plugins.get_operator(args['<operator>'])(),
+                cosmic_ray.plugins.get_operator(args['<operator>']),
                 int(args['<occurrence>']),
                 cosmic_ray.plugins.get_test_runner(
                     config['test-runner', 'name'],

@@ -63,6 +63,18 @@
             ]
         },
         {
+            "name": "Exec",
+            "type": "python",
+            "request": "launch",
+            "module": "cosmic_ray.cli",
+            "cwd": "${workspaceFolder}/test/test_project",
+            "args": [
+                "exec",
+                "deleteme.json"
+            ]
+        },
+
+        {
             "name": "Python: All debug Options",
             "type": "python",
             "request": "launch",

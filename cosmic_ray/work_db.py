@@ -140,7 +140,7 @@ class WorkDB:
         `occurrence`. Items with results will also have the keys `results-type`
         and `results-data`.
         """
-        return (WorkItem(vals=r) for r in self._work_items)
+        return (WorkItem(**r) for r in self._work_items)
 
     @property
     def num_work_items(self):
@@ -164,7 +164,7 @@ class WorkDB:
     @property
     def pending_work_items(self):
         """The sequence of pending WorkItems in the session."""
-        return (WorkItem(vals=r) for r in self._pending)
+        return (WorkItem(**r) for r in self._pending)
 
     @property
     def num_pending_work_items(self):

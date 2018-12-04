@@ -72,19 +72,13 @@ class TestRunner(metaclass=abc.ABCMeta):
     def __call__(self):
         """Call `_run()` and return a `WorkItem` with the results.
 
-        Returns: A `WorkItem` with the `test_outcome` and `data` fields
-            filled in.
+        Returns: A tuple of `(TestOutcome, data)`.
         """
         try:
             test_result = self._run()
             if test_result[0]:
-                return WorkItem(
-                    test_outcome=TestOutcome.SURVIVED,
-                    data=test_result[1])
-            return WorkItem(
-                test_outcome=TestOutcome.KILLED,
-                data=test_result[1])
+                return (TestOutcome.SURVIVED, test_result[1])
+            return (TestOutcome.KILLED, test_result[1])
         except Exception:  # pylint: disable=broad-except
-            return WorkItem(
-                test_outcome=TestOutcome.INCOMPETENT,
-                data=traceback.format_exception(*sys.exc_info()))
+            return (TestOutcome.INCOMPETENT, 
+                    traceback.format_exception(*sys.exc_info()))
