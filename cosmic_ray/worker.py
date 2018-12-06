@@ -113,11 +113,12 @@ def worker(module_path,
                 return WorkResult(
                     worker_outcome=WorkerOutcome.NO_TEST)
 
-            outcome, data = test_runner()
+            test_outcome, data = test_runner()
 
             return WorkResult(
                 diff=diff,
-                worker_outcome=outcome)
+                test_outcome=test_outcome,
+                worker_outcome=WorkerOutcome.NORMAL)
 
     except Exception:  # noqa # pylint: disable=broad-except
         return WorkResult(

@@ -16,6 +16,7 @@ class TestOutcome(StrEnum):
     INCOMPETENT = 'incompetent'
 
 
+# TODO: Remove?
 class TestRunnerFailure(Exception):
     """Failure reported from a test runner.
     """

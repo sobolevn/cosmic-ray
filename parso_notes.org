@@ -12,3 +12,9 @@
 
 * TODO Remove faffing around with sys.path. 
   It seems unnecessary now.
+
+* TODO Counting
+
+* TODO Remove nose support
+
+* TODO use `module-path` in all canned test configs.

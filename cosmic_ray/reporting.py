@@ -40,15 +40,15 @@ def _print_item(work_item, full_report):
     return ret_val
 
 
-def is_killed(record):
+def is_killed(result):
     """Determines if a WorkItem should be considered "killed".
     """
-    if record.worker_outcome in {WorkerOutcome.TIMEOUT, WorkerOutcome.SKIPPED}:
+    if result.worker_outcome in {WorkerOutcome.TIMEOUT, WorkerOutcome.SKIPPED}:
         return True
-    elif record.worker_outcome in {WorkerOutcome.ABNORMAL, WorkerOutcome.NORMAL}:
-        if record.test_outcome == TestOutcome.KILLED:
+    elif result.worker_outcome in {WorkerOutcome.ABNORMAL, WorkerOutcome.NORMAL}:
+        if result.test_outcome == TestOutcome.KILLED:
             return True
-        if record.test_outcome == TestOutcome.INCOMPETENT:
+        if result.test_outcome == TestOutcome.INCOMPETENT:
             return True
     return False
 
@@ -86,18 +86,12 @@ def create_report(records, show_pending, full_report=False):
         yield 'no jobs completed'
 
 
-def survival_rate(records):
-    """Calcuate the survival rate for a series of WorkItems.
+def survival_rate(work_db):
+    """Calcuate the survival rate for the results in a WorkDB.
     """
-    total_jobs = 0
-    pending_jobs = 0
-    kills = 0
-    for item in records:
-        total_jobs += 1
-        if item.worker_outcome is None:
-            pending_jobs += 1
-        if is_killed(item):
-            kills += 1
+    total_jobs = work_db.num_work_items
+    pending_jobs = total_jobs - work_db.num_results
+    kills = sum(is_killed(r) for _, r in work_db.results)
 
     completed_jobs = total_jobs - pending_jobs
 

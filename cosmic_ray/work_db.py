@@ -1,10 +1,10 @@
 """Implementation of the WorkDB."""
 
 import contextlib
-from io import StringIO
 import os
 import sqlite3
 from enum import Enum
+from io import StringIO
 
 import kfg.yaml
 
@@ -144,13 +144,13 @@ class WorkDB:
         "An iterable of all `(job-id, WorkResult)`s."
         cur = self._conn.cursor()
         rows = cur.execute("SELECT * FROM results")
-        return ((r[-1],
-                 WorkResult(
-                     worker_outcome=WorkerOutcome(r['worker_outcome']),
-                     data=r['data'],
-                     test_outcome=TestOutcome(r['test_outcome']),
-                     diff=r['diff']))
-                for r in rows)
+        for row in rows:
+            yield ((row['job_id'],
+                    WorkResult(
+                        worker_outcome=WorkerOutcome(row['worker_outcome']),
+                        data=row['data'],
+                        test_outcome=TestOutcome(row['test_outcome']),
+                        diff=row['diff'])))
 
     @property
     def num_results(self):
@@ -197,6 +197,8 @@ class WorkDB:
 
     def _init_db(self):
         with self._conn:
+            self._conn.row_factory = sqlite3.Row
+
             self._conn.execute("PRAGMA foreign_keys = 1")
 
             self._conn.execute('''
