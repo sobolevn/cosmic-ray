@@ -13,7 +13,8 @@ import cosmic_ray.util
 import cosmic_ray.worker
 from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.testing.test_runner import TestOutcome
-from cosmic_ray.work_item import WorkItem
+from cosmic_ray.work_item import WorkItem, WorkResult
+from cosmic_ray.worker import WorkerOutcome
 
 
 @pytest.fixture
@@ -21,19 +22,12 @@ def config_file(tmpdir):
     return str(tmpdir.join('config.yml'))
 
 
-@pytest.fixture
-def session_file(tmpdir):
-    """A session file name.
-    """
-    return str(tmpdir.join('session.json'))
-
-
 def _make_config(test_runner='unittest',
                  test_args='tests',
                  baseline=None,
                  timeout='100',
                  engine='local'):
-    return '''module: foo
+    return '''module-path: foo.py
 
 {timeout_type}: {timeout_val}
 
@@ -88,18 +82,21 @@ def test_non_existent_file_returns_EX_NOINPUT():
     assert cosmic_ray.cli.main(['exec', 'foo.session']) == ExitCode.NoInput
 
 
+@pytest.mark.skip('need to sort this API out')
 def test_unreadable_file_returns_EX_PERM(tmpdir):
-    p = tmpdir.ensure('bogus.session.json')
+    p = tmpdir.ensure('bogus.session.sqlite')
     p.chmod(stat.S_IRUSR)
     assert cosmic_ray.cli.main(['exec', str(p.realpath())]) == ExitCode.NoPerm
 
 
-def test_baseline_failure_returns_2(monkeypatch, local_unittest_config, session_file):
+def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
     def killed_mutant(*args):
         "Simulates a test run where a the tests fails."
         def inner():
-            return WorkItem(test_outcome=TestOutcome.KILLED,
-                            data=[])
+            return ('job-id', 
+                    WorkResult(test_outcome=TestOutcome.KILLED,
+                               worker_outcome=WorkerOutcome.NORMAL,
+                               data=''))
         return inner
 
     monkeypatch.setattr(cosmic_ray.plugins, 'get_test_runner', killed_mutant)
@@ -108,7 +105,7 @@ def test_baseline_failure_returns_2(monkeypatch, local_unittest_config, session_
     assert errcode == 2
 
 
-def test_baseline_success_returns_EX_OK(monkeypatch, local_unittest_config, session_file):
+def test_baseline_success_returns_EX_OK(monkeypatch, local_unittest_config):
     def surviving_mutant(*args):
         "Simulates a test run where a the tests succeed."
         def inner():
@@ -128,19 +125,19 @@ def test_new_config_success_returns_EX_OK(monkeypatch, config_file):
     assert errcode == ExitCode.OK
 
 
-def test_init_with_invalid_baseline_returns_EX_CONFIG(invalid_baseline_config, session_file):
-    errcode = cosmic_ray.cli.main(['init', invalid_baseline_config, session_file])
+def test_init_with_invalid_baseline_returns_EX_CONFIG(invalid_baseline_config, session):
+    errcode = cosmic_ray.cli.main(['init', invalid_baseline_config, str(session)])
     assert errcode == ExitCode.Config
 
 # NOTE: We have integration tests for the happy-path for many commands, so we don't cover them explicitly here.
 
 
-def test_config_success_returns_EX_OK(lobotomize, local_unittest_config, session_file):
-    cosmic_ray.cli.main(['init', local_unittest_config, session_file])
+def test_config_success_returns_EX_OK(lobotomize, local_unittest_config, session):
+    cosmic_ray.cli.main(['init', local_unittest_config, str(session)])
 
     cfg_stream = io.StringIO()
     with cosmic_ray.util.redirect_stdout(cfg_stream):
-        errcode = cosmic_ray.cli.main(['config', session_file])
+        errcode = cosmic_ray.cli.main(['config', str(session)])
     assert errcode == ExitCode.OK
 
     with open(local_unittest_config, mode='rt') as handle:
@@ -149,11 +146,11 @@ def test_config_success_returns_EX_OK(lobotomize, local_unittest_config, session
     assert orig_cfg == stored_cfg
 
 
-def test_dump_success_returns_EX_OK(lobotomize, local_unittest_config, session_file):
-    errcode = cosmic_ray.cli.main(['init', local_unittest_config, session_file])
+def test_dump_success_returns_EX_OK(lobotomize, local_unittest_config, session):
+    errcode = cosmic_ray.cli.main(['init', local_unittest_config, str(session)])
     assert errcode == ExitCode.OK
 
-    errcode = cosmic_ray.cli.main(['dump', session_file])
+    errcode = cosmic_ray.cli.main(['dump', str(session)])
     assert errcode == ExitCode.OK
 
 
@@ -170,5 +167,5 @@ def test_operators_success_returns_EX_OK():
 
 
 def test_worker_success_returns_EX_OK(lobotomize, local_unittest_config):
-    cmd = ['worker', 'some_module', 'core/RemoveDecorator', '0', local_unittest_config]
+    cmd = ['worker', 'some_module', 'core/ReplaceTrueFalse', '0', local_unittest_config]
     assert cosmic_ray.cli.main(cmd) == ExitCode.OK

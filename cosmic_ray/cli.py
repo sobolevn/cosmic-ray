@@ -62,7 +62,7 @@ def handle_baseline(args):
         # baseline failed, print whatever was returned
         # from the test runner and exit
         log.error('baseline failed')
-        print(''.join(data))
+        print(str(data))
         return 2
 
     return ExitCode.OK

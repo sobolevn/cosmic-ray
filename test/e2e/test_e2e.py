@@ -21,11 +21,6 @@ def engine(request):
     return request.param
 
 
-@pytest.fixture
-def session(tmpdir_path):
-    return tmpdir_path / 'cr-session.sqlite'
-
-
 @pytest.fixture(scope='session')
 def project_root():
     root = pathlib.Path(str(pytest.config.rootdir))
@@ -80,7 +75,6 @@ def test_failing_baseline(project_root, session):
 
 def test_config_command(project_root, session):
     config = 'cosmic-ray.import.conf'
-    session = 'import_tests.session.json'
 
     subprocess.check_call(['cosmic-ray', 'init', config, session],
                           cwd=str(project_root))
