@@ -23,15 +23,3 @@ def excursion(directory):
         yield
     finally:
         os.chdir(old_dir)
-
-
-# TODO: Still necessary?
-@contextlib.contextmanager
-def extend_path(directory):
-    """Put `directory` at the front of `sys.path` temporarily.
-    """
-    sys.path = [str(directory)] + sys.path
-    try:
-        yield
-    finally:
-        sys.path = sys.path[1:]
