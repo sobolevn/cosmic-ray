@@ -45,17 +45,18 @@ def test_add_result_throws_KeyError_if_no_matching_work_item(work_db):
                        WorkerOutcome.NORMAL,
                        'diff'))
 
+
 def test_add_result_throws_KeyError_if_result_exists(work_db):
     work_db.add_work_items([
         WorkItem('path', 'operator', 0, 0, 0, 'job_id')
     ])
 
     work_db.add_result(
-            'job_id',
-            WorkResult('data',
-                       TestOutcome.KILLED,
-                       WorkerOutcome.NORMAL,
-                       'diff'))
+        'job_id',
+        WorkResult('data',
+                   TestOutcome.KILLED,
+                   WorkerOutcome.NORMAL,
+                   'diff'))
 
     with pytest.raises(KeyError):
         work_db.add_result(
@@ -64,4 +65,3 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
                        TestOutcome.KILLED,
                        WorkerOutcome.NORMAL,
                        'diff'))
-

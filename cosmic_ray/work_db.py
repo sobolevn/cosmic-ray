@@ -6,9 +6,6 @@ import os
 import sqlite3
 from enum import Enum
 
-# This db may well not scale very well. We need to be ready to switch it out
-# for something quicker if not. But for now it's *very* convenient.
-import tinydb
 import kfg.yaml
 
 from .config import Config
@@ -55,23 +52,27 @@ class WorkDB:
 
     def _init_db(self):
         with self._conn:
+            self._conn.execute("PRAGMA foreign_keys = 1")
+
             self._conn.execute('''
             CREATE TABLE IF NOT EXISTS work_items 
             (module_path text, 
-            operator text, 
-            occurrence int, 
-            line_number int, 
-            col_offset int,
-            job_id text primary key)
+             operator text, 
+             occurrence int, 
+             line_number int, 
+             col_offset int,
+             job_id text primary key)
             ''')
 
             self._conn.execute('''
             CREATE TABLE IF NOT EXISTS results
             (data text, 
-            test_outcome text, 
-            worker_outcome text, 
-            diff text, 
-            job_id text primary key)
+             test_outcome text, 
+             worker_outcome text, 
+             diff text, 
+             job_id text primary key,
+             FOREIGN KEY(job_id) REFERENCES work_items(job_id)
+            )
             ''')
 
             self._conn.execute('''
@@ -159,16 +160,6 @@ class WorkDB:
            KeyError: If there is an existing result with a matching job-id.
         """
         with self._conn:
-            # TODO: Can we design the table such that the database itself will enforce this constraint?
-            count = self._conn.execute(
-                '''
-                SELECT COUNT(*) FROM work_items WHERE job_id == ?
-                ''',
-                (job_id,))
-
-            if list(count)[0][0] == 0:
-                raise KeyError('No WorkItem with job-id {}'.format(job_id))
-
             try:
                 self._conn.execute(
                     '''
@@ -181,7 +172,7 @@ class WorkDB:
                      result.diff,
                      job_id))
             except sqlite3.IntegrityError as exc:
-                raise KeyError('Result with job-id {} already exists'.format(job_id)) from exc
+                raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
 
     # def clear_work_items(self):
     #     """Clear all work items from the session.
@@ -262,7 +253,5 @@ def use_db(path, mode=WorkDB.Mode.create):
     database = WorkDB(path, mode)
     try:
         yield database
-    except Exception:
-        raise
     finally:
         database.close()

@@ -44,7 +44,6 @@ INSTALL_REQUIRES = [
     'qprompt',
     'spor==1.0.2',
     'stevedore',
-    'tinydb>=3.2.1',
     'yattag',
 ]
 
