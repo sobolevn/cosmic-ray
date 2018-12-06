@@ -8,10 +8,13 @@ class WorkResult:
     """The result of a single mutation and test run.
     """
     def __init__(self,
-                 data,
-                 test_outcome,
                  worker_outcome,
-                 diff):
+                 data=None,
+                 test_outcome=None,
+                 diff=None):
+        if worker_outcome is None:
+            raise ValueError('Worker outcome must always have a value.')
+
         self.data = data
         self.test_outcome = test_outcome
         self.worker_outcome = worker_outcome
@@ -38,13 +41,13 @@ class WorkItem:
     """
     def __init__(self,
                  module_path=None,
-                 operator=None,
+                 operator_name=None,
                  occurrence=None,
                  line_number=None,
                  col_offset=None,
                  job_id=None):
-        self.module_path = module_path
-        self.operator = operator
+        self._module_path = pathlib.Path(module_path)
+        self._operator_name = operator_name
         self.occurrence = occurrence
         self.line_number = line_number
         self.col_offset = col_offset
@@ -52,12 +55,13 @@ class WorkItem:
 
     @property
     def module_path(self):
-        "Path to module being mutated."
+        "pathlib.Path to module being mutated."
         return self._module_path
 
-    @module_path.setter
-    def module_path(self, p):
-        self._module_path = None if p is None else pathlib.Path(p)
+    @property
+    def operator_name(self):
+        "The name of the operator (i.e. as defined by the provider)"
+        return self._operator_name
 
     @property
     def job_id(self):
@@ -69,7 +73,7 @@ class WorkItem:
         """
         return {
             'module_path': str(self.module_path),
-            'operator': self.operator,
+            'operator_name': self.operator_name,
             'occurrence': self.occurrence,
             'line_number': self.line_number,
             'col_offset': self.col_offset,
@@ -90,6 +94,11 @@ class WorkItemJsonEncoder(json.JSONEncoder):
                 "_type": "WorkItem",
                 "values": o.as_dict()
             }
+        elif isinstance(o, WorkResult):
+            return {
+                "_type": "WorkResult",
+                "values": o.as_dict()
+            }
         return super().default(o)
 
 
@@ -99,29 +108,10 @@ class WorkItemJsonDecoder(json.JSONDecoder):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook)
 
     def object_hook(self, obj):
-        if ('_type' in obj) and (obj['_type'] == 'WorkItem') and ('values' in obj):
+        if (obj.get('_type') == 'WorkItem') and ('values' in obj):
             values = obj['values']
             return WorkItem(**values)
-        return obj
-
-
-class WorkResultsonEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, WorkItem):
-            return {
-                "_type": "WorkResult",
-                "values": o.as_dict()
-            }
-        return super().default(o)
-
-
-class WorkResultJsonDecoder(json.JSONDecoder):
-
-    def __init__(self):
-        json.JSONDecoder.__init__(self, object_hook=self.object_hook)
-
-    def object_hook(self, obj):
-        if ('_type' in obj) and (obj['_type'] == 'WorkResult') and ('values' in obj):
+        elif (obj.get('_type') == 'WorkResult') and ('values' in obj):
             values = obj['values']
             return WorkResult(**values)
         return obj

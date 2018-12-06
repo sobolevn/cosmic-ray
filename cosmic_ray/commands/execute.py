@@ -12,8 +12,9 @@ _progress_messages = {}  # pylint: disable=invalid-name
 
 
 def _update_progress(work_db):
-    pending = work_db.num_pending_work_items
-    total = work_db.num_work_items
+    num_work_items = work_db.num_work_items
+    pending = num_work_items - work_db.num_results
+    total = num_work_items
     remaining = total - pending
     message = "{} out of {} completed".format(remaining, total)
     _progress_messages[work_db.name] = message
@@ -43,16 +44,16 @@ def execute(db_name):
             engine_config = config['execution-engine']
             executor = get_execution_engine(engine_config['name'])
 
-            def on_task_complete(task_id, work_item):
-                work_db.update_work_item(work_item)
+            def on_task_complete(job_id, work_result):
+                work_db.add_result(job_id, work_result)
                 _update_progress(work_db)
-                log.info("Job %s complete", work_item.job_id)
+                log.info("Job %s complete", job_id)
 
             log.info("Beginning execution")
-            work_items = executor(timeout,
-                                  work_db.pending_work_items,
-                                  config,
-                                  on_task_complete=on_task_complete)
+            executor(timeout,
+                     work_db.pending_work_items,
+                     config,
+                     on_task_complete=on_task_complete)
             log.info("Execution finished")
 
     except FileNotFoundError as exc:

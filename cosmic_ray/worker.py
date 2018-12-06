@@ -15,7 +15,7 @@ import cosmic_ray.compat.json
 import cosmic_ray.mutating
 from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import StrEnum
-from cosmic_ray.work_item import WorkItem
+from cosmic_ray.work_item import WorkItem, WorkResult
 
 
 # TODO: Is this still necessary?
@@ -59,6 +59,7 @@ def _apply_mutation(module_path, operator, occurrence):
                                      tofile="b" + str(module_path),
                                      lineterm=""):
         module_diff.append(line)
+    module_diff = '\n'.join(module_diff)
 
     try:
         with module_path.open(mode='wt', encoding='utf-8') as handle:
@@ -100,7 +101,7 @@ def worker(module_path,
         occurrence: The occurrence of the operator to apply
         test_runner: The test runner plugin to use
 
-    Returns: A WorkItem
+    Returns: A WorkResult
 
     Raises: This will generally not raise any exceptions. Rather, exceptions
         will be reported using the 'exception' result-type in the return value.
@@ -109,20 +110,17 @@ def worker(module_path,
     try:
         with _apply_mutation(module_path, operator_class(), occurrence) as (visitor, diff):
             if not visitor.activation_record:
-                return WorkItem(
+                return WorkResult(
                     worker_outcome=WorkerOutcome.NO_TEST)
 
             outcome, data = test_runner()
 
-            return WorkItem(
+            return WorkResult(
                 diff=diff,
-                worker_outcome=outcome,
-                occurrence=visitor.activation_record['occurrence'],
-                line_number=visitor.activation_record['line_number'],
-            )
+                worker_outcome=outcome)
 
     except Exception:  # noqa # pylint: disable=broad-except
-        return WorkItem(
+        return WorkResult(
             data=traceback.format_exception(*sys.exc_info()),
             test_outcome=TestOutcome.INCOMPETENT,
             worker_outcome=WorkerOutcome.EXCEPTION)
@@ -149,7 +147,7 @@ def execute_work_item(work_item,
             to run.
         config: The configuration for the run.
 
-    Returns: An updated `WorkItem` with the results of the tests.
+    Returns: A `WorkResult` with the results of the tests.
 
     """
     parent_conn, child_conn = multiprocessing.Pipe()
@@ -157,7 +155,7 @@ def execute_work_item(work_item,
         target=_worker_multiprocessing_wrapper,
         args=(child_conn,
               work_item.module_path,
-              cosmic_ray.plugins.get_operator(work_item.operator),
+              cosmic_ray.plugins.get_operator(work_item.operator_name),
               work_item.occurrence,
               cosmic_ray.plugins.get_test_runner(
                   config['test-runner', 'name'],
@@ -166,26 +164,13 @@ def execute_work_item(work_item,
     proc.start()
 
     if parent_conn.poll(timeout):
-        result = parent_conn.recv()
-        work_item_dict = work_item.as_dict()
-        work_item_dict.update({
-            k: v
-            for k, v
-            in result.as_dict().items()
-            if v is not None
-        })
-        work_item = WorkItem(**work_item_dict)
+        work_result = parent_conn.recv()
     else:  # timeout
-        work_item.worker_outcome = WorkerOutcome.TIMEOUT
-        work_item.data = timeout
+        work_result = WorkResult(
+            worker_outcome=WorkerOutcome.TIMEOUT,
+            data=timeout)
         proc.terminate()
 
     proc.join()
 
-    # TODO: This is in an awkward place now...we don't use the command any
-    # more. Where would be a better place? Or should we generate this another
-    # way? This command line is useful for debugging, but meaningless here.
-    command = 'cosmic-ray worker {module_path} {operator} {occurrence}'.format(
-        **work_item.as_dict())
-    work_item.command_line = command
-    return work_item
+    return work_result

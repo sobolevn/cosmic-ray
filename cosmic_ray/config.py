@@ -71,10 +71,10 @@ def serialize_config(config):
 def get_db_name(session_name):
     """Determines the filename for a session.
 
-    Basically, if `session_name` ends in ".json" this return `session_name`
-    unchanged. Otherwise it return `session_name` with ".json" added to the
+    Basically, if `session_name` ends in ".sqlite" this return `session_name`
+    unchanged. Otherwise it return `session_name` with ".sqlite" added to the
     end.
     """
-    if session_name.endswith('.json'):
+    if session_name.endswith('.sqlite'):
         return session_name
-    return '{}.json'.format(session_name)
+    return '{}.sqlite'.format(session_name)

@@ -33,7 +33,7 @@ class WorkDBInitVisitor(OperatorVisitor):
             WorkItem(
                 job_id=uuid.uuid4().hex,
                 module_path=str(self.module_path),
-                operator=self.op_name,
+                operator_name=self.op_name,
                 occurrence=self.occurrence + c,
                 line_number=node.start_pos[0],
                 col_offset=node.start_pos[1])
@@ -65,7 +65,7 @@ def init(module_paths,
         config=config,
         timeout=timeout)
 
-    work_db.clear_work_items()
+    work_db.clear()
 
     for module_path in module_paths:
         for op_name in operator_names:
@@ -76,6 +76,7 @@ def init(module_paths,
 
             visitor.walk(module_ast)
 
+    # TODO: Re-enable!
     # apply_interceptors(work_db)
 
 

@@ -9,7 +9,9 @@ from enum import Enum
 import kfg.yaml
 
 from .config import Config
+from .testing.test_runner import TestOutcome
 from .work_item import WorkItem, WorkResult
+from .worker import WorkerOutcome
 
 
 class WorkDB:
@@ -54,13 +56,13 @@ class WorkDB:
         """Close the database."""
         self._conn.close()
 
-    # @property
-    # def name(self):
-    #     """A name for this database.
+    @property
+    def name(self):
+        """A name for this database.
 
-    #     Derived from the constructor arguments.
-    #     """
-    #     return self._path
+        Derived from the constructor arguments.
+        """
+        return self._path
 
     def set_config(self, config, timeout):
         """Set (replace) the configuration for the session.
@@ -72,8 +74,8 @@ class WorkDB:
         with self._conn:
             self._conn.execute("DELETE FROM config")
             self._conn.execute('INSERT INTO config VALUES(?, ?)',
-               (kfg.yaml.serialize_config(config),
-                timeout))
+                               (kfg.yaml.serialize_config(config),
+                                timeout))
 
     def get_config(self):
         """Get the work parameters (if set) for the session.
@@ -123,7 +125,7 @@ class WorkDB:
                     VALUES (?, ?, ?, ?, ?, ?)
                     ''',
                     (str(item.module_path),
-                     item.operator,
+                     item.operator_name,
                      item.occurrence,
                      item.line_number,
                      item.col_offset,
@@ -142,13 +144,19 @@ class WorkDB:
         "An iterable of all `(job-id, WorkResult)`s."
         cur = self._conn.cursor()
         rows = cur.execute("SELECT * FROM results")
-        return ((r[-1], WorkResult(*r[:-1])) for r in rows)
+        return ((r[-1],
+                 WorkResult(
+                     worker_outcome=WorkerOutcome(r['worker_outcome']),
+                     data=r['data'],
+                     test_outcome=TestOutcome(r['test_outcome']),
+                     diff=r['diff']))
+                for r in rows)
 
-    # @property
-    # def num_results(self):
-    #     """The number of results."""
-    #     count = self._conn.execute("SELECT COUNT(*) FROM work_items")
-    #     return list(count)[0][0]
+    @property
+    def num_results(self):
+        """The number of results."""
+        count = self._conn.execute("SELECT COUNT(*) FROM work_items")
+        return list(count)[0][0]
 
     def add_result(self, job_id, result):
         """Add a sequence of WorkResults to the db.
@@ -168,9 +176,9 @@ class WorkDB:
                     VALUES (?, ?, ?, ?, ?)
                     ''',
                     (str(result.data),
-                     result.test_outcome,
-                     result.worker_outcome,
-                     result.diff,
+                     None if result.test_outcome is None else result.test_outcome.value,
+                     result.worker_outcome.value,  # should never be None
+                     result.diff, 
                      job_id))
             except sqlite3.IntegrityError as exc:
                 raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
@@ -192,21 +200,21 @@ class WorkDB:
             self._conn.execute("PRAGMA foreign_keys = 1")
 
             self._conn.execute('''
-            CREATE TABLE IF NOT EXISTS work_items 
-            (module_path text, 
-             operator text, 
-             occurrence int, 
-             line_number int, 
+            CREATE TABLE IF NOT EXISTS work_items
+            (module_path text,
+             operator text,
+             occurrence int,
+             line_number int,
              col_offset int,
              job_id text primary key)
             ''')
 
             self._conn.execute('''
             CREATE TABLE IF NOT EXISTS results
-            (data text, 
-             test_outcome text, 
-             worker_outcome text, 
-             diff text, 
+            (data text,
+             test_outcome text,
+             worker_outcome text,
+             diff text,
              job_id text primary key,
              FOREIGN KEY(job_id) REFERENCES work_items(job_id)
             )

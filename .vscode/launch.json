@@ -49,20 +49,6 @@
             ]
         },
         {
-            "name": "Run example worker",
-            "type": "python",
-            "request": "launch",
-            "module": "cosmic_ray.cli",
-            "cwd": "${workspaceFolder}/test/test_project",
-            "args": [
-                "worker",
-                "deleteme.py",
-                "core/ReplaceTrueFalse",
-                "1",
-                "cosmic-ray.unittest.local.conf"
-            ]
-        },
-        {
             "name": "init",
             "type": "python",
             "request": "launch",
@@ -71,7 +57,7 @@
             "args": [
                 "init",
                 "cosmic-ray.unittest.local.conf",
-                "deleteme.json"
+                "deleteme.sqlite"
             ]
         },
         {
@@ -82,7 +68,7 @@
             "cwd": "${workspaceFolder}/test/test_project",
             "args": [
                 "exec",
-                "deleteme.json"
+                "deleteme.sqlite"
             ]
         },
         {
