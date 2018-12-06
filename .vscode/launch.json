@@ -63,7 +63,19 @@
             ]
         },
         {
-            "name": "Exec",
+            "name": "init",
+            "type": "python",
+            "request": "launch",
+            "module": "cosmic_ray.cli",
+            "cwd": "${workspaceFolder}/test/test_project",
+            "args": [
+                "init",
+                "cosmic-ray.unittest.local.conf",
+                "deleteme.json"
+            ]
+        },
+        {
+            "name": "exec",
             "type": "python",
             "request": "launch",
             "module": "cosmic_ray.cli",
