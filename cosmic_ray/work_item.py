@@ -65,6 +65,12 @@ class WorkItem:
             'job_id': self.job_id,
         }
 
+    def __eq__(self, rhs):
+        return self.as_dict() == rhs.as_dict()
+
+    def __neq__(self, rhs):
+        return not self == rhs
+
 
 class WorkItemJsonEncoder(json.JSONEncoder):
     def default(self, o):
