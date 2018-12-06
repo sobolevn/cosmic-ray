@@ -9,7 +9,7 @@ from enum import Enum
 import kfg.yaml
 
 from .config import Config
-from .work_item import WorkItem
+from .work_item import WorkItem, WorkResult
 
 
 class WorkDB:
@@ -50,6 +50,143 @@ class WorkDB:
 
         self._init_db()
 
+    def close(self):
+        """Close the database."""
+        self._conn.close()
+
+    # @property
+    # def name(self):
+    #     """A name for this database.
+
+    #     Derived from the constructor arguments.
+    #     """
+    #     return self._path
+
+    def set_config(self, config, timeout):
+        """Set (replace) the configuration for the session.
+
+        Args:
+          config: Configuration object
+          timeout: The timeout for tests.
+        """
+        with self._conn:
+            self._conn.execute("DELETE FROM config")
+            self._conn.execute('INSERT INTO config VALUES(?, ?)',
+               (kfg.yaml.serialize_config(config),
+                timeout))
+
+    def get_config(self):
+        """Get the work parameters (if set) for the session.
+
+        Returns: a tuple of `(config, timeout)`.
+
+        Raises:
+          ValueError: If is no config set for the session.
+        """
+        rows = list(self._conn.execute("SELECT * FROM config"))
+        if not rows:
+            raise ValueError("work-db has no config")
+        config_str, timeout = rows[0]
+
+        return (kfg.yaml.load_config(StringIO(config_str),
+                                     config=Config()),
+                timeout)
+
+    @property
+    def work_items(self):
+        """An iterable of all of WorkItems in the db.
+
+        This includes both WorkItems with and without results.
+        """
+        cur = self._conn.cursor()
+        rows = cur.execute("SELECT * FROM work_items")
+        return (WorkItem(*r) for r in rows)
+
+    @property
+    def num_work_items(self):
+        """The number of work items."""
+        count = self._conn.execute("SELECT COUNT(*) FROM work_items")
+        return list(count)[0][0]
+
+    def add_work_items(self, work_items):
+        """Add a sequence of WorkItems.
+
+        Args:
+          work_items: An iterable of WorkItems.
+        """
+        with self._conn:
+            for item in work_items:
+                # TODO: Is there an "insert many" option?
+                self._conn.execute(
+                    '''
+                    INSERT INTO work_items
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ''',
+                    (str(item.module_path),
+                     item.operator,
+                     item.occurrence,
+                     item.line_number,
+                     item.col_offset,
+                     item.job_id))
+
+    def clear(self):
+        """Clear all work items from the session.
+
+        This removes any associated results as well.
+        """
+        with self._conn:
+            self._conn.execute('DELETE FROM work_items')
+
+    @property
+    def results(self):
+        "An iterable of all `(job-id, WorkResult)`s."
+        cur = self._conn.cursor()
+        rows = cur.execute("SELECT * FROM results")
+        return ((r[-1], WorkResult(*r[:-1])) for r in rows)
+
+    # @property
+    # def num_results(self):
+    #     """The number of results."""
+    #     count = self._conn.execute("SELECT COUNT(*) FROM work_items")
+    #     return list(count)[0][0]
+
+    def add_result(self, job_id, result):
+        """Add a sequence of WorkResults to the db.
+
+        Args:
+          result: An iterable of `(job-id, WorkResult)`s.
+
+        Raises:
+           KeyError: If there is no work-item with a matching job-id.
+           KeyError: If there is an existing result with a matching job-id.
+        """
+        with self._conn:
+            try:
+                self._conn.execute(
+                    '''
+                    INSERT INTO results
+                    VALUES (?, ?, ?, ?, ?)
+                    ''',
+                    (str(result.data),
+                     result.test_outcome,
+                     result.worker_outcome,
+                     result.diff,
+                     job_id))
+            except sqlite3.IntegrityError as exc:
+                raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
+
+    @property
+    def pending_work_items(self):
+        "Iterable of all pending work items."
+        pending = self._conn.execute("SELECT * FROM work_items WHERE job_id NOT IN (SELECT job_id FROM results)")
+        return (WorkItem(*p) for p in pending)
+
+    # @property
+    # def num_pending_work_items(self):
+    #     "The number of pending WorkItems in the session."
+    #     count = self._conn.execute("SELECT COUNT(*) FROM work_items WHERE job_id NOT IN (SELECT job_id FROM results)")
+    #     return count[0][0]
+
     def _init_db(self):
         with self._conn:
             self._conn.execute("PRAGMA foreign_keys = 1")
@@ -77,161 +214,9 @@ class WorkDB:
 
             self._conn.execute('''
             CREATE TABLE IF NOT EXISTS config
-            (config text)
+            (config text,
+             timeout real)
             ''')
-
-    def close(self):
-        """Close the database."""
-        self._conn.close()
-
-    @property
-    def name(self):
-        """A name for this database.
-
-        Derived from the constructor arguments.
-        """
-        return self._path
-
-    @property
-    def pending_work_items(self):
-        pending = self._conn.execute("SELECT * FROM work_items WHERE job_id NOT IN (SELECT job_id FROM results)")
-        return (WorkItem(*p) for p in pending)
-
-    # def set_config(self, config, timeout):
-    #     """Set (replace) the configuration for the session.
-
-    #     Args:
-    #       config: Configuration object
-    #       timeout: The timeout for tests.
-    #     """
-    #     table = self._config
-    #     table.purge()
-    #     table.insert({
-    #         'config': kfg.yaml.serialize_config(config),
-    #         'timeout': timeout,
-    #     })
-
-    # def get_config(self):
-    #     """Get the work parameters (if set) for the session.
-
-    #     Returns: a tuple of `(config, timeout)`.
-
-    #     Raises:
-    #       ValueError: If is no config set for the session.
-    #     """
-    #     table = self._config
-
-    #     try:
-    #         record = table.all()[0]
-    #     except IndexError:
-    #         raise ValueError('work-db has no config')
-
-    #     return (kfg.yaml.load_config(StringIO(record['config']), config=Config()),
-    #             record['timeout'])
-
-    def add_work_items(self, work_items):
-        """Add a sequence of WorkItems.
-
-        Args:
-          work_items: An iterable of WorkItems.
-        """
-        with self._conn:
-            for item in work_items:
-                # TODO: Is there an "insert many" option?
-                self._conn.execute('''
-                INSERT INTO work_items
-                VALUES (?, ?, ?, ?, ?, ?)
-                ''',
-                                   (str(item.module_path),
-                                    item.operator,
-                                    item.occurrence,
-                                    item.line_number,
-                                    item.col_offset,
-                                    item.job_id))
-
-    def add_result(self, job_id, result):
-        """Add a sequence of WorkResults to the db.
-
-        Args:
-          result: An iterable of `(job-id, WorkResult)`s.
-
-        Raises:
-           KeyError: If there is no work-item with a matching job-id.
-           KeyError: If there is an existing result with a matching job-id.
-        """
-        with self._conn:
-            try:
-                self._conn.execute(
-                    '''
-                    INSERT INTO results
-                    VALUES (?, ?, ?, ?, ?)
-                    ''',
-                    (str(result.data),
-                     result.test_outcome,
-                     result.worker_outcome,
-                     result.diff,
-                     job_id))
-            except sqlite3.IntegrityError as exc:
-                raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
-
-    # def clear_work_items(self):
-    #     """Clear all work items from the session.
-
-    #     This removes any associated results as well.
-    #     """
-    #     # TODO: Clear results as well.
-    #     self._work_items.purge()
-
-    # @property
-    # def work_items(self):
-    #     """The sequence of WorkItems in the session.
-
-    #     This include both complete and incomplete items.
-
-    #     Each work item is a dict with the keys `module-name`, `op-name`, and
-    #     `occurrence`. Items with results will also have the keys `results-type`
-    #     and `results-data`.
-    #     """
-    #     return (WorkItem(**r) for r in self._work_items)
-
-    # @property
-    # def num_work_items(self):
-    #     """The number of WorkItems."""
-    #     return len(self._work_items)
-
-    # def _remove_update_work_item(self, work_item):
-    #     """Updates an existing WorkItem by job_id.
-
-    #     Args:
-    #         work_item: A WorkItem representing the new state of a job.
-
-    #     Raises:
-    #         KeyError: If there is no existing record with the same job_id.
-    #     """
-    #     self._work_items.update(
-    #         work_item.as_dict(),
-    #         tinydb.Query().job_id == work_item.job_id
-    #     )
-
-    # @property
-    # def num_pending_work_items(self):
-    #     """The number of pending WorkItems in the session."""
-    #     return len(self._pending)
-
-    # def add_result(self, work_result):
-    #     """Add a WorkResult.
-
-    #     Args:
-    #       work_result: A WorkResult.
-
-    #         #     """
-    #     table = self._work_items
-    #     work_item = tinydb.Query()
-    #     work_items = self._work_items.search(work_item.job_id == work_result.job_id)
-
-    #     self._work_results.insert(work_result.as_dict())
-
-    #     self._work_items.insert_multiple(work_item.as_dict() for work_item in work_items)
 
 
 @contextlib.contextmanager

@@ -1,3 +1,4 @@
+from kfg.config import Config
 import pytest
 
 from cosmic_ray.testing.test_runner import TestOutcome
@@ -65,3 +66,93 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
                        TestOutcome.KILLED,
                        WorkerOutcome.NORMAL,
                        'diff'))
+
+
+def test_num_work_items(work_db):
+    work_db.add_work_items([
+        WorkItem('path', 'operator', 0, 0, 0, 'job_id_{}'.format(idx))
+        for idx in range(10)
+    ])
+    assert work_db.num_work_items == 10
+
+
+def test_clear_removes_work_items(work_db):
+    work_db.add_work_items([
+        WorkItem('path', 'operator', 0, 0, 0, 'job_id_{}'.format(idx))
+        for idx in range(10)
+    ])
+    work_db.clear()
+    assert work_db.num_work_items == 0
+
+
+def test_clear_work_items_removes_results(work_db):
+    work_db.add_work_items([
+        WorkItem('path', 'operator', 0, 0, 0, 'job_id_{}'.format(idx))
+        for idx in range(10)
+    ])
+
+
+def test_work_items(work_db):
+    original = [
+        WorkItem('path_{}'.format(idx),
+                 'operator_{}'.format(idx),
+                 idx,
+                 idx,
+                 idx,
+                 'job_id_{}'.format(idx))
+        for idx in range(10)
+    ]
+    work_db.add_work_items(original)
+
+    actual = list(work_db.work_items)
+
+    assert actual == original
+
+
+def test_results(work_db):
+    work_db.add_work_items([
+        WorkItem('path_{}'.format(idx),
+                 'operator_{}'.format(idx),
+                 idx,
+                 idx,
+                 idx,
+                 'job_id_{}'.format(idx))
+        for idx in range(10)])
+
+    original = [
+        ('job_id_{}'.format(idx),
+         WorkResult(
+             data='data_{}'.format(idx),
+             test_outcome=TestOutcome.KILLED,
+             worker_outcome=WorkerOutcome.NORMAL,
+             diff='diff_{}'.format(idx)))
+            for idx in range(10)]
+
+    for result in original:
+        work_db.add_result(*result)
+
+    actual = list(work_db.results)
+
+    assert actual == original
+
+
+def test_set_config(work_db):
+    config = Config()
+    config['ui', 'font-color'] = 'blue'
+    work_db.set_config(config, 100.234)
+
+
+def test_get_config_raises_ValueError_with_no_config(work_db):
+    with pytest.raises(ValueError):
+        work_db.get_config()
+
+
+def test_get_config_returns_correct_config(work_db):
+    config = Config()
+    config['ui', 'font-color'] = 'blue'
+    timeout = 100.234
+    work_db.set_config(config, timeout)
+
+    actual_config, actual_timeout = work_db.get_config()
+    assert actual_config['ui', 'font-color'] == 'blue'
+    assert actual_timeout == timeout

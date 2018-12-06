@@ -25,6 +25,13 @@ class WorkResult:
             'diff': self.diff,
         }
 
+    def __eq__(self, rhs):
+        return self.as_dict() == rhs.as_dict()
+
+    def __neq__(self, rhs):
+        return not self == rhs
+
+
 
 class WorkItem:
     """Description of the work for a single mutation and test run.
