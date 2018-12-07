@@ -30,10 +30,11 @@ def test_jobs_with_results_are_not_pending(work_db):
     ])
     work_db.add_result(
         'job_id',
-        WorkResult('data',
-                   TestOutcome.KILLED,
-                   WorkerOutcome.NORMAL,
-                   'diff'))
+        WorkResult(
+            data='data',
+            test_outcome=TestOutcome.KILLED,
+            worker_outcome=WorkerOutcome.NORMAL,
+            diff='diff'))
     assert not list(work_db.pending_work_items)
 
 
@@ -41,10 +42,11 @@ def test_add_result_throws_KeyError_if_no_matching_work_item(work_db):
     with pytest.raises(KeyError):
         work_db.add_result(
             'job_id',
-            WorkResult('data',
-                       TestOutcome.KILLED,
-                       WorkerOutcome.NORMAL,
-                       'diff'))
+            WorkResult(
+                data='data',
+                test_outcome=TestOutcome.KILLED,
+                worker_outcome=WorkerOutcome.NORMAL,
+                diff='diff'))
 
 
 def test_add_result_throws_KeyError_if_result_exists(work_db):
@@ -54,18 +56,20 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
 
     work_db.add_result(
         'job_id',
-        WorkResult('data',
-                   TestOutcome.KILLED,
-                   WorkerOutcome.NORMAL,
-                   'diff'))
+        WorkResult(
+            data='data',
+            test_outcome=TestOutcome.KILLED,
+            worker_outcome=WorkerOutcome.NORMAL,
+            diff='diff'))
 
     with pytest.raises(KeyError):
         work_db.add_result(
             'job_id',
-            WorkResult('data',
-                       TestOutcome.KILLED,
-                       WorkerOutcome.NORMAL,
-                       'diff'))
+            WorkResult(
+                data='data',
+                test_outcome=TestOutcome.KILLED,
+                worker_outcome=WorkerOutcome.NORMAL,
+                diff='diff'))
 
 
 def test_num_work_items(work_db):
@@ -126,7 +130,7 @@ def test_results(work_db):
              test_outcome=TestOutcome.KILLED,
              worker_outcome=WorkerOutcome.NORMAL,
              diff='diff_{}'.format(idx)))
-            for idx in range(10)]
+        for idx in range(10)]
 
     for result in original:
         work_db.add_result(*result)
