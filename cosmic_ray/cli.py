@@ -192,37 +192,6 @@ def handle_dump(args):
 
 
 @dsc.command()
-def handle_counts(args):
-    """usage: {program} counts <config-file>
-
-    Count the number of tests that would be run for a given testing
-    configuration. This is mostly useful for estimating run times and
-    keeping track of testing statistics.
-    """
-    config = load_config(args['<config-file>'])
-
-    sys.path.insert(0, '')
-
-    module = config['module']
-
-    modules = cosmic_ray.modules.find_modules(
-        cosmic_ray.modules.fixup_module_name(module),
-        config.get('exclude-modules', default=[]))
-
-    operators = cosmic_ray.plugins.operator_names()
-
-    counts = cosmic_ray.counting.count_mutants(modules, operators)
-
-    print('[Counts]')
-    pprint.pprint(counts)
-    print('\n[Total test runs]\n',
-          sum(itertools.chain(
-              *(d.values() for d in counts.values()))))
-
-    return ExitCode.OK
-
-
-@dsc.command()
 def handle_test_runners(args):
     """usage: {program} test-runners
 

@@ -93,10 +93,7 @@ def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
     def killed_mutant(*args):
         "Simulates a test run where a the tests fails."
         def inner():
-            return ('job-id', 
-                    WorkResult(test_outcome=TestOutcome.KILLED,
-                               worker_outcome=WorkerOutcome.NORMAL,
-                               data='')i
+            return (TestOutcome.KILLED, '')
         return inner
 
     monkeypatch.setattr(cosmic_ray.plugins, 'get_test_runner', killed_mutant)
@@ -106,14 +103,13 @@ def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
 
 
 def test_baseline_success_returns_EX_OK(monkeypatch, local_unittest_config):
-    def surviving_mutant(*args):
-        "Simulates a test run where a the tests succeed."
+    def dead_mutant(*args):
+        "Simulates a test run where the mutant is killed."
         def inner():
-            return WorkItem(test_outcome=TestOutcome.SURVIVED,
-                            data=[])
+            return (TestOutcome.SURVIVED, '')
         return inner
 
-    monkeypatch.setattr(cosmic_ray.plugins, 'get_test_runner', surviving_mutant)
+    monkeypatch.setattr(cosmic_ray.plugins, 'get_test_runner', dead_mutant)
 
     errcode = cosmic_ray.cli.main(['baseline', local_unittest_config])
     assert errcode == ExitCode.OK
@@ -152,10 +148,6 @@ def test_dump_success_returns_EX_OK(lobotomize, local_unittest_config, session):
 
     errcode = cosmic_ray.cli.main(['dump', str(session)])
     assert errcode == ExitCode.OK
-
-
-def test_counts_success_returns_EX_OK(lobotomize, local_unittest_config):
-    assert cosmic_ray.cli.main(['counts', local_unittest_config]) == ExitCode.OK
 
 
 def test_test_runners_success_returns_EX_OK():
