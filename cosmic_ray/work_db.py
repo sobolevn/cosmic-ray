@@ -149,7 +149,7 @@ class WorkDB:
             yield ((row['job_id'],
                     WorkResult(
                         worker_outcome=WorkerOutcome(row['worker_outcome']),
-                        data=row['data'],
+                        data=json.loads(row['data']),
                         test_outcome=TestOutcome(row['test_outcome']),
                         diff=json.loads(row['diff']))))
 
@@ -176,7 +176,7 @@ class WorkDB:
                     INSERT INTO results
                     VALUES (?, ?, ?, ?, ?)
                     ''',
-                    (str(result.data),
+                    (json.dumps(result.data),
                      None if result.test_outcome is None else result.test_outcome.value,
                      result.worker_outcome.value,  # should never be None
                      json.dumps(result.diff), 
