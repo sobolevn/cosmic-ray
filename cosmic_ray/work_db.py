@@ -1,6 +1,7 @@
 """Implementation of the WorkDB."""
 
 import contextlib
+import json
 import os
 import sqlite3
 from enum import Enum
@@ -150,7 +151,7 @@ class WorkDB:
                         worker_outcome=WorkerOutcome(row['worker_outcome']),
                         data=row['data'],
                         test_outcome=TestOutcome(row['test_outcome']),
-                        diff=row['diff'])))
+                        diff=json.loads(row['diff']))))
 
     @property
     def num_results(self):
@@ -178,7 +179,7 @@ class WorkDB:
                     (str(result.data),
                      None if result.test_outcome is None else result.test_outcome.value,
                      result.worker_outcome.value,  # should never be None
-                     result.diff, 
+                     json.dumps(result.diff), 
                      job_id))
             except sqlite3.IntegrityError as exc:
                 raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc

@@ -59,7 +59,6 @@ def _apply_mutation(module_path, operator, occurrence):
                                      tofile="b" + str(module_path),
                                      lineterm=""):
         module_diff.append(line)
-    module_diff = '\n'.join(module_diff)
 
     try:
         with module_path.open(mode='wt', encoding='utf-8') as handle:

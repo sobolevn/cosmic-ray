@@ -96,7 +96,7 @@ def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
             return ('job-id', 
                     WorkResult(test_outcome=TestOutcome.KILLED,
                                worker_outcome=WorkerOutcome.NORMAL,
-                               data=''))
+                               data='')i
         return inner
 
     monkeypatch.setattr(cosmic_ray.plugins, 'get_test_runner', killed_mutant)
