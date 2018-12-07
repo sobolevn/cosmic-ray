@@ -19,4 +19,3 @@ def test_no_test_return_value(data_dir):
             diff=None,
             worker_outcome=WorkerOutcome.NO_TEST)
         assert result == expected
-        assert False
