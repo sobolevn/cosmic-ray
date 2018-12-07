@@ -5,7 +5,7 @@ import uuid
 from cosmic_ray.ast import get_ast, OperatorVisitor
 import cosmic_ray.modules
 from cosmic_ray.plugins import get_interceptor, interceptor_names, get_operator
-from cosmic_ray.util import get_col_offset, get_line_number
+from cosmic_ray.util import get_col_offset
 from cosmic_ray.work_item import WorkItem
 
 

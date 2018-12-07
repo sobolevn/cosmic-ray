@@ -54,17 +54,6 @@ except ImportError:
         _stream = "stderr"
 
 
-def get_line_number(node):
-    """Try to get the line number for `node`.
-
-    If no line number is available, this returns -1.
-    """
-    try:
-        return node.lineno
-    except AttributeError:
-        return -1
-
-
 def get_col_offset(node):
     """Try to get the column offset for `node`.
 
