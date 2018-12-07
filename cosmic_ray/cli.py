@@ -112,7 +112,8 @@ def handle_init(args):
     elif 'baseline' in config:
         baseline_mult = config['baseline']
 
-        command = 'cosmic-ray baseline {}'.format(
+        command = '{} -m cosmic_ray.cli baseline {}'.format(
+            sys.executable,
             args['<config-file>'])
 
         # We run the baseline in a subprocess to more closely emulate the

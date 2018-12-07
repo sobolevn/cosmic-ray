@@ -1,5 +1,6 @@
 import pathlib
 import subprocess
+import sys
 
 import pytest
 
@@ -30,9 +31,9 @@ def project_root():
 def test_e2e(project_root, test_runner, engine, session):
     config = 'cosmic-ray.{}.{}.conf'.format(test_runner, engine)
 
-    subprocess.check_call(['cosmic-ray', 'init', config, str(session)],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'init', config, str(session)],
                           cwd=str(project_root))
-    subprocess.check_call(['cosmic-ray', 'exec', str(session)],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'exec', str(session)],
                           cwd=str(project_root))
 
     session_path = project_root / session
@@ -44,7 +45,7 @@ def test_e2e(project_root, test_runner, engine, session):
 def test_importing(project_root, session):
     config = 'cosmic-ray.import.conf'
 
-    subprocess.check_call(['cosmic-ray', 'init', config, session],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'init', config, session],
                           cwd=str(project_root))
 
     session_path = project_root / session
@@ -56,7 +57,7 @@ def test_importing(project_root, session):
 def test_empty___init__(project_root, session):
     config = 'cosmic-ray.empty.conf'
 
-    subprocess.check_call(['cosmic-ray', 'init', config, session],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'init', config, session],
                           cwd=str(project_root))
 
     session_path = project_root / session
@@ -69,15 +70,15 @@ def test_failing_baseline(project_root, session):
     config = 'cosmic-ray.baseline_fail.conf'
 
     with pytest.raises(subprocess.CalledProcessError):
-        subprocess.check_call(['cosmic-ray', 'init', config, session],
+        subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'init', config, session],
                               cwd=str(project_root))
 
 
 def test_config_command(project_root, session):
     config = 'cosmic-ray.import.conf'
 
-    subprocess.check_call(['cosmic-ray', 'init', config, session],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'init', config, session],
                           cwd=str(project_root))
 
-    subprocess.check_call(['cosmic-ray', 'config', session],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'config', session],
                           cwd=str(project_root))
