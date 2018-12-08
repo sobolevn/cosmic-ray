@@ -1,50 +1,53 @@
 """Implementation of the binary-operator-replacement operator.
 """
 
-import ast
-import sys
+import itertools
 
-from .operator import ReplacementOperatorMeta
-from ..util import build_mutations
+import parso
 
-_AST_OPERATORS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod,
-                  ast.Pow, ast.LShift, ast.RShift, ast.BitOr, ast.BitXor,
-                  ast.BitAnd)
-
-# todo: this often leads to unsupported syntax
-if sys.version_info >= (3, 5):
-    _AST_OPERATORS = _AST_OPERATORS + (ast.MatMult,)
+from .operator import Operator, replacement_operator
 
 
-def _to_ops(from_op):  # pylint: disable=unused-argument
-    """The sequence of operators which `from_op` could be mutated to."""
-    for to_op in _AST_OPERATORS:
-        yield to_op
+_BINARY_OPERATORS = (
+    ('+', 'Add'),
+    ('-', 'Sub'),
+    ('*', 'Mul'),
+    ('/', 'Div'),
+    ('//', 'FloorDiv'),
+    ('%', 'Mod'),
+    ('**', 'Pow'),
+    ('>>', 'RShift'),
+    ('<<', 'LShift'),
+    ('|', 'BitOr'),
+    ('&', 'BitAnd'),
+    ('^', 'BitXor'),
+)
 
 
-def _create_replace_binary_operator(from_op, to_op):
-    class ReplaceBinaryOperator(
-            metaclass=ReplacementOperatorMeta,
-            from_op=from_op,
-            to_op=to_op):
+def _create_replace_binary_operator(from_op, from_name, to_op, to_name):
+    @replacement_operator(from_op, from_name, to_op, to_name)
+    class ReplaceBinaryOperator(Operator):
         """An operator that replaces binary operators."""
-        def visit_BinOp(self, node):  # pylint: disable=invalid-name, missing-docstring
-            if isinstance(node.op, self.from_op):
-                return self.visit_mutation_site(node)
-            return node
+
+        def mutation_count(self, node):
+            if isinstance(node, parso.python.tree.Operator):
+                if node.value == self.from_op:
+                    return 1 
+            return 0
 
         def mutate(self, node, _):
-            node.op = self.to_op()
+            node.value = self.to_op
             return node
 
     return ReplaceBinaryOperator
 
-
+# Build all of the binary replacement operators
 _MUTATION_OPERATORS = tuple(
-    _create_replace_binary_operator(_AST_OPERATORS[idx], to_op)
-    for idx, to_op in build_mutations(_AST_OPERATORS, _to_ops))
+    _create_replace_binary_operator(from_op, from_name, to_op, to_name)
+    for (from_op, from_name), (to_op, to_name)
+    in itertools.permutations(_BINARY_OPERATORS, 2))
 
-
+# Inject the operators into the module namespace
 for op in _MUTATION_OPERATORS:
     globals()[op.__name__] = op
 

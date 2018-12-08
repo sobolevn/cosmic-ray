@@ -12,9 +12,9 @@ import parso
 # from cosmic_ray.operators.unary_operator_replacement import \
 #     (ReplaceUnaryOperator_Delete_Not,
 #      ReplaceUnaryOperator_USub_UAdd)
-# from cosmic_ray.operators.binary_operator_replacement import \
-#     (ReplaceBinaryOperator_Mult_Add,
-#      ReplaceBinaryOperator_Sub_Mod)
+from cosmic_ray.operators.binary_operator_replacement import \
+    (ReplaceBinaryOperator_Mul_Add,
+     ReplaceBinaryOperator_Sub_Mod) # TODO: Add the rest?
 # from cosmic_ray.counting import _CountingCore
 from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse
 #                                                    ReplaceAndWithOr,
@@ -45,8 +45,8 @@ OPERATOR_SAMPLES = [
     # (ReplaceComparisonOperator_Gt_Eq, 'if x > 42: pass'),
     # (ReplaceUnaryOperator_Delete_Not, 'return not X'),
     # (ReplaceUnaryOperator_USub_UAdd, 'x = -1'),
-    # (ReplaceBinaryOperator_Mult_Add, 'x * y'),
-    # (ReplaceBinaryOperator_Sub_Mod, 'x - y'),
+    (ReplaceBinaryOperator_Mul_Add, 'x * y'),
+    (ReplaceBinaryOperator_Sub_Mod, 'x - y'),
     # (ExceptionReplacer, 'try: raise OSError \nexcept OSError: pass'),
     # (ZeroIterationLoop, 'for i in range(1,2): pass'),
     # (RemoveDecorator, 'def wrapper(f): f.cosmic_ray=1; '

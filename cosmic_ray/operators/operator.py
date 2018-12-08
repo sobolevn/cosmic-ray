@@ -20,34 +20,33 @@ class Operator(ABC):
         """
         pass
 
-def _op_name(from_op, to_op):
-    assert from_op or to_op, 'Cannot make replacement operator from None to None' 
 
-    if from_op is None:
-        return 'Insert_{}'.format(to_op.__name__)
-    elif to_op is None:
-        return 'Delete_{}'.format(from_op.__name__)
+def _op_name(from_op_name, to_op_name):
+    assert from_op_name or to_op_name, 'Cannot make replacement operator from None to None'
 
-    return '{}_{}'.format(from_op.__name__, to_op.__name__)
+    if from_op_name is None:
+        return 'Insert_{}'.format(to_op_name)
+    elif to_op_name is None:
+        return 'Delete_{}'.format(from_op_name)
+
+    return '{}_{}'.format(from_op_name, to_op_name)
 
 
-class ReplacementOperatorMeta(type):
-    """Metaclass for mutation operators that replace Python operators.
+# TODO: Can we replace this with a class decorator?
+def replacement_operator(from_op, from_op_name, to_op, to_op_name):
+    """Class decorator for mutation operators that replace Python operators.
 
     This does a few things:
 
-    - Sets the name of the class object based on the class declaration *and* the from-/to-operators.
+    - Sets the name of the class object based on the class declaration 
     - Makes the from-/to-operators available as class members.
-    - Adds `Operator` as a base class.
     """
-    def __init__(cls, name, bases, namespace, from_op, to_op, **kwargs):
-        super().__init__(name, bases, namespace, **kwargs)
-
-    def __new__(cls, name, bases, namespace, from_op, to_op, **kwargs):
+    def dec(cls):
         name = '{}_{}'.format(
-            name,
-            _op_name(from_op, to_op))
-        bases = bases + (Operator,)
-        namespace['from_op'] = from_op
-        namespace['to_op'] = to_op
-        return super().__new__(cls, name, bases, namespace, **kwargs)
+            cls.__name__,
+            _op_name(from_op_name, to_op_name))
+        setattr(cls, '__name__', name)
+        cls.from_op = from_op
+        cls.to_op = to_op
+        return cls
+    return dec

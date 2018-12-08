@@ -54,17 +54,6 @@ except ImportError:
         _stream = "stderr"
 
 
-def get_col_offset(node):
-    """Try to get the column offset for `node`.
-
-    If no column offset is available, this returns -1.
-    """
-    try:
-        return node.col_offset
-    except AttributeError:
-        return -1
-
-
 def build_mutations(ops, to_ops):
     """The sequence of `(idx, to-op)` tuples describing the mutations for `ops`.
 
