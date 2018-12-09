@@ -10,9 +10,8 @@ from cosmic_ray.operators.comparison_operator_replacement import *
 #     (ReplaceUnaryOperator_Delete_Not,
 #      ReplaceUnaryOperator_USub_UAdd)
 from cosmic_ray.operators.binary_operator_replacement import *  
-from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse, ReplaceAndWithOr, ReplaceOrWithAnd, AddNot
-# from cosmic_ray.operators.break_continue import (ReplaceBreakWithContinue,
-#                                                  ReplaceContinueWithBreak)
+from cosmic_ray.operators.boolean_replacer import ReplaceTrueWithFalse, ReplaceFalseWithTrue, ReplaceAndWithOr, ReplaceOrWithAnd, AddNot
+from cosmic_ray.operators.break_continue import ReplaceBreakWithContinue, ReplaceContinueWithBreak
 # from cosmic_ray.operators.exception_replacer import ExceptionReplacer
 # from cosmic_ray.operators.number_replacer import NumberReplacer
 # from cosmic_ray.operators.remove_decorator import RemoveDecorator
@@ -32,15 +31,16 @@ OPERATOR_SAMPLES = [
     Sample(*args)
     for args in (
 
-        (ReplaceTrueFalse, 'True', 'False'),
+        (ReplaceTrueWithFalse, 'True', 'False'),
+        (ReplaceFalseWithTrue, 'False', 'True'),
         (ReplaceAndWithOr, 'if True and False: pass', 'if True or False: pass'),
         (ReplaceOrWithAnd, 'if True or False: pass', 'if True and False: pass'),
         (AddNot, 'if True or False: pass', 'if not True or False: pass'),
         (AddNot, 'A if B else C', 'A if not B else C'),
         (AddNot, 'assert isinstance(node, ast.Break)', 'assert not isinstance(node, ast.Break)'),
         (AddNot, 'while True: pass', 'while not True: pass'),
-        # (ReplaceBreakWithContinue, 'while True: break'),
-        # (ReplaceContinueWithBreak, 'while False: continue'),
+        (ReplaceBreakWithContinue, 'while True: break', 'while True: continue'),
+        (ReplaceContinueWithBreak, 'while False: continue', 'while False: break'),
         # (NumberReplacer, 'x = 1'),
         (ReplaceComparisonOperator_Eq_IsNot, 'x == y', 'x is not y'),
         (ReplaceComparisonOperator_Gt_Lt, 'if x > y: pass', 'if x < y: pass'),

@@ -1,58 +1,33 @@
 "Implementation of the boolean replacement operators."
 
-import ast
-import sys
-
 import parso.python.tree
 
+from .keyword_replacer import KeywordReplacementOperator
 from .operator import Operator
 
 
-class ReplaceTrueFalse(Operator):
-    """An operator that modifies True/False constants."""
-
-    def mutation_count(self, node):
-        if isinstance(node, parso.python.tree.Keyword):
-            if node.value == 'True' or node.value == 'False':
-                return 1
-
-        return 0
-
-    def mutate(self, node, index):
-        node.value = 'True' if node.value == 'False' else 'False'
-        return node
+class ReplaceTrueWithFalse(KeywordReplacementOperator):
+    """An that replaces True with False."""
+    def __init__(self):
+        super().__init__('True', 'False')
 
 
-class ReplaceAndWithOr(Operator):
+class ReplaceFalseWithTrue(KeywordReplacementOperator):
+    """An that replaces False with True."""
+    def __init__(self):
+        super().__init__('False', 'True')
+
+
+class ReplaceAndWithOr(KeywordReplacementOperator):
     """An operator that swaps 'and' with 'or'."""
-
-    def mutation_count(self, node):
-        if isinstance(node, parso.python.tree.Keyword):
-            if node.value == 'and':
-                return 1
-        return 0
-
-    def mutate(self, node, idx):
-        assert idx == 0
-        assert node.value == 'and'
-        node.value = 'or'
-        return node
+    def __init__(self):
+        super().__init__('and', 'or')
 
 
-class ReplaceOrWithAnd(Operator):
+class ReplaceOrWithAnd(KeywordReplacementOperator):
     """An operator that swaps 'or' with 'and'."""
-
-    def mutation_count(self, node):
-        if isinstance(node, parso.python.tree.Keyword):
-            if node.value == 'or':
-                return 1
-        return 0
-
-    def mutate(self, node, idx):
-        assert idx == 0
-        assert node.value == 'or'
-        node.value = 'and'
-        return node
+    def __init__(self):
+        super().__init__('or', 'and')
 
 
 class AddNot(Operator):
