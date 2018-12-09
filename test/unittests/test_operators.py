@@ -24,7 +24,7 @@ class Sample:
         self.to_code = to_code
         self.index = index
 
-
+# TODO: Think about having each operator provide its own sample code.
 OPERATOR_SAMPLES = [
     Sample(*args)
     for args in (
@@ -69,11 +69,12 @@ OPERATOR_SAMPLES = [
          'try: raise OSError\nexcept (OSError, CosmicRayTestingException, KeyError): pass', 1),
          (ExceptionReplacer,
          'try: pass\nexcept: pass', 'try: pass\nexcept: pass'),
-        # (ReplaceUnaryOperator_Delete_Not, 'return not X'),
         (ReplaceUnaryOperator_USub_UAdd, 'x = -1', 'x = +1'),
+        (ReplaceUnaryOperator_Delete_Not, 'return not x', 'return x'),
+
+        # Make sure unary and binary op mutators don't pick up the wrong kinds of operators
         (ReplaceUnaryOperator_USub_UAdd, 'x + 1', 'x + 1'),
         (ReplaceBinaryOperator_Add_Mul, '+1', '+1'),
-
     )
 ]
 
