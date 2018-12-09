@@ -9,10 +9,10 @@ from cosmic_ray.operators.comparison_operator_replacement import *
 # from cosmic_ray.operators.unary_operator_replacement import \
 #     (ReplaceUnaryOperator_Delete_Not,
 #      ReplaceUnaryOperator_USub_UAdd)
-from cosmic_ray.operators.binary_operator_replacement import *  
+from cosmic_ray.operators.binary_operator_replacement import *
 from cosmic_ray.operators.boolean_replacer import ReplaceTrueWithFalse, ReplaceFalseWithTrue, ReplaceAndWithOr, ReplaceOrWithAnd, AddNot
 from cosmic_ray.operators.break_continue import ReplaceBreakWithContinue, ReplaceContinueWithBreak
-# from cosmic_ray.operators.exception_replacer import ExceptionReplacer
+from cosmic_ray.operators.exception_replacer import ExceptionReplacer
 from cosmic_ray.operators.number_replacer import NumberReplacer
 from cosmic_ray.operators.remove_decorator import RemoveDecorator
 from cosmic_ray.operators.zero_iteration_for_loop import ZeroIterationForLoop
@@ -57,12 +57,20 @@ OPERATOR_SAMPLES = [
         # (ReplaceUnaryOperator_USub_UAdd, 'x = -1'),
         (ReplaceBinaryOperator_Mul_Add, 'x * y', 'x + y'),
         (ReplaceBinaryOperator_Sub_Mod, 'x - y', 'x % y'),
-        # (ExceptionReplacer, 'try: raise OSError \nexcept OSError: pass'),
         (ZeroIterationForLoop, 'for i in range(1,2): pass', 'for i in []: pass'),
         (RemoveDecorator, '@foo\ndef bar(): pass', 'def bar(): pass'),
         (RemoveDecorator, '@first\n@second\ndef bar(): pass', '@second\ndef bar(): pass'),
         (RemoveDecorator, '@first\n@second\ndef bar(): pass', '@first\ndef bar(): pass', 1),
         (RemoveDecorator, '@first\n@second\n@third\ndef bar(): pass', '@first\n@third\ndef bar(): pass', 1),
+        (ExceptionReplacer,
+         'try: raise OSError\nexcept OSError: pass',
+         'try: raise OSError\nexcept CosmicRayTestingException: pass'),
+        (ExceptionReplacer,
+         'try: raise OSError\nexcept (OSError, ValueError): pass',
+         'try: raise OSError\nexcept (OSError, CosmicRayTestingException): pass', 1),
+        (ExceptionReplacer,
+         'try: raise OSError\nexcept (OSError, ValueError, KeyError): pass',
+         'try: raise OSError\nexcept (OSError, CosmicRayTestingException, KeyError): pass', 1),
     )
 ]
 
@@ -103,3 +111,11 @@ def test_no_mutation_leaves_ast_unchanged(sample):
     mutant = visitor.walk(node)
 
     assert mutant.get_code() == sample.from_code
+
+
+def test_raw_except():
+    node = parso.parse('try: pass\nexcept: pass')
+    visitor = MutationVisitor(0, ExceptionReplacer())
+    mutant = visitor.walk(node)
+
+    assert mutant.get_code() == node.get_code()

@@ -1,7 +1,8 @@
 "Implementation of the exception-replacement operator."
 
-import ast
 import builtins
+
+from parso.python.tree import Name, PythonNode
 
 from .operator import Operator
 
@@ -21,14 +22,27 @@ setattr(builtins,
 class ExceptionReplacer(Operator):
     """An operator that modifies exception handlers."""
 
-    def visit_ExceptHandler(self, node):  # noqa # pylint: disable=invalid-name
-        "Visit an exception handler node."
-        return self.visit_mutation_site(node)
+    def mutation_count(self, node):
+        if isinstance(node, PythonNode):
+            if node.type == 'except_clause':
+                return len(self._name_nodes(node))
 
-    def mutate(self, node, _):
-        """Modify the exception handler with another exception type."""
-        except_id = CosmicRayTestingException.__name__
-        except_type = ast.Name(id=except_id, ctx=ast.Load())
-        new_node = ast.ExceptHandler(type=except_type, name=node.name,
-                                     body=node.body)
-        return new_node
+        return 0
+
+    def mutate(self, node, index):
+        assert isinstance(node, PythonNode)
+        assert node.type == 'except_clause'
+
+        name_nodes = self._name_nodes(node)
+        assert index < len(name_nodes)
+        name_nodes[index].value = CosmicRayTestingException.__name__
+        return node
+
+    @staticmethod
+    def _name_nodes(node):
+        if isinstance(node.children[1], Name):
+            return (node.children[1],)
+        else:
+            atom = node.children[1]
+            test_list = atom.children[1]
+            return test_list.children[::2]
