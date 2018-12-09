@@ -159,5 +159,5 @@ def test_operators_success_returns_EX_OK():
 
 
 def test_worker_success_returns_EX_OK(lobotomize, local_unittest_config):
-    cmd = ['worker', 'some_module', 'core/ReplaceTrueFalse', '0', local_unittest_config]
+    cmd = ['worker', 'some_module', 'core/ReplaceTrueWithFalse', '0', local_unittest_config]
     assert cosmic_ray.cli.main(cmd) == ExitCode.OK

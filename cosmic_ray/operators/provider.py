@@ -23,7 +23,7 @@ _OPERATORS = {
         #comparison_operator_replacement.operators(),
         #unary_operator_replacement.operators(),
         (#boolean_replacer.AddNot,
-         boolean_replacer.ReplaceTrueFalse,
+         boolean_replacer.ReplaceTrueWithFalse,
          #boolean_replacer.ReplaceAndWithOr,
          #boolean_replacer.ReplaceOrWithAnd,
          #break_continue.ReplaceBreakWithContinue,
