@@ -5,17 +5,17 @@ import pytest
 
 import parso
 
-# from cosmic_ray.operators.comparison_operator_replacement import \
-#     (ReplaceComparisonOperator_Gt_Lt,
-#      ReplaceComparisonOperator_Is_IsNot,
-#      ReplaceComparisonOperator_Gt_Eq)
+from cosmic_ray.operators.comparison_operator_replacement import \
+    (ReplaceComparisonOperator_Eq_IsNot,
+     ReplaceComparisonOperator_Gt_Lt,
+     ReplaceComparisonOperator_Is_IsNot,
+     ReplaceComparisonOperator_Gt_Eq)
 # from cosmic_ray.operators.unary_operator_replacement import \
 #     (ReplaceUnaryOperator_Delete_Not,
 #      ReplaceUnaryOperator_USub_UAdd)
 from cosmic_ray.operators.binary_operator_replacement import \
     (ReplaceBinaryOperator_Mul_Add,
      ReplaceBinaryOperator_Sub_Mod) # TODO: Add the rest?
-# from cosmic_ray.counting import _CountingCore
 from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse
 #                                                    ReplaceAndWithOr,
 #                                                    ReplaceOrWithAnd,
@@ -40,9 +40,10 @@ OPERATOR_SAMPLES = [
     # (ReplaceBreakWithContinue, 'while True: break'),
     # (ReplaceContinueWithBreak, 'while False: continue'),
     # (NumberReplacer, 'x = 1'),
-    # (ReplaceComparisonOperator_Gt_Lt, 'if x > y: pass'),
-    # (ReplaceComparisonOperator_Is_IsNot, 'if x is None: pass'),
-    # (ReplaceComparisonOperator_Gt_Eq, 'if x > 42: pass'),
+    (ReplaceComparisonOperator_Eq_IsNot, 'x == y'),
+    (ReplaceComparisonOperator_Gt_Lt, 'if x > y: pass'),
+    (ReplaceComparisonOperator_Is_IsNot, 'if x is None: pass'),
+    (ReplaceComparisonOperator_Gt_Eq, 'if x > 42: pass'),
     # (ReplaceUnaryOperator_Delete_Not, 'return not X'),
     # (ReplaceUnaryOperator_USub_UAdd, 'x = -1'),
     (ReplaceBinaryOperator_Mul_Add, 'x * y'),
