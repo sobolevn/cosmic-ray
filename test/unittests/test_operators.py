@@ -6,9 +6,7 @@ import pytest
 import parso
 
 from cosmic_ray.operators.comparison_operator_replacement import *
-# from cosmic_ray.operators.unary_operator_replacement import \
-#     (ReplaceUnaryOperator_Delete_Not,
-#      ReplaceUnaryOperator_USub_UAdd)
+from cosmic_ray.operators.unary_operator_replacement import *
 from cosmic_ray.operators.binary_operator_replacement import *
 from cosmic_ray.operators.boolean_replacer import ReplaceTrueWithFalse, ReplaceFalseWithTrue, ReplaceAndWithOr, ReplaceOrWithAnd, AddNot
 from cosmic_ray.operators.break_continue import ReplaceBreakWithContinue, ReplaceContinueWithBreak
@@ -53,8 +51,6 @@ OPERATOR_SAMPLES = [
         (ReplaceComparisonOperator_Gt_Eq, 'if x > 42: pass', 'if x == 42: pass'),
         (ReplaceComparisonOperator_Gt_Eq, 'if x > 42 > 69: pass', 'if x > 42 == 69: pass', 1),
         (ReplaceComparisonOperator_LtE_IsNot, 'if x <= 4 <= 5 <= 4.3: pass', 'if x <= 4 <= 5 is not 4.3: pass', 2),
-        # (ReplaceUnaryOperator_Delete_Not, 'return not X'),
-        # (ReplaceUnaryOperator_USub_UAdd, 'x = -1'),
         (ReplaceBinaryOperator_Mul_Add, 'x * y', 'x + y'),
         (ReplaceBinaryOperator_Sub_Mod, 'x - y', 'x % y'),
         (ZeroIterationForLoop, 'for i in range(1,2): pass', 'for i in []: pass'),
@@ -71,28 +67,15 @@ OPERATOR_SAMPLES = [
         (ExceptionReplacer,
          'try: raise OSError\nexcept (OSError, ValueError, KeyError): pass',
          'try: raise OSError\nexcept (OSError, CosmicRayTestingException, KeyError): pass', 1),
+         (ExceptionReplacer,
+         'try: pass\nexcept: pass', 'try: pass\nexcept: pass'),
+        # (ReplaceUnaryOperator_Delete_Not, 'return not X'),
+        (ReplaceUnaryOperator_USub_UAdd, 'x = -1', 'x = +1'),
+        (ReplaceUnaryOperator_USub_UAdd, 'x + 1', 'x + 1'),
+        # (ReplaceBinaryOperator_Add_Mul, '+1', '+1')
+
     )
 ]
-
-
-@pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
-def test_activation_record_created(sample):
-    node = parso.parse(sample.from_code)
-    visitor = MutationVisitor(0, sample.operator())
-
-    assert visitor.activation_record is None
-
-    visitor.walk(node)
-
-    assert visitor.activation_record is not None
-
-
-@pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
-def test_no_activation_record_created(sample):
-    node = parso.parse(sample.from_code)
-    visitor = MutationVisitor(-1, sample.operator())
-    visitor.walk(node)
-    assert visitor.activation_record is None
 
 
 @pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
@@ -111,11 +94,3 @@ def test_no_mutation_leaves_ast_unchanged(sample):
     mutant = visitor.walk(node)
 
     assert mutant.get_code() == sample.from_code
-
-
-def test_raw_except():
-    node = parso.parse('try: pass\nexcept: pass')
-    visitor = MutationVisitor(0, ExceptionReplacer())
-    mutant = visitor.walk(node)
-
-    assert mutant.get_code() == node.get_code()

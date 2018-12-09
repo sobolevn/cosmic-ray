@@ -28,28 +28,26 @@ _BINARY_OPERATORS = (
 def _create_replace_binary_operator(from_op, from_name, to_op, to_name):
     @extend_name('_{}_{}'.format(from_name, to_name))
     class ReplaceBinaryOperator(Operator):
-        """An operator that replaces binary operators."""
+        "An operator that replaces binary {} with binary {}.".format(from_name, to_name)
 
         def mutation_count(self, node):
-            # TODO: Would node.type == 'operator' be better?
             if isinstance(node, parso.python.tree.Operator):
-                if node.value == self.from_op:
-                    return 1 
+                # TODO: Need to check that node.parent isn't a 'factor' node. A factor parent indicates a unary op.
+                if node.value == from_op:
+                    return 1
             return 0
 
         def mutate(self, node, _):
-            node.value = self.to_op
+            node.value = to_op
             return node
 
-    ReplaceBinaryOperator.to_op = to_op
-    ReplaceBinaryOperator.from_op = from_op
-
     return ReplaceBinaryOperator
+
 
 # Build all of the binary replacement operators
 _MUTATION_OPERATORS = tuple(
     _create_replace_binary_operator(from_op, from_name, to_op, to_name)
-    for (from_op, from_name), (to_op, to_name) 
+    for (from_op, from_name), (to_op, to_name)
     in itertools.permutations(_BINARY_OPERATORS, 2))
 
 # Inject operators into module namespace
@@ -59,4 +57,4 @@ for op_cls in _MUTATION_OPERATORS:
 
 def operators():
     "Iterable of all binary operator replacement mutation operators."
-    return iter(_MUTATION_OPERATORS)
+    return _MUTATION_OPERATORS
