@@ -26,66 +26,31 @@ class ReplaceTrueFalse(Operator):
 class ReplaceAndWithOr(Operator):
     """An operator that swaps 'and' with 'or'."""
 
-    def visit_BoolOp(self, node):  # noqa # pylint: disable=invalid-name
-        """
-            http://greentreesnakes.readthedocs.io/en/latest/nodes.html#BoolOp
-        """
-        if isinstance(node.op, ast.And):
-            return self.visit_mutation_site(node, len(node.values))
-        return node
+    def mutation_count(self, node):
+        if isinstance(node, parso.python.tree.Keyword):
+            if node.value == 'and':
+                return 1
+        return 0
 
     def mutate(self, node, idx):
-        """Replace AND with OR."""
-        # replace all occurences of And()
-        # A and B and C -> A or B or C
-        node.op = ast.Or()
-
-        # or replace an operator somewhere in the middle
-        # of the expression
-        if idx and len(node.values) > 2:
-            left = node.values[:idx]
-            if len(left) > 1:
-                left = [ast.BoolOp(op=ast.And(), values=left)]
-
-            right = node.values[idx:]
-            if len(right) > 1:
-                right = [ast.BoolOp(op=ast.And(), values=right)]
-
-            node.values = []
-            node.values.extend(left)
-            node.values.extend(right)
-
+        assert idx == 0
+        assert node.value == 'and'
+        node.value = 'or'
         return node
 
 
 class ReplaceOrWithAnd(Operator):
     """An operator that swaps 'or' with 'and'."""
-
-    def visit_BoolOp(self, node):  # noqa # pylint: disable=invalid-name
-        """
-            http://greentreesnakes.readthedocs.io/en/latest/nodes.html#BoolOp
-        """
-        if isinstance(node.op, ast.Or):
-            return self.visit_mutation_site(node, len(node.values))
-        return node
+    def mutation_count(self, node):
+        if isinstance(node, parso.python.tree.Keyword):
+            if node.value == 'or':
+                return 1
+        return 0
 
     def mutate(self, node, idx):
-        """Replace OR with AND."""
-        if idx and len(node.values) > 2:
-            left_list = node.values[:idx - 1]
-            right_list = node.values[idx + 1:]
-            left = node.values[idx - 1]
-            right = node.values[idx]
-
-            new_node = ast.BoolOp(op=ast.And(), values=[left, right])
-
-            node.values = []
-            node.values.extend(left_list)
-            node.values.append(new_node)
-            node.values.extend(right_list)
-        else:
-            node.op = ast.And()
-
+        assert idx == 0
+        assert node.value == 'or'
+        node.value = 'and'
         return node
 
 

@@ -10,9 +10,7 @@ from cosmic_ray.operators.comparison_operator_replacement import *
 #     (ReplaceUnaryOperator_Delete_Not,
 #      ReplaceUnaryOperator_USub_UAdd)
 from cosmic_ray.operators.binary_operator_replacement import *  
-from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse
-#                                                    ReplaceAndWithOr,
-#                                                    ReplaceOrWithAnd,
+from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse, ReplaceAndWithOr, ReplaceOrWithAnd
 #                                                    AddNot)
 # from cosmic_ray.operators.break_continue import (ReplaceBreakWithContinue,
 #                                                  ReplaceContinueWithBreak)
@@ -36,8 +34,8 @@ OPERATOR_SAMPLES = [
     for args in (
 
         (ReplaceTrueFalse, 'True', 'False'),
-        # (ReplaceAndWithOr, 'if True and False: pass'),
-        # (ReplaceOrWithAnd, 'if True or False: pass'),
+        (ReplaceAndWithOr, 'if True and False: pass', 'if True or False: pass'),
+        (ReplaceOrWithAnd, 'if True or False: pass', 'if True and False: pass'),
         # (AddNot, 'if True or False: pass'),
         # (AddNot, 'A if B else C'),
         # (AddNot, 'assert isinstance(node, ast.Break)'),
