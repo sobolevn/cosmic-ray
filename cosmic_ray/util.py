@@ -10,6 +10,7 @@ except ImportError:
 
     import sys
 
+    # TODO: Let's get rid of this and require 3.4+
 
     # noqa # redirect_stdout was introduced in Python 3.4
     class _RedirectStream:
@@ -76,6 +77,7 @@ def build_mutations(ops, to_ops):
             if from_op is not to_op]
 
 
+# TODO: Get rid of this. Review all funcs in this module to see if they can go.
 def compare_ast(node1, node2):
     """Compares two AST nodes for equality.
 

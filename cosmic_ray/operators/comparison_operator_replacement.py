@@ -38,12 +38,14 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
     @set_name(from_op_name, to_op_name)
     class ReplaceComparisonOperator(Operator):
         def mutation_count(self, node):
-            if node.type == 'operator':
-                if node.value == self.from_op:
-                    return 1
-            elif node.type == 'comp_op':
-                if node.value == self.from_op:
-                    return 1
+            if node.type == 'comparison':
+                # Every other child starting at 1 is a comparison operator of some sort
+                return len([
+                    comparison_op
+                    for comparison_op in node.children[1::2]
+                    if comparison_op.get_code().strip() == self.from_op
+                ])
+
             return 0
 
         def mutate(self, node, index):
@@ -51,7 +53,10 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
 
             # TODO: this is technically wrong because we don't set the correct
             # start/end_pos. Does this matter?
-            return parso.parse(code).children[0].children[1]
+            mutated_comparison_op = parso.parse(code)
+
+            node.children[index * 2 + 1] = mutated_comparison_op
+            return node
 
     ReplaceComparisonOperator.from_op = from_op
     ReplaceComparisonOperator.to_op = to_op
