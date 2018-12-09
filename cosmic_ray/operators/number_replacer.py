@@ -1,7 +1,7 @@
 """Implementation of the NumberReplacer operator.
 """
 
-import ast
+import parso
 
 from .operator import Operator
 
@@ -17,15 +17,16 @@ OFFSETS = [
 class NumberReplacer(Operator):
     """An operator that modifies numeric constants."""
 
-    def visit_Num(self, node):  # noqa # pylint: disable=invalid-name
-        "Visit a number node."
-        return self.visit_mutation_site(node, len(OFFSETS))
+    def mutation_count(self, node):
+        if isinstance(node, parso.python.tree.Number):
+            return len(OFFSETS)
+        return 0
 
     def mutate(self, node, idx):
         """Modify the numeric value on `node`."""
 
         assert idx < len(OFFSETS), 'received count with no associated offset'
+        assert isinstance(node, parso.python.tree.Number)
 
-        offset = OFFSETS[idx]
-        new_node = ast.Num(n=node.n + offset)
-        return new_node
+        val = eval(node.value) + OFFSETS[idx]
+        return parso.parse(' ' + str(val))

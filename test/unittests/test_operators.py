@@ -13,7 +13,7 @@ from cosmic_ray.operators.binary_operator_replacement import *
 from cosmic_ray.operators.boolean_replacer import ReplaceTrueWithFalse, ReplaceFalseWithTrue, ReplaceAndWithOr, ReplaceOrWithAnd, AddNot
 from cosmic_ray.operators.break_continue import ReplaceBreakWithContinue, ReplaceContinueWithBreak
 # from cosmic_ray.operators.exception_replacer import ExceptionReplacer
-# from cosmic_ray.operators.number_replacer import NumberReplacer
+from cosmic_ray.operators.number_replacer import NumberReplacer
 # from cosmic_ray.operators.remove_decorator import RemoveDecorator
 # from cosmic_ray.operators.zero_iteration_loop import ZeroIterationLoop
 from cosmic_ray.mutating import MutationVisitor
@@ -41,7 +41,12 @@ OPERATOR_SAMPLES = [
         (AddNot, 'while True: pass', 'while not True: pass'),
         (ReplaceBreakWithContinue, 'while True: break', 'while True: continue'),
         (ReplaceContinueWithBreak, 'while False: continue', 'while False: break'),
-        # (NumberReplacer, 'x = 1'),
+        (NumberReplacer, 'x = 1', 'x = 2'),
+        (NumberReplacer, 'x = 1', 'x = 0', 1),
+        (NumberReplacer, 'x = 4.2', 'x = 5.2'),
+        (NumberReplacer, 'x = 4.2', 'x = 3.2', 1),
+        (NumberReplacer, 'x = 1j', 'x = (1+1j)'),
+        (NumberReplacer, 'x = 1j', 'x = (-1+1j)', 1),
         (ReplaceComparisonOperator_Eq_IsNot, 'x == y', 'x is not y'),
         (ReplaceComparisonOperator_Gt_Lt, 'if x > y: pass', 'if x < y: pass'),
         (ReplaceComparisonOperator_Is_IsNot, 'if x is None: pass', 'if x is not None: pass'),
