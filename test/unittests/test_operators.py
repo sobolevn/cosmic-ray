@@ -72,7 +72,7 @@ OPERATOR_SAMPLES = [
         # (ReplaceUnaryOperator_Delete_Not, 'return not X'),
         (ReplaceUnaryOperator_USub_UAdd, 'x = -1', 'x = +1'),
         (ReplaceUnaryOperator_USub_UAdd, 'x + 1', 'x + 1'),
-        # (ReplaceBinaryOperator_Add_Mul, '+1', '+1')
+        (ReplaceBinaryOperator_Add_Mul, '+1', '+1'),
 
     )
 ]

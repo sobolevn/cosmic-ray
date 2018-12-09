@@ -31,17 +31,30 @@ def _create_replace_binary_operator(from_op, from_name, to_op, to_name):
         "An operator that replaces binary {} with binary {}.".format(from_name, to_name)
 
         def mutation_count(self, node):
-            if isinstance(node, parso.python.tree.Operator):
-                # TODO: Need to check that node.parent isn't a 'factor' node. A factor parent indicates a unary op.
+            if _is_binary_operator(node):
                 if node.value == from_op:
                     return 1
             return 0
 
-        def mutate(self, node, _):
+        def mutate(self, node, index):
+            assert _is_binary_operator(node)
+            assert index == 0
+
             node.value = to_op
             return node
 
     return ReplaceBinaryOperator
+
+
+def _is_binary_operator(node):
+    if isinstance(node, parso.python.tree.Operator):
+        if isinstance(node.parent, parso.python.tree.PythonNode):
+            return node.parent.type != 'factor'
+        else:
+            return True
+
+    return False
+
 
 
 # Build all of the binary replacement operators

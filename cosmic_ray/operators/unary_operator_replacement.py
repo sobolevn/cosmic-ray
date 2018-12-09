@@ -3,7 +3,7 @@
 
 from itertools import permutations
 
-import parso.python.tree 
+import parso 
 
 from .operator import Operator
 from .util import extend_name
@@ -23,25 +23,25 @@ def _create_replace_unary_operators(from_op, from_name, to_op, to_name):
         "An operator that replaces unary {} with unary {}.".format(from_name, to_name)
 
         def mutation_count(self, node):
-            if self._is_unary_operator(node):
+            if _is_unary_operator(node):
                 if node.value == from_op:
                     return 1
             return 0
 
         def mutate(self, node, index):
             assert index == 0
-            assert self._is_unary_operator(node)
+            assert _is_unary_operator(node)
             node.value = to_op
             return node
 
-        @staticmethod
-        def _is_unary_operator(node):
-            if isinstance(node, parso.python.tree.Operator):
-                if node.parent.type == 'factor':
-                    return True
-            return False
-
     return ReplaceUnaryOperator
+
+
+def _is_unary_operator(node):
+    if isinstance(node, parso.python.tree.Operator):
+        if node.parent.type == 'factor':
+            return True
+    return False
 
 
 _MUTATION_OPERATORS = tuple(
