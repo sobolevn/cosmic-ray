@@ -6,11 +6,8 @@ import itertools
 import parso.python.tree
 
 from .operator import Operator
+from .util import extend_name
 
-
-# Notes: look for a parso Node with 'node.type == "comparison"'. The second
-# child might be a 'comp_op', or it might be an Operator node. These will
-# contain the elements of the operator that we need to work with.
 
 _OPERATOR_DESCRIPTIONS = (
     ('==', 'Eq'),
@@ -23,19 +20,9 @@ _OPERATOR_DESCRIPTIONS = (
     ('is not', 'IsNot'),
 )
 
-def set_name(from_op_name, to_op_name):
-    def dec(cls):
-        name = '{}_{}_{}'.format(
-            cls.__name__,
-            from_op_name, 
-            to_op_name)
-        setattr(cls, '__name__', name)
-        return cls
-    return dec
-
 
 def _create_operator(from_op, from_op_name, to_op, to_op_name):
-    @set_name(from_op_name, to_op_name)
+    @extend_name('_{}_{}'.format(from_op_name, to_op_name))
     class ReplaceComparisonOperator(Operator):
         def mutation_count(self, node):
             if node.type == 'comparison':
@@ -49,12 +36,10 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
             return 0
 
         def mutate(self, node, index):
-            code = 'x {} y'.format(self.to_op)
-
             # TODO: this is technically wrong because we don't set the correct
             # start/end_pos. Does this matter?
-            mutated_comparison_op = parso.parse(code)
 
+            mutated_comparison_op = parso.parse(' ' + self.to_op)
             node.children[index * 2 + 1] = mutated_comparison_op
             return node
 
@@ -69,6 +54,7 @@ _OPERATORS = tuple(
     for (from_op, from_name), (to_op, to_name) 
     in itertools.permutations(_OPERATOR_DESCRIPTIONS, 2))
 
+# Inject the operators into the module namespace
 for op_cls in _OPERATORS:
     globals()[op_cls.__name__] = op_cls
 

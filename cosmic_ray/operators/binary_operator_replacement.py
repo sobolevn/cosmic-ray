@@ -6,6 +6,7 @@ import itertools
 import parso
 
 from .operator import Operator
+from .util import extend_name
 
 
 _BINARY_OPERATORS = (
@@ -24,19 +25,8 @@ _BINARY_OPERATORS = (
 )
 
 
-def set_name(from_op_name, to_op_name):
-    def dec(cls):
-        name = '{}_{}_{}'.format(
-            cls.__name__,
-            from_op_name, 
-            to_op_name)
-        setattr(cls, '__name__', name)
-        return cls
-    return dec
-
-
 def _create_replace_binary_operator(from_op, from_name, to_op, to_name):
-    @set_name(from_name, to_name)
+    @extend_name('_{}_{}'.format(from_name, to_name))
     class ReplaceBinaryOperator(Operator):
         """An operator that replaces binary operators."""
 
@@ -62,6 +52,7 @@ _MUTATION_OPERATORS = tuple(
     for (from_op, from_name), (to_op, to_name) 
     in itertools.permutations(_BINARY_OPERATORS, 2))
 
+# Inject operators into module namespace
 for op_cls in _MUTATION_OPERATORS:
     globals()[op_cls.__name__] = op_cls
 
