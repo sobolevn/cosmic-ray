@@ -10,8 +10,7 @@ from cosmic_ray.operators.comparison_operator_replacement import *
 #     (ReplaceUnaryOperator_Delete_Not,
 #      ReplaceUnaryOperator_USub_UAdd)
 from cosmic_ray.operators.binary_operator_replacement import *  
-from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse, ReplaceAndWithOr, ReplaceOrWithAnd
-#                                                    AddNot)
+from cosmic_ray.operators.boolean_replacer import ReplaceTrueFalse, ReplaceAndWithOr, ReplaceOrWithAnd, AddNot
 # from cosmic_ray.operators.break_continue import (ReplaceBreakWithContinue,
 #                                                  ReplaceContinueWithBreak)
 # from cosmic_ray.operators.exception_replacer import ExceptionReplacer
@@ -36,10 +35,10 @@ OPERATOR_SAMPLES = [
         (ReplaceTrueFalse, 'True', 'False'),
         (ReplaceAndWithOr, 'if True and False: pass', 'if True or False: pass'),
         (ReplaceOrWithAnd, 'if True or False: pass', 'if True and False: pass'),
-        # (AddNot, 'if True or False: pass'),
-        # (AddNot, 'A if B else C'),
-        # (AddNot, 'assert isinstance(node, ast.Break)'),
-        # (AddNot, 'while True: pass'),
+        (AddNot, 'if True or False: pass', 'if not True or False: pass'),
+        (AddNot, 'A if B else C', 'A if not B else C'),
+        (AddNot, 'assert isinstance(node, ast.Break)', 'assert not isinstance(node, ast.Break)'),
+        (AddNot, 'while True: pass', 'while not True: pass'),
         # (ReplaceBreakWithContinue, 'while True: break'),
         # (ReplaceContinueWithBreak, 'while False: continue'),
         # (NumberReplacer, 'x = 1'),
