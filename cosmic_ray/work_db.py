@@ -177,10 +177,10 @@ class WorkDB:
                     INSERT INTO results
                     VALUES (?, ?, ?, ?, ?)
                     ''',
-                    (result.output,
+                    (result.worker_outcome.value,  # should never be None
+                     result.output,
                      None if result.test_outcome is None else result.test_outcome.value,
-                     result.worker_outcome.value,  # should never be None
-                     json.dumps(result.diff), 
+                     json.dumps(result.diff),
                      job_id))
             except sqlite3.IntegrityError as exc:
                 raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
@@ -194,7 +194,7 @@ class WorkDB:
     @property
     def completed_work_items(self):
         completed = self._conn.execute("SELECT * FROM work_items, results WHERE work_items.job_id == results.job_id")
-        #for c in completed:
+        # for c in completed:
         #    print(list(c))
         return (
             (WorkItem(*result[:6]), WorkResult(*result[6:10]))
@@ -224,9 +224,9 @@ class WorkDB:
 
             self._conn.execute('''
             CREATE TABLE IF NOT EXISTS results
-            (output text,
+            (worker_outcome text,
+             output text,
              test_outcome text,
-             worker_outcome text,
              diff text,
              job_id text primary key,
              FOREIGN KEY(job_id) REFERENCES work_items(job_id)

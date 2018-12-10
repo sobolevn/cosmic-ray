@@ -46,9 +46,27 @@ options:
     arguments = docopt.docopt(report.__doc__, version='cr-format 0.1')
     full_report = arguments['--full-report']
     show_pending = arguments['--show-pending']
-    records = (WorkItem(json.loads(line, cls=WorkItemJsonDecoder)) for line in sys.stdin)
-    for line in create_report(records, show_pending, full_report):
-        print(line)
+
+    records = (json.loads(line, cls=WorkItemJsonDecoder) for line in sys.stdin)
+    records = ((work_item, result) for work_item, result in records if result or show_pending)
+    for work_item, result in records:
+        print('{} {} {} {}'.format(
+            work_item.job_id,
+            work_item.module_path,
+            work_item.operator_name,
+            work_item.occurrence))
+
+        if result is not None:
+            print('worker outcome: {}, test outcome: {}'.format(
+                result.worker_outcome,
+                result.test_outcome))
+            if full_report:
+                print('=== OUTPUT ===')
+                print(result.output)
+                print('==============')
+                print('=== DIFF ===')
+                print(result.diff)
+                print('============')
 
 
 def _create_element_from_item(work_item):
