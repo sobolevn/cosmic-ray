@@ -4,17 +4,12 @@
 
 * TODO Re-enable interceptors
 
-* TODO Re-enable all oeprators
-
-    These largely need to be rewritten, so do them one at a time.
-
 * TODO All tests need to pass
-
-* TODO Remove faffing around with sys.path. 
-  It seems unnecessary now.
-
-* TODO Counting
 
 * TODO use `module-path` in all canned test configs.
 
 * TODO If we run init on an existing session, we generally get a constraint violation because we're deleting work items with results. We need to fix "clear" so that it deletes results first.
+
+* TODO Verify that celery tests work
+
+* TODO I think the worker is leaving mutations in place when there is a segfault.

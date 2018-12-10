@@ -42,9 +42,6 @@ def handle_baseline(args):
     a baseline run doesn't mutate the code.
 
     """
-    # TODO: Can this be removed? I think so.
-    sys.path.insert(0, '')
-
     config = load_config(args['<config-file>'])
 
     test_runner = cosmic_ray.plugins.get_test_runner(
@@ -99,10 +96,6 @@ def handle_init(args):
     The `session-file` is the filename for the database in which the
     work order will be stored.
     """
-    # This lets us import modules from the current directory. Should
-    # probably be optional, and needs to also be applied to workers!
-    sys.path.insert(0, '')
-
     config_file = args['<config-file>']
 
     config = load_config(config_file)
