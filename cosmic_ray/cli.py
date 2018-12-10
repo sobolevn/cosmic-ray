@@ -25,6 +25,7 @@ from cosmic_ray.config import get_db_name, load_config, serialize_config
 from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.progress import report_progress
 from cosmic_ray.testing.test_runner import TestOutcome
+from cosmic_ray.testing import run_tests
 from cosmic_ray.timing import Timer
 from cosmic_ray.util import redirect_stdout
 from cosmic_ray.work_db import use_db, WorkDB
@@ -44,11 +45,10 @@ def handle_baseline(args):
     """
     config = load_config(args['<config-file>'])
 
-    test_runner = cosmic_ray.plugins.get_test_runner(
-        config['test-runner', 'name'],
-        config['test-runner', 'args'])
+    test_cmd = config['test-command']
 
-    outcome, data = test_runner()
+    outcome, data = run_tests(test_cmd)
+
     # note: test_runner() results are meant to represent
     # status codes when executed against mutants.
     # SURVIVED means that the test suite executed without any error

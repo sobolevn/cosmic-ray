@@ -2,6 +2,7 @@
 
 import abc
 import sys
+import subprocess
 import traceback
 
 from cosmic_ray.util import StrEnum
@@ -16,27 +17,28 @@ class TestOutcome(StrEnum):
     INCOMPETENT = 'incompetent'
 
 
-# TODO: Remove?
-class TestRunnerFailure(Exception):
-    """Failure reported from a test runner.
+def run_tests(command, timeout=0):
+    """Run test command in a subprocess.
+
+    If the command exits with status 0, then we assume that all tests passed. If
+    it exits with any other code, we assume a test failed. If the call to launch
+    the subprocess throws an exception, we consider the test 'incompetent'.
+
+    Args: command (str): The command to execute.
+
+    Return: A tuple `(TestOutcome, output)` where the `output` is a string
+        containing the output of the command.
     """
-    def __init__(self, msg, exit_code=None, output=None):  # pylint: disable=useless-super-delegation
-        super().__init__(msg, exit_code, output)
-
-    @property
-    def msg(self):
-        "A message describing the failure."
-        return self.args[0]
-
-    @property
-    def exit_code(self):
-        "The exit code of the test runner (if applicable)."
-        return self.args[1]
-
-    @property
-    def output(self):
-        "The output of the test runner (if applicable)."
-        return self.args[2]
+    try:
+        completed_process = subprocess.run(command.split(),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.STDOUT,
+                                           timeout=timeout)
+        if completed_process.returncode == 0:
+            return (TestOutcome.SURVIVED, completed_process.stdout)
+        return (TestOutcome.KILLED, completed_process.stdout)
+    except Exception:
+        return (TestOutcome.INCOMPETENT, traceback.format_exc())
 
 
 class TestRunner(metaclass=abc.ABCMeta):
@@ -81,5 +83,5 @@ class TestRunner(metaclass=abc.ABCMeta):
                 return (TestOutcome.SURVIVED, test_result[1])
             return (TestOutcome.KILLED, test_result[1])
         except Exception:  # pylint: disable=broad-except
-            return (TestOutcome.INCOMPETENT, 
+            return (TestOutcome.INCOMPETENT,
                     traceback.format_exception(*sys.exc_info()))
