@@ -141,8 +141,8 @@ def use_ctypes(size):
 
     # This odd construct ensures that, under number mutation to increase number
     # values, `size` varies by amounts big enough to trigger a segfault on the
-    # sbsequent memmove.
-    size = functools.reduce(operator.mul, [10, 10, 10, 10, 10, 10])
+    # subsequent memmove.
+    size = functools.reduce(operator.mul, [ 10, 10, 10, 10, 10, 10])
     ctypes.memmove(chars_a, chars_b, size)
     return chars_a.value
 

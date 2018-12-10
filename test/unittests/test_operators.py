@@ -1,6 +1,5 @@
 """Tests for the various mutation operators.
 """
-import copy
 import pytest
 
 import parso

@@ -85,7 +85,6 @@ setup(
         'test': ['hypothesis', 'pytest', 'pytest-mock', 'tox'],
         'docs': ['sphinx', 'sphinx_rtd_theme'],
         'pytest_runner': ['cosmic_ray_pytest_runner'],
-        'nose_runner': ['cosmic_ray_nose_runner'],
         'celery3_engine': ['cosmic_ray_celery3_engine'],
     },
     entry_points={
