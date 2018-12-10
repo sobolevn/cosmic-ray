@@ -152,7 +152,7 @@ class WorkDB:
                         worker_outcome=WorkerOutcome(row['worker_outcome']),
                         output=row['output'],
                         test_outcome=TestOutcome(row['test_outcome']),
-                        diff=json.loads(row['diff']))))
+                        diff=row['diff'])))
 
     @property
     def num_results(self):
@@ -180,7 +180,7 @@ class WorkDB:
                     (result.worker_outcome.value,  # should never be None
                      result.output,
                      None if result.test_outcome is None else result.test_outcome.value,
-                     json.dumps(result.diff),
+                     result.diff,
                      job_id))
             except sqlite3.IntegrityError as exc:
                 raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
