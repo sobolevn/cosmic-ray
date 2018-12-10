@@ -9,13 +9,13 @@ class WorkResult:
     """
     def __init__(self,
                  worker_outcome,
-                 data=None,
+                 output=None,
                  test_outcome=None,
                  diff=None):
         if worker_outcome is None:
             raise ValueError('Worker outcome must always have a value.')
 
-        self._data = data
+        self._output = output
         self._test_outcome = test_outcome
         self._worker_outcome = worker_outcome
         self._diff = diff
@@ -31,9 +31,9 @@ class WorkResult:
         return self._test_outcome
 
     @property
-    def data(self):
-        "Any data returned by the test-runner. Must be JSON-serializable. Possibly `None`."
-        return self._data
+    def output(self):
+        "Any output returned by the test command. Possibly `None`."
+        return self._output
 
     @property
     def diff(self):
@@ -42,7 +42,7 @@ class WorkResult:
 
     def as_dict(self):
         return {
-            'data': self.data,
+            'output': self.output,
             'test_outcome': self.test_outcome,
             'worker_outcome': self.worker_outcome,
             'diff': self.diff,
@@ -53,7 +53,6 @@ class WorkResult:
 
     def __neq__(self, rhs):
         return not self == rhs
-
 
 
 class WorkItem:

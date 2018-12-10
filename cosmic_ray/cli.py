@@ -24,8 +24,7 @@ import cosmic_ray.worker
 from cosmic_ray.config import get_db_name, load_config, serialize_config
 from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.progress import report_progress
-from cosmic_ray.testing.test_runner import TestOutcome
-from cosmic_ray.testing import run_tests
+from cosmic_ray.testing.test_runner import run_tests, TestOutcome
 from cosmic_ray.timing import Timer
 from cosmic_ray.util import redirect_stdout
 from cosmic_ray.work_db import use_db, WorkDB
@@ -185,18 +184,6 @@ def handle_dump(args):
 
 
 @dsc.command()
-def handle_test_runners(args):
-    """usage: {program} test-runners
-
-    List the available test-runner plugins.
-    """
-    assert args
-    print('\n'.join(cosmic_ray.plugins.test_runner_names()))
-
-    return ExitCode.OK
-
-
-@dsc.command()
 def handle_operators(args):
     """usage: {program} operators
 
@@ -258,9 +245,7 @@ def handle_worker(args):
                 Path(args['<module-path>']),
                 cosmic_ray.plugins.get_operator(args['<operator>']),
                 int(args['<occurrence>']),
-                cosmic_ray.plugins.get_test_runner(
-                    config['test-runner', 'name'],
-                    config['test-runner', 'args']))
+                config['test-command'])
 
     sys.stdout.write(json.dumps(work_item, cls=WorkItemJsonEncoder))
 

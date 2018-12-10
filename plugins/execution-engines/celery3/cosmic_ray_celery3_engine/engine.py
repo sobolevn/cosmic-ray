@@ -4,7 +4,7 @@ from cosmic_ray.execution.execution_engine import ExecutionEngine
 from cosmic_ray.work_item import WorkItem
 
 from .app import APP
-from .worker import execute_work_items
+from .worker import worker, execute_work_items
 
 
 class CeleryExecutionEngine(ExecutionEngine):
@@ -13,10 +13,12 @@ class CeleryExecutionEngine(ExecutionEngine):
         purge_queue = config['execution-engine'].get('purge-queue', True)
 
         try:
-            job = execute_work_items(
-                timeout,
-                pending_work,
-                config)
+            job = worker(
+                work_item.module_path, 
+                cosmic_ray.plugins.get_operator(work_item.operator_name),
+                work_item.occurrence,
+                config['test-command'],
+                timeout)
 
             result = job.apply_async()
             result.get(callback=on_task_complete)

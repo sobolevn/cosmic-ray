@@ -51,30 +51,6 @@ def operator_names():
         for operator_name in provider)
 
 
-def get_test_runner(name, test_args):
-    """Get a test-runner instance by name."""
-    test_runner_manager = driver.DriverManager(
-        namespace='cosmic_ray.test_runners',
-        name=name,
-        invoke_on_load=True,
-        invoke_args=(test_args,),
-        on_load_failure_callback=_log_extension_loading_failure,
-    )
-
-    return test_runner_manager.driver
-
-
-def test_runner_names():
-    """Get all test-runner plugin names.
-
-    Returns: A sequence of test-runner plugin names.
-    """
-    return ExtensionManager(
-        'cosmic_ray.test_runners',
-        on_load_failure_callback=_log_extension_loading_failure,
-    ).names()
-
-
 def get_interceptor(name):
     """Get an interceptor by name.
 

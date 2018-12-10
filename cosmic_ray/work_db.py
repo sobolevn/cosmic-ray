@@ -138,6 +138,7 @@ class WorkDB:
         This removes any associated results as well.
         """
         with self._conn:
+            self._conn.execute('DELETE FROM results')
             self._conn.execute('DELETE FROM work_items')
 
     @property
@@ -149,7 +150,7 @@ class WorkDB:
             yield ((row['job_id'],
                     WorkResult(
                         worker_outcome=WorkerOutcome(row['worker_outcome']),
-                        data=json.loads(row['data']),
+                        output=row['output'],
                         test_outcome=TestOutcome(row['test_outcome']),
                         diff=json.loads(row['diff']))))
 
@@ -176,7 +177,7 @@ class WorkDB:
                     INSERT INTO results
                     VALUES (?, ?, ?, ?, ?)
                     ''',
-                    (json.dumps(result.data),
+                    (result.output,
                      None if result.test_outcome is None else result.test_outcome.value,
                      result.worker_outcome.value,  # should never be None
                      json.dumps(result.diff), 
@@ -214,7 +215,7 @@ class WorkDB:
 
             self._conn.execute('''
             CREATE TABLE IF NOT EXISTS results
-            (data text,
+            (output text,
              test_outcome text,
              worker_outcome text,
              diff text,

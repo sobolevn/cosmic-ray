@@ -1,21 +1,17 @@
 """This is the body of the low-level worker tool.
-
-A worker is intended to run as a process that imports a module, mutates it in
-one location with one operator, runs the tests, reports the results, and dies.
 """
 
 from contextlib import contextmanager
 import difflib
-import multiprocessing.pool
-import sys
 import traceback
 
 from cosmic_ray.ast import get_ast
 import cosmic_ray.compat.json
 import cosmic_ray.mutating
-from cosmic_ray.testing.test_runner import TestOutcome
+import cosmic_ray.plugins
+from cosmic_ray.testing.test_runner import run_tests, TestOutcome
 from cosmic_ray.util import StrEnum
-from cosmic_ray.work_item import WorkItem, WorkResult
+from cosmic_ray.work_item import WorkResult
 
 
 # TODO: Is this still necessary?
@@ -35,8 +31,69 @@ class WorkerOutcome(StrEnum):
     EXCEPTION = 'exception'  # The worker exited with an exception
     ABNORMAL = 'abnormal'   # The worker did not exit normally or with an exception (e.g. a segfault)
     NO_TEST = 'no-test'     # The worker had no test to run
-    TIMEOUT = 'timeout'     # The worker timed out
     SKIPPED = 'skipped'     # The job was skipped (worker was not executed)
+
+
+def worker(module_path,
+           operator_name,
+           occurrence,
+           test_command,
+           timeout):
+    """Mutate the OCCURRENCE-th site for OPERATOR_NAME in MODULE_PATH, run the
+    tests, and report the results.
+
+    This is fundamentally the single-mutation-and-test-run process
+    implementation.
+
+    There are three high-level ways that a worker can finish. First, it could
+    fail exceptionally, meaning that some uncaught exception made its way from
+    some part of the operation to terminate the function. This function will
+    intercept all exceptions and return it in a non-exceptional structure.
+
+    Second, the mutation testing machinery may determine that there is no
+    OCCURENCE-th instance for OPERATOR_NAME in the module under test. In this
+    case there is no way to report a test result (i.e. killed, survived, or
+    incompetent) so a special value is returned indicating that no mutation is
+    possible.
+
+    Finally, and hopefully normally, the worker will find that it can run a
+    test. It will do so and report back the result - killed, survived, or
+    incompetent - in a structured way.
+
+    Args:
+        module_name: The path to the module to mutate
+        operator_name: The name of the operator plugin to use
+        occurrence: The occurrence of the operator to apply
+        test_command: The command to execute to run the tests
+        timeout: The maximum amount of time to let the tests run
+
+    Returns: A WorkResult
+
+    Raises: This will generally not raise any exceptions. Rather, exceptions
+        will be reported using the 'exception' result-type in the return value.
+
+    """
+    try:
+        operator_class = cosmic_ray.plugins.get_operator(operator_name)
+
+        with _apply_mutation(module_path, operator_class(), occurrence) as (mutation_applied, diff):
+            if not mutation_applied:
+                return WorkResult(
+                    worker_outcome=WorkerOutcome.NO_TEST)
+
+            test_outcome, output = run_tests(test_command, timeout)
+
+            return WorkResult(
+                output=output,
+                diff=diff,
+                test_outcome=test_outcome,
+                worker_outcome=WorkerOutcome.NORMAL)
+
+    except Exception:  # noqa # pylint: disable=broad-except
+        return WorkResult(
+            output=traceback.format_exc(),
+            test_outcome=TestOutcome.INCOMPETENT,
+            worker_outcome=WorkerOutcome.EXCEPTION)
 
 
 @contextmanager
@@ -63,114 +120,8 @@ def _apply_mutation(module_path, operator, occurrence):
     try:
         with module_path.open(mode='wt', encoding='utf-8') as handle:
             handle.write(modified_source)
-        yield visitor, module_diff
+        yield visitor.activation_record is not None, module_diff
     finally:
         with module_path.open(mode='wt', encoding='utf-8') as handle:
             handle.write(source)
 
-
-def worker(module_path,
-           operator_class,
-           occurrence,
-           test_runner):
-    """Mutate the OCCURRENCE-th site for OPERATOR_CLASS in MODULE_NAME, run the
-    tests, and report the results.
-
-    This is fundamentally the single-mutation-and-test-run process
-    implementation.
-
-    There are three high-level ways that a worker can finish. First, it could
-    fail exceptionally, meaning that some uncaught exception made its way from
-    some part of the operation to terminate the function. This function will
-    intercept all exceptions and return it in a non-exceptional structure.
-
-    Second, the mutation testing machinery may determine that there is no
-    OCCURENCE-th instance for OPERATOR_NAME in the module under test. In this
-    case there is no way to report a test result (i.e. killed, survived, or
-    incompetent) so a special value is returned indicating that no mutation is
-    possible.
-
-    Finally, and hopefully normally, the worker will find that it can run a
-    test. It will do so and report back the result - killed, survived, or
-    incompetent - in a structured way.
-
-    Args:
-        module_name: The path to the module to mutate
-        operator: The operator class (not instance) to be applied
-        occurrence: The occurrence of the operator to apply
-        test_runner: The test runner plugin to use
-
-    Returns: A WorkResult
-
-    Raises: This will generally not raise any exceptions. Rather, exceptions
-        will be reported using the 'exception' result-type in the return value.
-
-    """
-    try:
-        with _apply_mutation(module_path, operator_class(), occurrence) as (visitor, diff):
-            if not visitor.activation_record:
-                return WorkResult(
-                    worker_outcome=WorkerOutcome.NO_TEST)
-
-            test_outcome, data = test_runner()
-
-            return WorkResult(
-                diff=diff,
-                test_outcome=test_outcome,
-                worker_outcome=WorkerOutcome.NORMAL)
-
-    except Exception:  # noqa # pylint: disable=broad-except
-        return WorkResult(
-            data=traceback.format_exception(*sys.exc_info()),
-            test_outcome=TestOutcome.INCOMPETENT,
-            worker_outcome=WorkerOutcome.EXCEPTION)
-
-
-def _worker_multiprocessing_wrapper(pipe, *args, **kwargs):
-    """Wrapper for launching workers with multiprocessing.
-
-    Args:
-        pipe: The `multiprocessing.Pipe` for sending results.
-    """
-    item = worker(*args, **kwargs)
-    pipe.send(item)
-
-
-def execute_work_item(work_item,
-                      timeout,
-                      config):
-    """Execute the mutation and tests described in a `WorkItem`.
-
-    Args:
-        work_item: The WorkItem describing the work to do.
-        timeout: The maximum amount of time (seconds) to allow the subprocess
-            to run.
-        config: The configuration for the run.
-
-    Returns: A `WorkResult` with the results of the tests.
-
-    """
-    parent_conn, child_conn = multiprocessing.Pipe()
-    proc = multiprocessing.Process(
-        target=_worker_multiprocessing_wrapper,
-        args=(child_conn,
-              work_item.module_path,
-              cosmic_ray.plugins.get_operator(work_item.operator_name),
-              work_item.occurrence,
-              cosmic_ray.plugins.get_test_runner(
-                  config['test-runner', 'name'],
-                  config['test-runner', 'args'])))
-
-    proc.start()
-
-    if parent_conn.poll(timeout):
-        work_result = parent_conn.recv()
-    else:  # timeout
-        work_result = WorkResult(
-            worker_outcome=WorkerOutcome.TIMEOUT,
-            data=timeout)
-        proc.terminate()
-
-    proc.join()
-
-    return work_result

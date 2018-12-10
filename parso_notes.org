@@ -15,3 +15,5 @@
 * TODO I think the worker is leaving mutations in place when there is a segfault.
 
   The tests need to execute in a separate process from the worker code that mutates the code.
+
+* TODO Remove test-runner plugins from pypi?

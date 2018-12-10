@@ -2,7 +2,7 @@
 import celery
 from celery.utils.log import get_logger
 
-from cosmic_ray.worker import execute_work_item
+from cosmic_ray.worker import worker
 from cosmic_ray.work_item import WorkItem
 
 from .app import APP
@@ -26,10 +26,13 @@ def worker_task(work_item_dict,
 
     Returns: An updated WorkItem
     """
-    return execute_work_item(
-        WorkItem(work_item_dict),
-        timeout,
-        config)
+    work_item = WorkItem(**work_item_dict)
+    return worker(
+        work_item.module_path,
+        work_item.operator_name,
+        work_item.occurrence,
+        config['test-command'],
+        timeout)
 
 
 def execute_work_items(timeout,

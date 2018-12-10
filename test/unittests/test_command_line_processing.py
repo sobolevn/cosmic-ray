@@ -22,8 +22,7 @@ def config_file(tmpdir):
     return str(tmpdir.join('config.yml'))
 
 
-def _make_config(test_runner='unittest',
-                 test_args='tests',
+def _make_config(test_command='python -m unittest discover tests',
                  baseline=None,
                  timeout='100',
                  engine='local'):
@@ -33,14 +32,11 @@ def _make_config(test_runner='unittest',
 
 exclude-modules:
 
-test-runner:
-  name: {test_runner}
-  args: {test_args}
+test-command: {test_command}
 
 execution-engine:
   name: {engine}
-'''.format(test_runner=test_runner,
-           test_args=test_args,
+'''.format(test_command=test_command,
            timeout_type='timeout' if baseline is None else 'baseline',
            timeout_val=timeout if baseline is None else baseline,
            engine=engine)
@@ -148,10 +144,6 @@ def test_dump_success_returns_EX_OK(lobotomize, local_unittest_config, session):
 
     errcode = cosmic_ray.cli.main(['dump', str(session)])
     assert errcode == ExitCode.OK
-
-
-def test_test_runners_success_returns_EX_OK():
-    assert cosmic_ray.cli.main(['test-runners']) == ExitCode.OK
 
 
 def test_operators_success_returns_EX_OK():

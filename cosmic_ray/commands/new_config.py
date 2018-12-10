@@ -2,8 +2,7 @@
 
 import qprompt
 
-from cosmic_ray.plugins import (execution_engine_names,
-                                test_runner_names)
+from cosmic_ray.plugins import execution_engine_names
 
 TEMPLATE = '''module-path: {module_path}
 
@@ -11,9 +10,7 @@ baseline: 10
 
 exclude-modules:
 
-test-runner:
-  name: {test_runner}
-  args: {test_args}
+test-command: {test_command}
 
 execution-engine:
   name: {engine}
@@ -27,14 +24,7 @@ def new_config():
     """
     conf = {'module_path': qprompt.ask_str("Top-level module path")}
 
-    menu = qprompt.Menu()
-    test_runners = test_runner_names()
-    for at_pos, test_runner in enumerate(test_runners):
-        menu.add(str(at_pos), test_runner)
-    conf['test_runner'] = menu.show(header="Test runner",
-                                    returns="desc")
-
-    conf['test_args'] = qprompt.ask_str('Test args')
+    conf['test_command'] = qprompt.ask_str('Test command')
 
     menu = qprompt.Menu()
     for at_pos, engine_name in enumerate(execution_engine_names()):

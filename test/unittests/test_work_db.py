@@ -31,7 +31,7 @@ def test_jobs_with_results_are_not_pending(work_db):
     work_db.add_result(
         'job_id',
         WorkResult(
-            data='data',
+            output='data',
             test_outcome=TestOutcome.KILLED,
             worker_outcome=WorkerOutcome.NORMAL,
             diff='diff'))
@@ -43,7 +43,7 @@ def test_add_result_throws_KeyError_if_no_matching_work_item(work_db):
         work_db.add_result(
             'job_id',
             WorkResult(
-                data='data',
+                output='data',
                 test_outcome=TestOutcome.KILLED,
                 worker_outcome=WorkerOutcome.NORMAL,
                 diff='diff'))
@@ -57,7 +57,7 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
     work_db.add_result(
         'job_id',
         WorkResult(
-            data='data',
+            output='data',
             test_outcome=TestOutcome.KILLED,
             worker_outcome=WorkerOutcome.NORMAL,
             diff='diff'))
@@ -66,7 +66,7 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
         work_db.add_result(
             'job_id',
             WorkResult(
-                data='data',
+                output='data',
                 test_outcome=TestOutcome.KILLED,
                 worker_outcome=WorkerOutcome.NORMAL,
                 diff='diff'))
@@ -126,7 +126,7 @@ def test_results(work_db):
     original = [
         ('job_id_{}'.format(idx),
          WorkResult(
-             data='data_{}'.format(idx),
+             output='data_{}'.format(idx),
              test_outcome=TestOutcome.KILLED,
              worker_outcome=WorkerOutcome.NORMAL,
              diff='diff_{}'.format(idx)))

@@ -14,7 +14,7 @@ def test_no_test_return_value(data_dir):
         result = worker(Path("a/b.py"), boolean_replacer.ReplaceTrueWithFalse,
                         100, test_runner)
         expected = WorkResult(
-            data=None,
+            output=None,
             test_outcome=None,
             diff=None,
             worker_outcome=WorkerOutcome.NO_TEST)
