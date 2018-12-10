@@ -15,8 +15,6 @@
 
 * TODO Counting
 
-* TODO Remove nose support
-
 * TODO use `module-path` in all canned test configs.
 
 * TODO If we run init on an existing session, we generally get a constraint violation because we're deleting work items with results. We need to fix "clear" so that it deletes results first.

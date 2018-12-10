@@ -13,8 +13,6 @@ plugins/test-runners.
 Cosmic Ray comes with out of the box supported plugins for:
 1. unittest
 2. pytest
-3. nose
-4. nose2
 
 Each test runner is ultimately a subclass of
 ``cosmic_ray.testing.TestRunner``.

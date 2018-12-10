@@ -86,8 +86,7 @@ code. It has the following optional arguments:
 
 -  ``--no-local-import``: Allow importing module from the current
    directory.
--  ``--test-runner=R``: Use a different test runner, such as pytest or
-   nose.
+-  ``--test-runner=R``: Use a different test runner, such as pytest.
 -  ``exclude-modules=P``: Exclude modules matching this regex pattern
    from mutation.
 
