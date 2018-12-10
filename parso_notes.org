@@ -1,3 +1,5 @@
+* TODO report need to use new dump format
+
 * TODO Exclusion should be done via interceptors
 
     Rather than exclude modules at init time, we should exclude them using the interceptor system.
@@ -5,10 +7,6 @@
 * TODO Re-enable interceptors
 
 * TODO All tests need to pass
-
-* TODO use `module-path` in all canned test configs.
-
-* TODO If we run init on an existing session, we generally get a constraint violation because we're deleting work items with results. We need to fix "clear" so that it deletes results first.
 
 * TODO Verify that celery tests work
 

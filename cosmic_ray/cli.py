@@ -33,6 +33,7 @@ from cosmic_ray.work_item import WorkItemJsonEncoder
 
 log = logging.getLogger()
 
+
 @dsc.command()
 def handle_baseline(args):
     """usage: cosmic-ray baseline <config-file>
@@ -173,12 +174,17 @@ def handle_dump(args):
 
     JSON dump of session data. This output is typically run through
     other programs to produce reports.
+
+    Each line of output is a list with two elements: a WorkItem and a WorkResult, both JSON-serialized. The WorkResult 
+    can be null, indicating a WorkItem with no results.
     """
     session_file = get_db_name(args['<session-file>'])
 
     with use_db(session_file, WorkDB.Mode.open) as database:
-        for record in database.work_items:
-            print(json.dumps(record, cls=WorkItemJsonEncoder))
+        for work_item, result in database.completed_work_items:
+            print(json.dumps((work_item, result), cls=WorkItemJsonEncoder))
+        for work_item in database.pending_work_items:
+            print(json.dumps((work_item, None), cls=WorkItemJsonEncoder))
 
     return ExitCode.OK
 

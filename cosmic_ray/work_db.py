@@ -191,6 +191,15 @@ class WorkDB:
         pending = self._conn.execute("SELECT * FROM work_items WHERE job_id NOT IN (SELECT job_id FROM results)")
         return (WorkItem(*p) for p in pending)
 
+    @property
+    def completed_work_items(self):
+        completed = self._conn.execute("SELECT * FROM work_items, results WHERE work_items.job_id == results.job_id")
+        #for c in completed:
+        #    print(list(c))
+        return (
+            (WorkItem(*result[:6]), WorkResult(*result[6:10]))
+            for result in completed)
+
     # @property
     # def num_pending_work_items(self):
     #     "The number of pending WorkItems in the session."

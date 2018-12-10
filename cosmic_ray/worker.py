@@ -84,7 +84,7 @@ def worker(module_path,
             test_outcome, output = run_tests(test_command, timeout)
 
             return WorkResult(
-                output=output,
+                output=output.decode(),
                 diff=diff,
                 test_outcome=test_outcome,
                 worker_outcome=WorkerOutcome.NORMAL)
