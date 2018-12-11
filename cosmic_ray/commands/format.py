@@ -44,44 +44,6 @@ def _create_element_from_item(work_item):
     return sub_elem
 
 
-def _evaluation_success(outcome, work_item):
-    return outcome == WorkerOutcome.NORMAL and \
-           work_item.test_outcome in [TestOutcome.SURVIVED,
-                                      TestOutcome.INCOMPETENT]
-
-
-def _create_xml_report(records):
-    total_jobs = 0
-    errors = 0
-    failed = 0
-    root_elem = xml.etree.ElementTree.Element('testsuite')
-    for item in records:
-        total_jobs += 1
-        if item.worker_outcome is None:
-            errors += 1
-        if is_killed(item):
-            failed += 1
-        if item.worker_outcome is not None:
-            subelement = _create_element_from_item(item)
-            root_elem.append(subelement)
-
-    root_elem.set('errors', str(errors))
-    root_elem.set('failures', str(failed))
-    root_elem.set('skips', str(0))
-    root_elem.set('tests', str(total_jobs))
-    return xml.etree.ElementTree.ElementTree(root_elem)
-
-
-def report_xml():
-    """cr-xml
-
-Usage: cr-xml
-
-Print an XML formatted report of test results for continuos integration systems
-"""
-    records = (WorkItem(json.loads(line, cls=WorkItemJsonDecoder)) for line in sys.stdin)
-    xml_elem = _create_xml_report(records)
-    xml_elem.write(sys.stdout.buffer, encoding='utf-8', xml_declaration=True)
 
 
 
