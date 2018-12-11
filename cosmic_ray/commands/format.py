@@ -7,7 +7,7 @@ import xml.etree.ElementTree
 import docopt
 from yattag import Doc
 
-from cosmic_ray.reporting import create_report, is_killed, survival_rate
+from cosmic_ray.reporting import is_killed, survival_rate
 from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import pairwise, index_of_first_difference
 from cosmic_ray.work_item import WorkItem, WorkItemJsonDecoder
@@ -34,18 +34,20 @@ Read JSON work-records from stdin and print the survival rate.
 def report():
     """cr-report
 
-Usage: cr-report [--full-report] [--show-pending]
+Usage: cr-report [--show-output] [--show-diff] [--show-pending]
 
 Print a nicely formatted report of test results and some basic statistics.
 
 options:
-    --full-report   Show test output and mutation diff for killed mutants
+    --show-output   Display output of test executions
+    --show-diff     Display diff of mutants
     --show-pending  Display results for incomplete tasks
 """
 
     arguments = docopt.docopt(report.__doc__, version='cr-format 0.1')
-    full_report = arguments['--full-report']
     show_pending = arguments['--show-pending']
+    show_output = arguments['--show-output']
+    show_diff = arguments['--show-diff']
 
     records = (json.loads(line, cls=WorkItemJsonDecoder) for line in sys.stdin)
     records = ((work_item, result) for work_item, result in records if result or show_pending)
@@ -60,13 +62,29 @@ options:
             print('worker outcome: {}, test outcome: {}'.format(
                 result.worker_outcome,
                 result.test_outcome))
-            if full_report:
+
+            if show_output:
                 print('=== OUTPUT ===')
                 print(result.output)
                 print('==============')
+
+            if show_diff:
                 print('=== DIFF ===')
                 print(result.diff)
                 print('============')
+
+    # TODO: total jobs, jobs complete, survival rate
+    # yield 'total jobs: {}'.format(total_jobs)
+
+    # if completed_jobs > 0:
+    #     yield 'complete: {} ({:.2f}%)'.format(
+    #         completed_jobs, completed_jobs / total_jobs * 100)
+    #     yield 'survival rate: {:.2f}%'.format(
+    #         (1 - kills / completed_jobs) * 100)
+    # else:
+    #     yield 'no jobs completed'
+
+
 
 
 def _create_element_from_item(work_item):
