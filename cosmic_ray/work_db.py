@@ -157,7 +157,7 @@ class WorkDB:
     @property
     def num_results(self):
         """The number of results."""
-        count = self._conn.execute("SELECT COUNT(*) FROM work_items")
+        count = self._conn.execute("SELECT COUNT(*) FROM results")
         return list(count)[0][0]
 
     def add_result(self, job_id, result):
