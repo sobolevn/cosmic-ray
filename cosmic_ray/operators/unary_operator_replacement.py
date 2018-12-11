@@ -32,7 +32,8 @@ def _create_replace_unary_operators(from_op, from_name, to_op, to_name):
 
         def mutation_count(self, node):
             if _is_unary_operator(node):
-                return 1
+                if node.children[0].value == from_op:
+                    return 1
             return 0
 
         def mutate(self, node, index):
