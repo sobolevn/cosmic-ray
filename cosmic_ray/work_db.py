@@ -116,12 +116,13 @@ class WorkDB:
         Args:
           work_item: A WorkItem.
         """
-        self._conn.execute(
-            '''
-            INSERT INTO work_items
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''',
-            _work_item_to_row(work_item))
+        with self._conn:
+            self._conn.execute(
+                '''
+                INSERT INTO work_items
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''',
+                _work_item_to_row(work_item))
 
     def clear(self):
         """Clear all work items from the session.
