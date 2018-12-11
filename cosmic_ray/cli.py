@@ -249,9 +249,10 @@ def handle_worker(args):
         with redirect_stdout(sys.stdout if args['--keep-stdout'] else devnull):
             work_item = cosmic_ray.worker.worker(
                 Path(args['<module-path>']),
-                cosmic_ray.plugins.get_operator(args['<operator>']),
+                args['<operator>'],
                 int(args['<occurrence>']),
-                config['test-command'])
+                config['test-command'],
+                None)
 
     sys.stdout.write(json.dumps(work_item, cls=WorkItemJsonEncoder))
 
