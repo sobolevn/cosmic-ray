@@ -78,6 +78,10 @@ OPERATOR_SAMPLES = [
     )
 ]
 
+# TODO: Add tests that operators replacements only pick up the correct
+# operators. We had a bug where unary operator replacement operators were
+# triggering on *all* unary operators, not their specific from-op.
+
 
 @pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
 def test_mutation_changes_ast(sample):
