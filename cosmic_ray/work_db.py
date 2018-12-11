@@ -11,8 +11,7 @@ import kfg.yaml
 
 from .config import Config
 from .testing.test_runner import TestOutcome
-from .work_item import WorkItem, WorkResult
-from .worker import WorkerOutcome
+from .work_item import WorkerOutcome, WorkItem, WorkResult
 
 
 class WorkDB:

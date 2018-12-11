@@ -9,6 +9,7 @@ import operator
 
 # Add mutation points for comparison operators.
 
+
 def constant_number():
     return 42
 

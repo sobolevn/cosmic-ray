@@ -10,8 +10,7 @@ import cosmic_ray.compat.json
 import cosmic_ray.mutating
 import cosmic_ray.plugins
 from cosmic_ray.testing.test_runner import run_tests, TestOutcome
-from cosmic_ray.util import StrEnum
-from cosmic_ray.work_item import WorkResult
+from cosmic_ray.work_item import WorkerOutcome, WorkResult
 
 
 # TODO: Is this still necessary?
@@ -22,16 +21,6 @@ try:
     # fancy stuff happens only once
 except ImportError:
     pass
-
-
-class WorkerOutcome(StrEnum):
-    """Possible outcomes for a worker.
-    """
-    NORMAL = 'normal'       # The worker exited normally, producing valid output
-    EXCEPTION = 'exception'  # The worker exited with an exception
-    ABNORMAL = 'abnormal'   # The worker did not exit normally or with an exception (e.g. a segfault)
-    NO_TEST = 'no-test'     # The worker had no test to run
-    SKIPPED = 'skipped'     # The job was skipped (worker was not executed)
 
 
 def worker(module_path,

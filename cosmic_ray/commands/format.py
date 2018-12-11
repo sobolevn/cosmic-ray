@@ -10,25 +10,13 @@ from yattag import Doc
 from cosmic_ray.reporting import is_killed, survival_rate
 from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import pairwise, index_of_first_difference
-from cosmic_ray.work_item import WorkItem, WorkItemJsonDecoder
-from cosmic_ray.worker import WorkerOutcome
+from cosmic_ray.work_item import WorkerOutcome, WorkItem, WorkItemJsonDecoder
 
 CHARACTER_DIFF_MARKER = '^'
 
 DIFF_ADDED_MARKER = '+'
 
 DIFF_REMOVED_MARKER = '-'
-
-
-def format_survival_rate():
-    """cr-rate
-
-Usage: cr-rate
-
-Read JSON work-records from stdin and print the survival rate.
-"""
-    records = (WorkItem(json.loads(line, cls=WorkItemJsonDecoder)) for line in sys.stdin)
-    print('{:.2f}'.format(survival_rate(records)))
 
 
 def report():

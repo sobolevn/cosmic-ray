@@ -5,7 +5,7 @@ import logging
 
 from spor.repo import find_anchors
 
-from cosmic_ray.worker import WorkerOutcome
+from cosmic_ray.work_item import WorkerOutcome
 
 log = logging.getLogger()
 

@@ -1,9 +1,8 @@
 from pathlib import Path
 
 from cosmic_ray.operators import boolean_replacer
-from cosmic_ray.plugins import get_test_runner
-from cosmic_ray.work_item import WorkResult
-from cosmic_ray.worker import worker, WorkerOutcome
+from cosmic_ray.work_item import WorkerOutcome, WorkResult
+from cosmic_ray.worker import worker
 
 from path_utils import excursion
 

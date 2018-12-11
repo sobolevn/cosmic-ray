@@ -13,8 +13,7 @@ import cosmic_ray.util
 import cosmic_ray.worker
 from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.testing.test_runner import TestOutcome
-from cosmic_ray.work_item import WorkItem, WorkResult
-from cosmic_ray.worker import WorkerOutcome
+from cosmic_ray.work_item import WorkerOutcome, WorkItem, WorkResult
 
 
 @pytest.fixture

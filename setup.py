@@ -92,7 +92,7 @@ setup(
             'cosmic-ray = cosmic_ray.cli:main',
             'cr-html = cosmic_ray.commands.format:report_html',
             'cr-report = cosmic_ray.commands.format:report',
-            'cr-rate = cosmic_ray.commands.format:format_survival_rate',
+            'cr-rate = cosmic_ray.tools.survival_rate:survival_rate',
             'cr-xml = cosmic_ray.commands.format:report_xml',
         ],
         'cosmic_ray.test_runners': [

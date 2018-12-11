@@ -3,10 +3,24 @@
 import json
 import pathlib
 
+from cosmic_ray.testing.test_runner import TestOutcome
+from cosmic_ray.util import StrEnum
+
+
+class WorkerOutcome(StrEnum):
+    """Possible outcomes for a worker.
+    """
+    NORMAL = 'normal'       # The worker exited normally, producing valid output
+    EXCEPTION = 'exception'  # The worker exited with an exception
+    ABNORMAL = 'abnormal'   # The worker did not exit normally or with an exception (e.g. a segfault)
+    NO_TEST = 'no-test'     # The worker had no test to run
+    SKIPPED = 'skipped'     # The job was skipped (worker was not executed)
+
 
 class WorkResult:
     """The result of a single mutation and test run.
     """
+
     def __init__(self,
                  worker_outcome,
                  output=None,
@@ -48,6 +62,18 @@ class WorkResult:
             'diff': self.diff,
         }
 
+    @property
+    def is_killed(self):
+        "Whether the mutation should be considered 'killed'"
+        if self.worker_outcome == WorkerOutcome.SKIPPED:
+            return True
+        elif self.worker_outcome in {WorkerOutcome.ABNORMAL, WorkerOutcome.NORMAL}:
+            if self.test_outcome == TestOutcome.KILLED:
+                return True
+            if self.test_outcome == TestOutcome.INCOMPETENT:
+                return True
+        return False
+
     def __eq__(self, rhs):
         return self.as_dict() == rhs.as_dict()
 
@@ -58,6 +84,7 @@ class WorkResult:
 class WorkItem:
     """Description of the work for a single mutation and test run.
     """
+
     def __init__(self,
                  module_path=None,
                  operator_name=None,

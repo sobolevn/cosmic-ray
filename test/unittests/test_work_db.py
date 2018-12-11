@@ -2,9 +2,8 @@ from kfg.config import Config
 import pytest
 
 from cosmic_ray.testing.test_runner import TestOutcome
-from cosmic_ray.worker import WorkerOutcome
 from cosmic_ray.work_db import use_db, WorkDB
-from cosmic_ray.work_item import WorkItem, WorkResult
+from cosmic_ray.work_item import WorkerOutcome, WorkItem, WorkResult
 
 
 @pytest.fixture
