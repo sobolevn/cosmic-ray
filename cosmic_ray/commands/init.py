@@ -75,8 +75,7 @@ def init(module_paths,
 
             visitor.walk(module_ast)
 
-    # TODO: Re-enable!
-    # apply_interceptors(work_db)
+    apply_interceptors(work_db)
 
 
 def apply_interceptors(work_db):
