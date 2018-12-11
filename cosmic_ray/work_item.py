@@ -138,8 +138,8 @@ class WorkItem:
             'module_path': str(self.module_path),
             'operator_name': self.operator_name,
             'occurrence': self.occurrence,
-            'line_number': self.line_number,
-            'col_offset': self.col_offset,
+            'start_pos': self.start_pos,
+            'stop_pos': self.stop_pos,
             'job_id': self.job_id,
         }
 
