@@ -13,12 +13,10 @@ class KeywordReplacementOperator(Operator):
         self._from = from_keyword
         self._to = to_keyword
 
-    def mutation_count(self, node):
+    def mutation_positions(self, node):
         if isinstance(node, Keyword):
             if node.value == self._from:
-                return 1
-
-        return 0
+                yield (node.start_pos, node.end_pos)
 
     def mutate(self, node, index):
         assert isinstance(node, Keyword)

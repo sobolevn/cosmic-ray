@@ -101,7 +101,14 @@ class WorkDB:
         """
         cur = self._conn.cursor()
         rows = cur.execute("SELECT * FROM work_items")
-        return (WorkItem(*r) for r in rows)
+        for row in rows:
+            yield WorkItem(
+                module_path=row['module_path'],
+                operator_name=row['operator'],
+                occurrence=row['occurrence'],
+                start_pos=(row['start_line'], row['start_col']),
+                stop_pos=(row['stop_line'], row['stop_col']),
+                job_id=row['job_id'])
 
     @property
     def num_work_items(self):
@@ -109,26 +116,25 @@ class WorkDB:
         count = self._conn.execute("SELECT COUNT(*) FROM work_items")
         return list(count)[0][0]
 
-    def add_work_items(self, work_items):
-        """Add a sequence of WorkItems.
+    def add_work_item(self, work_item):
+        """Add a WorkItems.
 
         Args:
-          work_items: An iterable of WorkItems.
+          work_item: A WorkItem.
         """
-        with self._conn:
-            for item in work_items:
-                # TODO: Is there an "insert many" option?
-                self._conn.execute(
-                    '''
-                    INSERT INTO work_items
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ''',
-                    (str(item.module_path),
-                     item.operator_name,
-                     item.occurrence,
-                     item.line_number,
-                     item.col_offset,
-                     item.job_id))
+        self._conn.execute(
+            '''
+            INSERT INTO work_items
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (str(work_item.module_path),
+             work_item.operator_name,
+             work_item.occurrence,
+             work_item.start_pos[0],
+             work_item.start_pos[1],
+             work_item.stop_pos[0],
+             work_item.stop_pos[1],
+             work_item.job_id))
 
     def clear(self):
         """Clear all work items from the session.
@@ -217,8 +223,10 @@ class WorkDB:
             (module_path text,
              operator text,
              occurrence int,
-             line_number int,
-             col_offset int,
+             start_line int,
+             start_col int,
+             stop_line int,
+             stop_col int
              job_id text primary key)
             ''')
 

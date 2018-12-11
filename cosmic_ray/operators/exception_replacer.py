@@ -22,12 +22,11 @@ setattr(builtins,
 class ExceptionReplacer(Operator):
     """An operator that modifies exception handlers."""
 
-    def mutation_count(self, node):
+    def mutation_positions(self, node):
         if isinstance(node, PythonNode):
             if node.type == 'except_clause':
-                return len(self._name_nodes(node))
-
-        return 0
+                for name in self._name_nodes(node):
+                    yield (name.start_pos, name.end_pos)
 
     def mutate(self, node, index):
         assert isinstance(node, PythonNode)

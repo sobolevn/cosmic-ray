@@ -2,7 +2,7 @@
 import logging
 import uuid
 
-from cosmic_ray.ast import get_ast, OperatorVisitor
+from cosmic_ray.ast import get_ast, Visitor
 import cosmic_ray.modules
 from cosmic_ray.plugins import get_interceptor, interceptor_names, get_operator
 from cosmic_ray.work_item import WorkItem
@@ -10,7 +10,7 @@ from cosmic_ray.work_item import WorkItem
 
 log = logging.getLogger()
 
-class WorkDBInitVisitor(OperatorVisitor):
+class WorkDBInitVisitor(Visitor):
     """An AST visitor that initializes a WorkDB for a specific module and operator.
 
     The idea is to walk the AST looking for nodes that the operator can mutate.
@@ -20,27 +20,28 @@ class WorkDBInitVisitor(OperatorVisitor):
     """
 
     def __init__(self, module_path, op_name, work_db, operator):
-        super().__init__(operator)
-
+        self.operator = operator
         self.module_path = module_path
         self.op_name = op_name
         self.work_db = work_db
         self.occurrence = 0
 
-    def activate(self, node, num_mutations):
-        self.work_db.add_work_items(
+    def visit(self, node):
+        for start, stop in self.operator.mutation_positions(node):
+            self._record_work_item(start, stop)
+        return node
+
+    def _record_work_item(self, start_pos, stop_pos):
+        self.work_db.add_work_item(
             WorkItem(
                 job_id=uuid.uuid4().hex,
                 module_path=str(self.module_path),
                 operator_name=self.op_name,
-                occurrence=self.occurrence + c,
-                line_number=node.start_pos[0],
-                col_offset=node.start_pos[1])
-            for c in range(num_mutations))
+                occurrence=self.occurrence,
+                start_pos=start_pos,
+                stop_pos=stop_pos))
 
-        self.occurrence += num_mutations
-
-        return node
+        self.occurrence += 1
 
 
 def init(module_paths,

@@ -16,8 +16,6 @@ _UNARY_OPERATORS = (
     (None, 'Nothing'),
 )
 
-# TODO: Add support for removing operators
-
 
 def _create_replace_unary_operators(from_op, from_name, to_op, to_name):
     if to_op is None:
@@ -30,11 +28,11 @@ def _create_replace_unary_operators(from_op, from_name, to_op, to_name):
         "An operator that replaces unary {} with unary {}.".format(
             from_name, to_name)
 
-        def mutation_count(self, node):
+        def mutation_positions(self, node):
             if _is_unary_operator(node):
-                if node.children[0].value == from_op:
-                    return 1
-            return 0
+                op = node.children[0]
+                if op.value == from_op:
+                    yield (op.start_pos, op.end_pos) 
 
         def mutate(self, node, index):
             assert index == 0

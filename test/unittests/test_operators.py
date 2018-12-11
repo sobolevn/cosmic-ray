@@ -97,5 +97,5 @@ def test_no_mutation_leaves_ast_unchanged(sample):
     node = parso.parse(sample.from_code)
     visitor = MutationVisitor(-1, sample.operator())
     mutant = visitor.walk(node)
-
+    
     assert mutant.get_code() == sample.from_code

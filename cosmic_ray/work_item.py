@@ -96,14 +96,14 @@ class WorkItem:
                  module_path=None,
                  operator_name=None,
                  occurrence=None,
-                 line_number=None,
-                 col_offset=None,
+                 start_pos=None,
+                 stop_pos=None,
                  job_id=None):
         self._module_path = pathlib.Path(module_path)
         self._operator_name = operator_name
         self.occurrence = occurrence
-        self.line_number = line_number
-        self.col_offset = col_offset
+        self._start_pos = start_pos
+        self._stop_pos = stop_pos
         self._job_id = job_id
 
     @property
@@ -115,6 +115,16 @@ class WorkItem:
     def operator_name(self):
         "The name of the operator (i.e. as defined by the provider)"
         return self._operator_name
+
+    @property
+    def start_pos(self):
+        "Start of the mutation location as a `(line, column)` tuple."
+        return self._start_pos
+
+    @property
+    def stop_pos(self):
+        "End of the mutation location as a `(line, column)` tuple."
+        return self._stop_pos
 
     @property
     def job_id(self):

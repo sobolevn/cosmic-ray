@@ -1,4 +1,12 @@
-* TODO report need to use new dump format
+* TODO Store mutation ranges in WorkItem
+
+  Right now we store line number and column-offset for each workitem, but this doesn't tell us the full
+  extent of the mutation. We should store start-(line,col) and stop-(line,col), and we can get this
+  from parso nodes.
+
+  We should modify work item to store this. We should then modify the operator API so that
+  instead of reporting "num mutations" it instead reports an iterable of (start-{line,col}, stop-{line,col})
+  tuples. Update the database to store this. Then we can use this to do spor exceptions.
 
 * TODO Exclusion should be done via interceptors
 
@@ -10,13 +18,13 @@
 
 * TODO Verify that celery tests work
 
-* TODO I think the worker is leaving mutations in place when there is a segfault.
-
-  The tests need to execute in a separate process from the worker code that mutates the code.
-
 * TODO Remove test-runner plugins from pypi?
 
 * TODO Add "command line" command for producing a command line
   Don't forget to update _print_item to use this.
   
 * TODO Add an "apply" command for applying a mutation to code on disk
+
+* TODO Do we have secret deployment credentials in the travis config?!
+
+* TODO Use apsw in workdb

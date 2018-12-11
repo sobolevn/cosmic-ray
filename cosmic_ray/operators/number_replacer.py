@@ -17,16 +17,16 @@ OFFSETS = [
 class NumberReplacer(Operator):
     """An operator that modifies numeric constants."""
 
-    def mutation_count(self, node):
+    def mutation_positions(self, node):
         if isinstance(node, parso.python.tree.Number):
-            return len(OFFSETS)
-        return 0
+            for _ in OFFSETS:
+                yield (node.start_pos, node.end_pos)
 
-    def mutate(self, node, idx):
+    def mutate(self, node, index):
         """Modify the numeric value on `node`."""
 
-        assert idx < len(OFFSETS), 'received count with no associated offset'
+        assert index < len(OFFSETS), 'received count with no associated offset'
         assert isinstance(node, parso.python.tree.Number)
 
-        val = eval(node.value) + OFFSETS[idx]
+        val = eval(node.value) + OFFSETS[index]
         return parso.parse(' ' + str(val))

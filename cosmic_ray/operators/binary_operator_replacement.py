@@ -30,11 +30,10 @@ def _create_replace_binary_operator(from_op, from_name, to_op, to_name):
     class ReplaceBinaryOperator(Operator):
         "An operator that replaces binary {} with binary {}.".format(from_name, to_name)
 
-        def mutation_count(self, node):
+        def mutation_positions(self, node):
             if _is_binary_operator(node):
                 if node.value == from_op:
-                    return 1
-            return 0
+                    yield (node.start_pos, node.end_pos)
 
         def mutate(self, node, index):
             assert _is_binary_operator(node)

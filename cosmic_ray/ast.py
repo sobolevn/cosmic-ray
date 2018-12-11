@@ -21,38 +21,11 @@ class Visitor(ABC):
 
     @abstractmethod
     def visit(self, node):
-        pass 
-
-
-class OperatorVisitor(Visitor):
-    """A visitor that invokes uses and `Operator` to determine when to do something special.
-
-    Whenever the `Operator` reports that it can mutate a node (via its `mutation_count` method), this calls `activate` on the visitor.
-    """
-
-    def __init__(self, operator):
-        self._operator = operator
-
-    @property
-    def operator(self):
-        "The operator this visitor is using."
-        return self._operator
-
-    def visit(self, node):
-        count = self.operator.mutation_count(node)
-        if count > 0:
-            return self.activate(node, count)
-        else:
-            return node
-
-    @abstractmethod
-    def activate(self, node, count):
         pass
 
 
 def get_ast(module_path, python_version):
     with module_path.open(mode='rt', encoding='utf-8') as handle:
-            source = handle.read()
+        source = handle.read()
 
     return parso.parse(source, version=python_version)
-

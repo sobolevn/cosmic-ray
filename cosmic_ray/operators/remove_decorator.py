@@ -1,6 +1,5 @@
 "Implementation of the remove-decorator operator."
 
-import parso
 from parso.python.tree import Decorator
 
 from .operator import Operator
@@ -9,10 +8,9 @@ from .operator import Operator
 class RemoveDecorator(Operator):
     """An operator that removes decorators."""
 
-    def mutation_count(self, node):
+    def mutation_positions(self, node):
         if isinstance(node, Decorator):
-            return 1
-        return 0
+            yield (node.start_pos, node.end_pos)
 
     def mutate(self, node, index):
         assert isinstance(node, Decorator)

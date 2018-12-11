@@ -26,16 +26,12 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
     class ReplaceComparisonOperator(Operator):
         "An operator that replaces {} with {}".format(from_op_name, to_op_name)
 
-        def mutation_count(self, node):
+        def mutation_positions(self, node):
             if node.type == 'comparison':
                 # Every other child starting at 1 is a comparison operator of some sort
-                return len([
-                    comparison_op
-                    for comparison_op in node.children[1::2]
-                    if comparison_op.get_code().strip() == from_op
-                ])
-
-            return 0
+                for comparison_op in node.children[1::2]:
+                    if comparison_op.get_code().strip() == from_op:
+                        yield (comparison_op.start_pos, comparison_op.end_pos)
 
         def mutate(self, node, index):
             # TODO: this is technically wrong because we don't set the correct

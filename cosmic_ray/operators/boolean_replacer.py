@@ -42,13 +42,14 @@ class AddNot(Operator):
                   parso.python.tree.WhileStmt,
                   parso.python.tree.AssertStmt)
 
-    def mutation_count(self, node):
+    def mutation_positions(self, node):
         if isinstance(node, self.NODE_TYPES):
-            return 1
+            expr = node.children[1]
+            yield (expr.start_pos, expr.end_pos)
         elif isinstance(node, parso.python.tree.PythonNode) and node.type == 'test':
             # ternary conditional
-            return 1
-        return 0
+            expr = node.children[2]
+            yield (expr.start_pos, expr.end_pos)
 
     def mutate(self, node, index):
         assert index == 0

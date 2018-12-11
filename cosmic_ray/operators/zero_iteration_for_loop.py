@@ -9,10 +9,10 @@ from .operator import Operator
 class ZeroIterationForLoop(Operator):
     """An operator that modified for-loops to have zero iterations."""
 
-    def mutation_count(self, node):
+    def mutation_positions(self, node):
         if isinstance(node, ForStmt):
-            return 1
-        return 0
+            expr = node.children[3]
+            yield (expr.start_pos, expr.end_pos)
 
     def mutate(self, node, index):
         """Modify the For loop to evaluate to None"""
