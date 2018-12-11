@@ -5,21 +5,21 @@ import docopt
 from cosmic_ray.work_db import use_db
 
 
-def survival_rate():
+def format_survival_rate():
     """cr-rate
 
     Usage: cr-rate <session-file>
 
     Calculate the survival rate of a session.
     """
-    arguments = docopt.docopt(survival_rate.__doc__, version='cr-rate 1.0')
+    arguments = docopt.docopt(format_survival_rate.__doc__, version='cr-rate 1.0')
     with use_db(arguments['<session-file>']) as db:
-        rate = _calculate_survival_rate(db) 
+        rate = survival_rate(db) 
 
     print('{:.2f}'.format(rate))
 
 
-def _calculate_survival_rate(work_db):
+def survival_rate(work_db):
     """Calcuate the survival rate for the results in a WorkDB.
     """
     kills = sum(r.is_killed for _, r in work_db.results)

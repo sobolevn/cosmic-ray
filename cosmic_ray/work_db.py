@@ -10,8 +10,7 @@ from io import StringIO
 import kfg.yaml
 
 from .config import Config
-from .testing.test_runner import TestOutcome
-from .work_item import WorkerOutcome, WorkItem, WorkResult
+from .work_item import TestOutcome, WorkerOutcome, WorkItem, WorkResult
 
 
 class WorkDB:

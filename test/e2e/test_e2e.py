@@ -5,7 +5,7 @@ import sys
 import pytest
 
 from cosmic_ray.work_db import use_db, WorkDB
-from cosmic_ray.reporting import survival_rate
+from cosmic_ray.tools.survival_rate import survival_rate
 
 
 TEST_RUNNERS = ('unittest', 'pytest')

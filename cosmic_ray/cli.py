@@ -24,12 +24,12 @@ import cosmic_ray.worker
 from cosmic_ray.config import get_db_name, load_config, serialize_config
 from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.progress import report_progress
-from cosmic_ray.testing.test_runner import run_tests, TestOutcome
+from cosmic_ray.testing.test_runner import run_tests
 from cosmic_ray.timing import Timer
 from cosmic_ray.util import redirect_stdout
 from cosmic_ray.work_db import use_db, WorkDB
 from cosmic_ray.version import __version__
-from cosmic_ray.work_item import WorkItemJsonEncoder
+from cosmic_ray.work_item import TestOutcome, WorkItemJsonEncoder
 
 log = logging.getLogger()
 

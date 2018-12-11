@@ -3,18 +3,11 @@
 import subprocess
 import traceback
 
-from cosmic_ray.util import StrEnum
+from cosmic_ray.work_item import TestOutcome
 
 
 # TODO: We can probably lift this module out of the subpackage and remove the
 # subpackage.
-
-class TestOutcome(StrEnum):
-    """A enum of the possible outcomes for any mutant test run.
-    """
-    SURVIVED = 'survived'
-    KILLED = 'killed'
-    INCOMPETENT = 'incompetent'
 
 
 def run_tests(command, timeout=None):

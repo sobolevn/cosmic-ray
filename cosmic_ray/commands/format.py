@@ -7,10 +7,8 @@ import xml.etree.ElementTree
 import docopt
 from yattag import Doc
 
-from cosmic_ray.reporting import is_killed, survival_rate
-from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import pairwise, index_of_first_difference
-from cosmic_ray.work_item import WorkerOutcome, WorkItem, WorkItemJsonDecoder
+from cosmic_ray.work_item import TestOutcome, WorkerOutcome, WorkItem, WorkItemJsonDecoder
 
 CHARACTER_DIFF_MARKER = '^'
 

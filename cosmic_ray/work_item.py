@@ -3,7 +3,6 @@
 import json
 import pathlib
 
-from cosmic_ray.testing.test_runner import TestOutcome
 from cosmic_ray.util import StrEnum
 
 
@@ -15,6 +14,14 @@ class WorkerOutcome(StrEnum):
     ABNORMAL = 'abnormal'   # The worker did not exit normally or with an exception (e.g. a segfault)
     NO_TEST = 'no-test'     # The worker had no test to run
     SKIPPED = 'skipped'     # The job was skipped (worker was not executed)
+
+
+class TestOutcome(StrEnum):
+    """A enum of the possible outcomes for any mutant test run.
+    """
+    SURVIVED = 'survived'
+    KILLED = 'killed'
+    INCOMPETENT = 'incompetent'
 
 
 class WorkResult:
