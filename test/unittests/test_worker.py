@@ -9,9 +9,12 @@ from path_utils import excursion
 
 def test_no_test_return_value(data_dir):
     with excursion(data_dir):
-        test_runner = get_test_runner("unittest", ".")
-        result = worker(Path("a/b.py"), boolean_replacer.ReplaceTrueWithFalse,
-                        100, test_runner)
+        result = worker(
+            Path("a/b.py"),
+            'core/ReplaceTrueWithFalse',
+            100,
+            'python -m unittest tests',
+            1000)
         expected = WorkResult(
             output=None,
             test_outcome=None,
