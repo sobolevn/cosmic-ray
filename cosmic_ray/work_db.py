@@ -145,11 +145,13 @@ class WorkDB:
         cur = self._conn.cursor()
         rows = cur.execute("SELECT * FROM results")
         for row in rows:
+            test_outcome = row['test_outcome']
+            test_outcome = None if test_outcome is None else TestOutcome(test_outcome)
             yield ((row['job_id'],
                     WorkResult(
                         worker_outcome=WorkerOutcome(row['worker_outcome']),
                         output=row['output'],
-                        test_outcome=TestOutcome(row['test_outcome']),
+                        test_outcome=test_outcome,
                         diff=row['diff'])))
 
     @property
