@@ -17,62 +17,6 @@ DIFF_ADDED_MARKER = '+'
 DIFF_REMOVED_MARKER = '-'
 
 
-def report():
-    """cr-report
-
-Usage: cr-report [--show-output] [--show-diff] [--show-pending]
-
-Print a nicely formatted report of test results and some basic statistics.
-
-options:
-    --show-output   Display output of test executions
-    --show-diff     Display diff of mutants
-    --show-pending  Display results for incomplete tasks
-"""
-
-    arguments = docopt.docopt(report.__doc__, version='cr-format 0.1')
-    show_pending = arguments['--show-pending']
-    show_output = arguments['--show-output']
-    show_diff = arguments['--show-diff']
-
-    records = (json.loads(line, cls=WorkItemJsonDecoder) for line in sys.stdin)
-    records = ((work_item, result) for work_item, result in records if result or show_pending)
-    for work_item, result in records:
-        print('{} {} {} {}'.format(
-            work_item.job_id,
-            work_item.module_path,
-            work_item.operator_name,
-            work_item.occurrence))
-
-        if result is not None:
-            print('worker outcome: {}, test outcome: {}'.format(
-                result.worker_outcome,
-                result.test_outcome))
-
-            if show_output:
-                print('=== OUTPUT ===')
-                print(result.output)
-                print('==============')
-
-            if show_diff:
-                print('=== DIFF ===')
-                print(result.diff)
-                print('============')
-
-    # TODO: total jobs, jobs complete, survival rate
-    # yield 'total jobs: {}'.format(total_jobs)
-
-    # if completed_jobs > 0:
-    #     yield 'complete: {} ({:.2f}%)'.format(
-    #         completed_jobs, completed_jobs / total_jobs * 100)
-    #     yield 'survival rate: {:.2f}%'.format(
-    #         (1 - kills / completed_jobs) * 100)
-    # else:
-    #     yield 'no jobs completed'
-
-
-
-
 def _create_element_from_item(work_item):
     data = work_item.data
     sub_elem = xml.etree.ElementTree.Element('testcase')
