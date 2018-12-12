@@ -7,11 +7,11 @@ import itertools
 import json
 import logging
 import os
-from pathlib import Path
 import pprint
 import signal
 import subprocess
 import sys
+from pathlib import Path
 
 import docopt
 import docopt_subcommands as dsc
@@ -20,15 +20,16 @@ from kfg.config import ConfigError, ConfigValueError
 import cosmic_ray.commands
 import cosmic_ray.modules
 import cosmic_ray.plugins
+import cosmic_ray.testing.test_runner
 import cosmic_ray.worker
 from cosmic_ray.config import get_db_name, load_config, serialize_config
 from cosmic_ray.exit_codes import ExitCode
+from cosmic_ray.mutating import apply_mutation
 from cosmic_ray.progress import report_progress
-import cosmic_ray.testing.test_runner 
 from cosmic_ray.timing import Timer
 from cosmic_ray.util import redirect_stdout
-from cosmic_ray.work_db import use_db, WorkDB
 from cosmic_ray.version import __version__
+from cosmic_ray.work_db import WorkDB, use_db
 from cosmic_ray.work_item import TestOutcome, WorkItemJsonEncoder
 
 log = logging.getLogger()
@@ -221,6 +222,23 @@ def handle_interceptors(args):
     """
     assert args
     print('\n'.join(cosmic_ray.plugins.interceptor_names()))
+
+    return ExitCode.OK
+
+
+@dsc.command()
+def handle_apply(args):
+    """usage: {program} apply <module-path> <operator> <occurrence>
+
+    Apply the specified mutation to the files on disk. This is primarily a debugging
+    tool.
+    """
+
+    apply_mutation(
+        Path(args['<module-path>']),
+        cosmic_ray.plugins.get_operator(
+            args['<operator>'])(),
+        int(args['<occurrence>']))
 
     return ExitCode.OK
 
