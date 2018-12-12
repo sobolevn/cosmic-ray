@@ -1,17 +1,14 @@
 """This is the body of the low-level worker tool.
 """
 
-from contextlib import contextmanager
 import difflib
 import traceback
 
-from cosmic_ray.ast import get_ast
 import cosmic_ray.compat.json
 import cosmic_ray.mutating
 import cosmic_ray.plugins
 from cosmic_ray.testing.test_runner import run_tests
 from cosmic_ray.work_item import TestOutcome, WorkerOutcome, WorkResult
-
 
 # TODO: Is this still necessary?
 try:
@@ -65,16 +62,16 @@ def worker(module_path,
     try:
         operator_class = cosmic_ray.plugins.get_operator(operator_name)
 
-        with _apply_mutation(module_path, operator_class(), occurrence) as (original_ast, mutated_ast):
-            if mutated_ast is None:
+        with cosmic_ray.mutating.use_mutation(module_path, operator_class(), occurrence) as (original_code, mutated_code):
+            if mutated_code is None:
                 return WorkResult(
                     worker_outcome=WorkerOutcome.NO_TEST)
 
             test_outcome, output = run_tests(test_command, timeout)
 
             diff = _make_diff(
-                original_ast.get_code(),
-                mutated_ast.get_code(),
+                original_code,
+                mutated_code,
                 module_path)
 
             return WorkResult(
@@ -99,22 +96,3 @@ def _make_diff(original_source, mutated_source, module_path):
                                      lineterm=""):
         module_diff.append(line)
     return module_diff
-
-
-# TODO: This should probably go in mutating.py
-@contextmanager
-def _apply_mutation(module_path, operator, occurrence):
-    # TODO: how do we communicate the python version?
-    module_ast = get_ast(module_path, python_version="3.6")
-    visitor = cosmic_ray.mutating.MutationVisitor(occurrence, operator)
-    visitor.walk(module_ast)
-
-    try:
-        if visitor.mutant is not None:
-            with module_path.open(mode='wt', encoding='utf-8') as handle:
-                handle.write(visitor.mutant.get_code())
-        yield module_ast, visitor.mutant
-    finally:
-        with module_path.open(mode='wt', encoding='utf-8') as handle:
-            handle.write(module_ast.get_code())
-
