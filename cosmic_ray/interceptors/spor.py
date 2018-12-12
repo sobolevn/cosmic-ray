@@ -88,4 +88,4 @@ def _item_in_context(lines, item, context):
     stop_offset = _line_and_col_to_offset(lines, item.end_pos[0], item.end_pos[1])
     width = stop_offset - start_offset
 
-    return start_offset >= context.offset and width <= context.width
+    return start_offset >= context.offset and width <= len(context.topic)

@@ -52,35 +52,47 @@ def _generate_html_report(db):
                         text('{} : job ID {}'.format(index, work_item.job_id))
 
                     if result is not None:
-                        if result.test_outcome == TestOutcome.SURVIVED:
-                            with tag('div', klass='alert alert-danger test-outcome', role='alert'):
-                                text('Survived!')
-                        elif result.test_outcome == TestOutcome.INCOMPETENT:
-                            with tag('div', klass='alert alert-info test-outcome', role='alert'):
-                                text('Incompetent.')
-                        elif result.test_outcome == TestOutcome.KILLED:
-                            with tag('div', klass='alert alert-success test-outcome', role='alert'):
-                                text('Killed.')
+                        if result.is_killed:
+                            if result.test_outcome == TestOutcome.INCOMPETENT:
+                                level = 'info'
+                            else:
+                                level = 'success'
+                        else:
+                            level = 'danger'
+
+                        with tag('div', klass='alert alert-{} test-outcome'.format(level), role='alert'):
+                            if not result.is_killed:
+                                with tag('p'):
+                                    text('SURVIVED')
+                            with tag('p'):
+                                text('worker outcome: {}'.format(result.worker_outcome))
+                            with tag('p'):
+                                text('test outcome: {}'.format(result.test_outcome))
 
                     with tag('a', href=pycharm_url(
                             str(work_item.module_path),
                             work_item.start_pos[0])):
                         with tag('pre', klass='location'):
-                            text('{}:{}:{}'.format(
+                            text('{}, start pos: {}, end pos: {}'.format(
                                 work_item.module_path,
-                                work_item.start_pos[0],
-                                work_item.start_pos[1]
-                            ))
+                                work_item.start_pos,
+                                work_item.end_pos))
 
                     with tag('pre'):
                         text('operator: {}, occurrence: {}'.format(
                             work_item.operator_name,
                             work_item.occurrence))
 
-                    if result is not None and result.diff:
-                        with tag('div', klass='alert alert-secondary'):
-                            with tag('pre', klass='diff'):
-                                text(result.diff)
+                    if result is not None:
+                        if result.diff:
+                            with tag('div', klass='alert alert-secondary'):
+                                with tag('pre', klass='diff'):
+                                    text(result.diff)
+
+                        if result.output:
+                            with tag('div', klass='alert alert-secondary'):
+                                with tag('pre', klass='diff'):
+                                    text(result.output)
 
             doc.stag('script',
                      src='https://code.jquery.com/jquery-3.3.1.slim.min.js',
@@ -100,3 +112,4 @@ def _generate_html_report(db):
 
 def pycharm_url(filename, line_number):
     return 'pycharm://open?file={}&line={}'.format(filename, line_number)
+# 
