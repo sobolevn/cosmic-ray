@@ -42,6 +42,9 @@ def intercept(work_db):
                          item.operator_name,
                          item.occurrence)
 
+                # TODO: We have an issue where multiple anchors could, in
+                # principle, cause a WorkItem to be skipped. We need to account
+                # for that here.
                 work_db.add_result(
                     item.job_id,
                     WorkResult(
