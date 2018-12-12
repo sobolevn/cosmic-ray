@@ -43,7 +43,7 @@
             "args": [
                 "worker",
                 "adam.py",
-                "core/ReplaceTrueFalse",
+                "core/ReplaceTrueWithFalse",
                 "0",
                 "cosmic-ray.unittest.local.conf"
             ]
