@@ -97,13 +97,20 @@ class WorkItem:
                  operator_name=None,
                  occurrence=None,
                  start_pos=None,
-                 stop_pos=None,
+                 end_pos=None,
                  job_id=None):
+        if start_pos[0] > end_pos[0]:
+            raise ValueError('Start line must not be after end line')
+
+        if start_pos[0] == end_pos[0]:
+            if start_pos[1] >= end_pos[1]:
+                raise ValueError('End position must come after start position.')
+
         self._module_path = pathlib.Path(module_path)
         self._operator_name = operator_name
         self.occurrence = occurrence
         self._start_pos = start_pos
-        self._stop_pos = stop_pos
+        self._end_pos = end_pos
         self._job_id = job_id
 
     @property
@@ -122,9 +129,14 @@ class WorkItem:
         return self._start_pos
 
     @property
-    def stop_pos(self):
-        "End of the mutation location as a `(line, column)` tuple."
-        return self._stop_pos
+    def end_pos(self):
+        """End of the mutation location as a `(line, column)` tuple.
+
+        Note that this represents the offset *one past* the end of the mutated
+        segment. If the mutated segment is at the end of a file, this offset
+        will be past the end of the file.
+        """
+        return self._end_pos
 
     @property
     def job_id(self):
@@ -139,7 +151,7 @@ class WorkItem:
             'operator_name': self.operator_name,
             'occurrence': self.occurrence,
             'start_pos': self.start_pos,
-            'stop_pos': self.stop_pos,
+            'end_pos': self.end_pos,
             'job_id': self.job_id,
         }
 

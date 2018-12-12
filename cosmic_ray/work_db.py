@@ -200,8 +200,8 @@ class WorkDB:
              occurrence int,
              start_line int,
              start_col int,
-             stop_line int,
-             stop_col int,
+             end_line int,
+             end_col int,
              job_id text primary key)
             ''')
 
@@ -228,7 +228,7 @@ def _row_to_work_item(row):
                     operator_name=row['operator'],
                     occurrence=row['occurrence'],
                     start_pos=(row['start_line'], row['start_col']),
-                    stop_pos=(row['stop_line'], row['stop_col']),
+                    end_pos=(row['end_line'], row['end_col']),
                     job_id=row['job_id'])
 
 
@@ -238,8 +238,8 @@ def _work_item_to_row(work_item):
             work_item.occurrence,
             work_item.start_pos[0],
             work_item.start_pos[1],
-            work_item.stop_pos[0],
-            work_item.stop_pos[1],
+            work_item.end_pos[0],
+            work_item.end_pos[1],
             work_item.job_id)
 
 

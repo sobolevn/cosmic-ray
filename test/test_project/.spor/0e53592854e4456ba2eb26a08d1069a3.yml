@@ -1,0 +1,1 @@
+{"!spor_anchor": {"file_path": "adam.py", "encoding": "utf-8", "context": {"!spor_context": {"before": " anchors.\n", "after": "", "topic": "if __name__ == '__main__':\n    x = 3\n", "offset": 2823, "width": 10}}, "metadata": {"mutate": false}}}

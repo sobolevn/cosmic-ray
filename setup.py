@@ -42,7 +42,7 @@ INSTALL_REQUIRES = [
     'parso',
     'pathlib',
     'qprompt',
-    'spor==1.1.0',
+    'spor>=1.1.0',
     'stevedore',
     'yattag',
 ]

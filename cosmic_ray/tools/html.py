@@ -64,12 +64,12 @@ def _generate_html_report(db):
 
                     with tag('a', href=pycharm_url(
                             str(work_item.module_path),
-                            work_item.line_number)):
+                            work_item.start_pos[0])):
                         with tag('pre', klass='location'):
                             text('{}:{}:{}'.format(
                                 work_item.module_path,
-                                work_item.line_number,
-                                work_item.col_offset
+                                work_item.start_pos[0],
+                                work_item.start_pos[1]
                             ))
 
                     with tag('pre'):

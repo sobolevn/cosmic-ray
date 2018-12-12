@@ -31,7 +31,7 @@ class WorkDBInitVisitor(Visitor):
             self._record_work_item(start, stop)
         return node
 
-    def _record_work_item(self, start_pos, stop_pos):
+    def _record_work_item(self, start_pos, end_pos):
         self.work_db.add_work_item(
             WorkItem(
                 job_id=uuid.uuid4().hex,
@@ -39,7 +39,7 @@ class WorkDBInitVisitor(Visitor):
                 operator_name=self.op_name,
                 occurrence=self.occurrence,
                 start_pos=start_pos,
-                stop_pos=stop_pos))
+                end_pos=end_pos))
 
         self.occurrence += 1
 

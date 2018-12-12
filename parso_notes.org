@@ -23,8 +23,8 @@
 * TODO Add "command line" command for producing a command line
   Don't forget to update _print_item to use this.
   
-* TODO Add an "apply" command for applying a mutation to code on disk
-
 * TODO Do we have secret deployment credentials in the travis config?!
 
 * TODO Use apsw in workdb
+
+  Or not...I can't think of a great reason for this.
