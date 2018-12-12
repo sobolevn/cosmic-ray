@@ -14,7 +14,7 @@ def use_mutation(module_path, operator, occurrence):
 
     Args:
         module_path: The path to the module to mutate.
-        operator: The operator instance to use.
+        operator: The `Operator` instance to use.
         occurrence: The occurrence of the operator to apply.
 
     Yields: A `(unmutated-code, mutated-code)` tuple to the with-block. If there was 
@@ -33,7 +33,7 @@ def apply_mutation(module_path, operator, occurrence):
 
     Args:
         module_path: The path to the module to mutate.
-        operator: The operator instance to use.
+        operator: The `operator` instance to use.
         occurrence: The occurrence of the operator to apply.
 
     Returns: A `(unmutated-code, mutated-code)` tuple to the with-block. If there was 
@@ -81,7 +81,7 @@ class MutationVisitor(Visitor):
         for index, _ in enumerate(self.operator.mutation_positions(node)):
             if self._count == self._occurrence:
                 self._mutation_applied = True
-                return self.operator.mutate(node, index)
+                node = self.operator.mutate(node, index)
             self._count += 1
 
         return node

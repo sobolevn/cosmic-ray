@@ -1,18 +1,6 @@
-* TODO Store mutation ranges in WorkItem
-
-  Right now we store line number and column-offset for each workitem, but this doesn't tell us the full
-  extent of the mutation. We should store start-(line,col) and stop-(line,col), and we can get this
-  from parso nodes.
-
-  We should modify work item to store this. We should then modify the operator API so that
-  instead of reporting "num mutations" it instead reports an iterable of (start-{line,col}, stop-{line,col})
-  tuples. Update the database to store this. Then we can use this to do spor exceptions.
-
 * TODO Exclusion should be done via interceptors
 
     Rather than exclude modules at init time, we should exclude them using the interceptor system.
-
-* TODO Re-enable interceptors
 
 * TODO All tests need to pass
 
@@ -25,6 +13,11 @@
   
 * TODO Do we have secret deployment credentials in the travis config?!
 
-* TODO Use apsw in workdb
+* TODO test_e2e.py is failing apparently because it's launching pytest using python2.
 
-  Or not...I can't think of a great reason for this.
+  We need to somehow ensure that the pytest that runs is the right one, i.e. the one
+  belonging to the current environment.
+
+  Perhaps we need to interpolate sys.executable into the command if it's requested.
+
+  I've implemented this...need to update the conf files, and make a note of it somewhere.

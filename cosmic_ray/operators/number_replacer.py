@@ -29,4 +29,4 @@ class NumberReplacer(Operator):
         assert isinstance(node, parso.python.tree.Number)
 
         val = eval(node.value) + OFFSETS[index]
-        return parso.parse(' ' + str(val))
+        return parso.python.tree.Number(' ' + str(val), node.start_pos)

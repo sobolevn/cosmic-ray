@@ -1,6 +1,7 @@
 "Support for running tests in a subprocess."
 
 import subprocess
+import sys
 import traceback
 
 from cosmic_ray.work_item import TestOutcome
@@ -27,6 +28,7 @@ def run_tests(command, timeout=None):
         containing the output of the command.
     """
     try:
+        command = command.format(python_executable=sys.executable)
         proc = subprocess.run(command.split(),
                               stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT,

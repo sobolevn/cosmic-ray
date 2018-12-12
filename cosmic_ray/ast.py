@@ -15,7 +15,7 @@ class Visitor(ABC):
 
         if isinstance(node, parso.tree.BaseNode):
             walked = map(self.walk, node.children)
-            node.children = tuple(child for child in walked if child is not None)
+            node.children = [child for child in walked if child is not None]
 
         return node
 

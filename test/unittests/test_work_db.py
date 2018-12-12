@@ -20,7 +20,7 @@ def test_find_pending_job(work_db):
                     'operator',
                     0,
                     (0, 0),
-                    (0, 0),
+                    (0, 1),
                     'job_id')
     work_db.add_work_item(item)
     pending = list(work_db.pending_work_items)
@@ -33,7 +33,7 @@ def test_jobs_with_results_are_not_pending(work_db):
                  'operator',
                  0,
                  (0, 0),
-                 (0, 0),
+                 (0, 1),
                  'job_id'))
     work_db.add_result(
         'job_id',
@@ -62,7 +62,7 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
                  'operator',
                  0,
                  (0, 0),
-                 (0, 0),
+                 (0, 1),
                  'job_id'))
 
     work_db.add_result(
@@ -91,7 +91,7 @@ def test_num_work_items(work_db):
                      'operator',
                      0,
                      (0, 0),
-                     (0, 0),
+                     (0, 1),
                      'job_id_{}'.format(idx)))
     assert work_db.num_work_items == count
 
@@ -103,7 +103,7 @@ def test_clear_removes_work_items(work_db):
                      'operator',
                      0,
                      (0, 0),
-                     (0, 0),
+                     (0, 1),
                      'job_id_{}'.format(idx)))
     work_db.clear()
     assert work_db.num_work_items == 0
@@ -112,7 +112,7 @@ def test_clear_removes_work_items(work_db):
 def test_clear_work_items_removes_results(work_db):
     for idx in range(10):
         work_db.add_work_item(
-            WorkItem('path', 'operator', 0, (0, 0), (0, 0), 'job_id_{}'.format(idx)))
+            WorkItem('path', 'operator', 0, (0, 0), (0, 1), 'job_id_{}'.format(idx)))
         work_db.add_result(
             'job_id_{}'.format(idx),
             WorkResult(WorkerOutcome.NORMAL))
@@ -127,7 +127,7 @@ def test_work_items(work_db):
                  'operator_{}'.format(idx),
                  idx,
                  (idx, idx),
-                 (idx, idx),
+                 (idx, idx+1),
                  'job_id_{}'.format(idx))
         for idx in range(10)
     ]
@@ -146,7 +146,7 @@ def test_results(work_db):
                      'operator_{}'.format(idx),
                      idx,
                      (idx, idx),
-                     (idx, idx),
+                     (idx, idx+1),
                      'job_id_{}'.format(idx)))
 
     original = [
@@ -172,7 +172,7 @@ def test_new_work_items_are_pending(work_db):
                  'operator_{}'.format(idx),
                  idx,
                  (idx, idx),
-                 (idx, idx),
+                 (idx, idx+1),
                  'job_id_{}'.format(idx))
         for idx in range(10)]
 
@@ -187,7 +187,7 @@ def test_adding_result_clears_pending(work_db):
                  'operator_{}'.format(idx),
                  idx,
                  (idx, idx),
-                 (idx, idx),
+                 (idx, idx+1),
                  'job_id_{}'.format(idx))
         for idx in range(10)]
 
@@ -205,13 +205,14 @@ def test_adding_result_clears_pending(work_db):
                 diff='diff_{}'.format(idx)))
         work_db.add_result(*result)
 
+
 def test_adding_result_completes_work_item(work_db):
     items = [
         WorkItem('path_{}'.format(idx),
                  'operator_{}'.format(idx),
                  idx,
                  (idx, idx),
-                 (idx, idx),
+                 (idx, idx+1),
                  'job_id_{}'.format(idx))
         for idx in range(10)]
 
@@ -228,7 +229,6 @@ def test_adding_result_completes_work_item(work_db):
                 worker_outcome=WorkerOutcome.NORMAL,
                 diff='diff_{}'.format(idx)))
         work_db.add_result(*result)
-
 
 
 def test_set_config(work_db):

@@ -48,10 +48,10 @@ class Test_item_in_context:
 
         context = Context(
             offset=0,
-            topic='',
+            topic=' ' * 11,
             before='',
             after='',
-            width=11)
+            width=0)
 
         assert _item_in_context(lines, item, context)
 
@@ -66,10 +66,10 @@ class Test_item_in_context:
 
         context = Context(
             offset=0,
-            topic='',
+            topic=' ' * 11,
             before='',
             after='',
-            width=11)
+            width=0)
 
         assert _item_in_context(lines, item, context)
 
