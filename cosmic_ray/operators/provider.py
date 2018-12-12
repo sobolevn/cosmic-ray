@@ -23,6 +23,7 @@ _OPERATORS = {
         unary_operator_replacement.operators(),
         (boolean_replacer.AddNot,
          boolean_replacer.ReplaceTrueWithFalse,
+         boolean_replacer.ReplaceFalseWithTrue,
          boolean_replacer.ReplaceAndWithOr,
          boolean_replacer.ReplaceOrWithAnd,
          break_continue.ReplaceBreakWithContinue,
