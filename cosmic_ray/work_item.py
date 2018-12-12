@@ -72,14 +72,7 @@ class WorkResult:
     @property
     def is_killed(self):
         "Whether the mutation should be considered 'killed'"
-        if self.worker_outcome == WorkerOutcome.SKIPPED:
-            return True
-        elif self.worker_outcome in {WorkerOutcome.ABNORMAL, WorkerOutcome.NORMAL}:
-            if self.test_outcome == TestOutcome.KILLED:
-                return True
-            if self.test_outcome == TestOutcome.INCOMPETENT:
-                return True
-        return False
+        return self.test_outcome != TestOutcome.SURVIVED
 
     def __eq__(self, rhs):
         return self.as_dict() == rhs.as_dict()
