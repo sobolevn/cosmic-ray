@@ -75,7 +75,7 @@ def worker(module_path,
                 module_path)
 
             return WorkResult(
-                output=output.decode(),
+                output=output,
                 diff='\n'.join(diff),
                 test_outcome=test_outcome,
                 worker_outcome=WorkerOutcome.NORMAL)

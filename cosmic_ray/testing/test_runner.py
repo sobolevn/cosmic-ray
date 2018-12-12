@@ -34,7 +34,7 @@ def run_tests(command, timeout=None):
 
         outcome = TestOutcome.SURVIVED if proc.returncode == 0 else TestOutcome.KILLED
 
-        return (outcome, proc.stdout)
+        return (outcome, proc.stdout.decode())
 
     except Exception:
         return (TestOutcome.INCOMPETENT, traceback.format_exc())
