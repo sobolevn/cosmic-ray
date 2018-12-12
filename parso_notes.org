@@ -2,6 +2,8 @@
 
     Rather than exclude modules at init time, we should exclude them using the interceptor system.
 
+* TODO Update docs
+
 * TODO All tests need to pass
 
 * TODO Verify that celery tests work
