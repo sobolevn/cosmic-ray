@@ -15,4 +15,3 @@ class ReplaceContinueWithBreak(KeywordReplacementOperator):
     "Operator which replaces 'continue' with 'break'."
     def __init__(self):
         super().__init__('continue', 'break')
-

@@ -23,3 +23,5 @@
   Perhaps we need to interpolate sys.executable into the command if it's requested.
 
   I've implemented this...need to update the conf files, and make a note of it somewhere.
+
+* TODO We have an issue where multiple anchors could, in principle, cause a WorkItem to be skipped. We need to account for that here.

@@ -36,15 +36,12 @@ def intercept(work_db):
             metadata = anchor.metadata
 
             lines = file_contents(item.module_path)
-            if _item_in_context(lines, item, anchor.context) and not metadata.get('mutate', True):
-                log.info('spor skipping %s %s %s',
-                         item.job_id,
-                         item.operator_name,
-                         item.occurrence)
+            if _item_in_context(
+                    lines, item,
+                    anchor.context) and not metadata.get('mutate', True):
+                log.info('spor skipping %s %s %s', item.job_id,
+                         item.operator_name, item.occurrence)
 
-                # TODO: We have an issue where multiple anchors could, in
-                # principle, cause a WorkItem to be skipped. We need to account
-                # for that here.
                 work_db.add_result(
                     item.job_id,
                     WorkResult(
@@ -64,13 +61,13 @@ def _line_and_col_to_offset(lines, line, col):
     one-past the end of a file.
 
     Args:
-        lines: A sequence of the lines in a file. 
-        line: A one-based index indicating the line in the file. 
+        lines: A sequence of the lines in a file.
+        line: A one-based index indicating the line in the file.
         col: A zero-based index indicating the column on `line`.
 
-    Raises: 
-        ValueError: If the specified line found in the file.
+    Raises: ValueError: If the specified line found in the file.
     """
+
     offset = 0
     for index, contents in enumerate(lines, 1):
         if index == line:
@@ -87,8 +84,10 @@ def _item_in_context(lines, item, context):
     This only returns True if a WorkItems start-/stop-pos range is *completely*
     within an anchor, not just if it overalaps.
     """
-    start_offset = _line_and_col_to_offset(lines, item.start_pos[0], item.start_pos[1])
-    stop_offset = _line_and_col_to_offset(lines, item.end_pos[0], item.end_pos[1])
+    start_offset = _line_and_col_to_offset(lines, item.start_pos[0],
+                                           item.start_pos[1])
+    stop_offset = _line_and_col_to_offset(lines, item.end_pos[0],
+                                          item.end_pos[1])
     width = stop_offset - start_offset
 
     return start_offset >= context.offset and width <= len(context.topic)

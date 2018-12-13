@@ -34,9 +34,6 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
                         yield (comparison_op.start_pos, comparison_op.end_pos)
 
         def mutate(self, node, index):
-            # TODO: this is technically wrong because we don't set the correct
-            # start/end_pos. Does this matter?
-
             mutated_comparison_op = parso.parse(' ' + to_op)
             node.children[index * 2 + 1] = mutated_comparison_op
             return node
@@ -46,7 +43,7 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
 # Build all of the binary replacement operators
 _OPERATORS = tuple(
     _create_operator(from_op, from_name, to_op, to_name)
-    for (from_op, from_name), (to_op, to_name) 
+    for (from_op, from_name), (to_op, to_name)
     in itertools.permutations(_OPERATOR_DESCRIPTIONS, 2))
 
 # Inject the operators into the module namespace
