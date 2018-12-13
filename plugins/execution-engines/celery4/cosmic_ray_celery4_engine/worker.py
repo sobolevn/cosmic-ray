@@ -10,8 +10,8 @@ from .app import APP
 LOG = get_logger(__name__)
 
 
-@APP.task(name="cosmic_ray_celery3_engine.worker")
-def worker_task(work_item_dict, timeout, config):
+@APP.task(name="cosmic_ray_celery4_engine.worker")
+def worker_task(work_item, timeout, config):
     """The celery task which performs a single mutation and runs a test suite.
 
     This runs `cosmic-ray worker` in a subprocess and returns the results,
@@ -24,7 +24,6 @@ def worker_task(work_item_dict, timeout, config):
 
     Returns: An updated WorkItem
     """
-    work_item = WorkItem(**work_item_dict)
     return worker(
         work_item.module_path,
         work_item.operator_name,

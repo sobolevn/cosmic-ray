@@ -1,3 +1,5 @@
+"""Setup for Cosmic Ray.
+"""
 import io
 import os
 import sys
@@ -6,16 +8,13 @@ from setuptools import setup, find_packages
 
 
 def local_file(*name):
-    return os.path.join(
-        os.path.dirname(__file__),
-        *name)
+    "Find a file relative to this directory."
+    return os.path.join(os.path.dirname(__file__), *name)
 
 
 def read(name, **kwargs):
-    with io.open(
-        name,
-        encoding=kwargs.get("encoding", "utf8")
-    ) as handle:
+    "Read the contents of a file."
+    with io.open(name, encoding=kwargs.get("encoding", "utf8")) as handle:
         return handle.read()
 
 
@@ -32,7 +31,6 @@ def read_version():
 
 
 LONG_DESCRIPTION = read(local_file('README.rst'), mode='rt')
-
 
 INSTALL_REQUIRES = [
     'astunparse',
@@ -54,7 +52,6 @@ setup(
     name='cosmic_ray',
     version=read_version()[0],
     packages=find_packages(),
-
     author='Sixty North AS',
     author_email='austin@sixty-north.com',
     description='Mutation testing',
@@ -83,9 +80,10 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         'test': ['hypothesis', 'pytest', 'pytest-mock', 'tox'],
+        'dev': ['pylint', 'yapf'],
         'docs': ['sphinx', 'sphinx_rtd_theme'],
         'pytest_runner': ['cosmic_ray_pytest_runner'],
-        'celery3_engine': ['cosmic_ray_celery3_engine'],
+        'celery4_engine': ['cosmic_ray_celery4_engine'],
     },
     entry_points={
         'console_scripts': [
@@ -98,15 +96,13 @@ setup(
         'cosmic_ray.test_runners': [
             'unittest = cosmic_ray.testing.unittest_runner:UnittestRunner',
         ],
-        'cosmic_ray.operator_providers': [
-            'core = cosmic_ray.operators.provider:OperatorProvider'
-        ],
+        'cosmic_ray.operator_providers':
+        ['core = cosmic_ray.operators.provider:OperatorProvider'],
         'cosmic_ray.execution_engines': [
             'local = cosmic_ray.execution.local:LocalExecutionEngine',
         ],
-        'cosmic_ray.interceptors': [
-            'spor = cosmic_ray.interceptors.spor:intercept'
-        ],
+        'cosmic_ray.interceptors':
+        ['spor = cosmic_ray.interceptors.spor:intercept'],
     },
     long_description=LONG_DESCRIPTION,
 )

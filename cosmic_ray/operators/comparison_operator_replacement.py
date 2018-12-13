@@ -55,7 +55,7 @@ def operators():
     "Iterable of all binary operator replacement mutation operators."
     return iter(_OPERATORS)
 
-# TODO: We have some complex exceptions that we need to take care of. Here's the
+# We have some complex exceptions that we need to take care of. Here's the
 # old code that did that.
 #
 # # Maps from-ops to to-ops when the RHS is `None`

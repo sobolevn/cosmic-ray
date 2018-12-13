@@ -24,4 +24,19 @@
 
   I've implemented this...need to update the conf files, and make a note of it somewhere.
 
-* TODO We have an issue where multiple anchors could, in principle, cause a WorkItem to be skipped. We need to account for that here.
+* TODO Multi-anchor issue
+  We have an issue where multiple anchors could, in principle, cause a WorkItem
+  to be skipped. We need to account for that in the spor interceptor. Currently,
+  if it tries to add multiple work results for the same work item it fails. We
+  need an "update result" or "set result" API on the work db. 
+
+* TODO Re-enable comparison operator replacement "special rules"
+
+* TODO worker not reverting changes in all cases
+
+  I've seen adam.py left in a corrupt state when killing execution
+  and/or celery executors...not sure where the culprit is.
+
+* TODO celery worker must limit self to one process!
+
+  We can't let celery start up multiple "threads" else it'll collide with itself.

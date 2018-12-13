@@ -1,4 +1,4 @@
-"Setup for Cosmic Rays celery-3 engine."
+"Setup for Cosmic Rays celery-4 engine."
 
 import io
 import os
@@ -27,13 +27,13 @@ def find_version(*file_paths):
 long_description = read('README.md', mode='rt')
 
 setup(
-    name='cosmic-ray-celery3-engine',
-    version=find_version('cosmic_ray_celery3_engine/version.py'),
+    name='cosmic-ray-celery4-engine',
+    version=find_version('cosmic_ray_celery4_engine/version.py'),
     packages=find_packages(exclude=['contrib', 'docs', 'test*']),
     author='Sixty North AS',
     author_email='austin@sixty-north.com',
     description=
-    'Cosmic Ray execution engine that distributes execution via Celery 3.',
+    'Cosmic Ray execution engine that distributes execution via Celery 4.',
     license='MIT',
     keywords='testing',
     url='http://github.com/sixty-north/cosmic-ray',
@@ -53,11 +53,11 @@ setup(
     platforms='any',
     include_package_data=True,
     install_requires=[
-        'celery<4',
+        'celery>=4',
     ],
     entry_points={
         'cosmic_ray.execution_engines': [
-            'celery3 = cosmic_ray_celery3_engine.engine:CeleryExecutionEngine',
+            'celery4 = cosmic_ray_celery4_engine.engine:CeleryExecutionEngine',
         ]
     },
     long_description=long_description,

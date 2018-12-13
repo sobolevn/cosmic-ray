@@ -1,4 +1,4 @@
-"Implementation of the celery3 execution engine plugin."
+"Implementation of the celery4 execution engine plugin."
 
 from cosmic_ray.execution.execution_engine import ExecutionEngine
 
@@ -7,7 +7,7 @@ from .worker import execute_work_items
 
 
 class CeleryExecutionEngine(ExecutionEngine):
-    "The celery3 execution engine."
+    "The celery4 execution engine."
     def __call__(self, timeout, pending_work, config, on_task_complete):
         purge_queue = config['execution-engine'].get('purge-queue', True)
 
