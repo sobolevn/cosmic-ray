@@ -26,6 +26,7 @@ def use_mutation(module_path, operator, occurrence):
     finally:
         with module_path.open(mode='wt', encoding='utf-8') as handle:
             handle.write(original_code)
+            handle.flush()
 
 
 def apply_mutation(module_path, operator, occurrence):
@@ -50,6 +51,7 @@ def apply_mutation(module_path, operator, occurrence):
         mutated_code = mutated_ast.get_code()
         with module_path.open(mode='wt', encoding='utf-8') as handle:
             handle.write(mutated_code)
+            handle.flush()
 
     return original_code, mutated_code
 
