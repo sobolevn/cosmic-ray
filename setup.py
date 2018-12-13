@@ -80,7 +80,7 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         'test': ['hypothesis', 'pytest', 'pytest-mock', 'tox'],
-        'dev': ['pylint', 'yapf'],
+        'dev': ['pylint', 'black'],
         'docs': ['sphinx', 'sphinx_rtd_theme'],
         'pytest_runner': ['cosmic_ray_pytest_runner'],
         'celery4_engine': ['cosmic_ray_celery4_engine'],
