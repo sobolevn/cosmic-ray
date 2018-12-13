@@ -33,8 +33,7 @@ def set_prefs(prefs):
     # separating folders regardless of the platform rope is running on.
     # 'src/my_source_folder' for instance.
     #prefs.add('source_folders', 'src')
-    source_dirs = ('plugins/execution-engines/celery3/cosmic_ray_celery3_engine',
-                   'plugins/execution-engines/celery4/cosmic_ray_celery4_engine')
+    source_dirs = ('plugins/execution-engines/celery4/cosmic_ray_celery4_engine')
     for pdir in source_dirs:
         prefs.add('source_dirs', pdir)
 

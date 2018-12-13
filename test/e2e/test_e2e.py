@@ -9,7 +9,7 @@ from cosmic_ray.tools.survival_rate import survival_rate
 
 
 TEST_RUNNERS = ('unittest', 'pytest')
-ENGINES = ('local',)  # TODO: Add celery3
+ENGINES = ('local',)  # TODO: Add celery4
 
 
 @pytest.fixture(params=TEST_RUNNERS)

@@ -28,10 +28,10 @@ install:
 
 services: rabbitmq
 
-before_script:
-- pushd test/test_project
-- celery -A cosmic_ray_celery3_engine.worker worker &
-- popd
+# before_script:
+# - pushd test/test_project
+# - celery -A cosmic_ray_celery3_engine.worker worker &
+# - popd
 
 script:
 - tox
