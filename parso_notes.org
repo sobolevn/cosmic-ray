@@ -40,3 +40,8 @@
 * TODO celery worker must limit self to one process!
 
   We can't let celery start up multiple "threads" else it'll collide with itself.
+
+* TODO Consider alternatives to celery
+
+  rq: https://github.com/rq/rq
+  

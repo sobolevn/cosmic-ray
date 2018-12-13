@@ -80,5 +80,5 @@ def test_config_command(project_root, session):
     subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'init', config, str(session)],
                           cwd=str(project_root))
 
-    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'config', session],
+    subprocess.check_call([sys.executable, '-m', 'cosmic_ray.cli', 'config', str(session)],
                           cwd=str(project_root))
