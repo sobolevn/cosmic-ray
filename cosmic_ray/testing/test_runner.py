@@ -29,15 +29,18 @@ def run_tests(command, timeout=None):
     """
     try:
         command = command.format(python_executable=sys.executable)
-        proc = subprocess.run(command.split(),
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT,
-                              timeout=timeout)
+        proc = subprocess.run(
+            command.split(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=True,
+            universal_newlines=True,
+            timeout=timeout,
+        )
 
-        outcome = TestOutcome.SURVIVED if proc.returncode == 0 else TestOutcome.KILLED
-
-        return (outcome, proc.stdout.decode())
-
+        return (TestOutcome.SURVIVED, proc.stdout)
+    except subprocess.CalledProcessError as exc:
+        return (TestOutcome.KILLED, exc.output)
     except Exception:
         return (TestOutcome.INCOMPETENT, traceback.format_exc())
 
