@@ -23,7 +23,7 @@ And, of course, patches and ideas are welcome.
 
 |full_documentation|_
 
-.. |Python version| image:: https://img.shields.io/badge/Python_version-3.4+-blue.svg
+.. |Python version| image:: https://img.shields.io/badge/Python_version-3.5+-blue.svg
    :target: https://www.python.org/
 .. |Build Status| image:: https://travis-ci.org/sixty-north/cosmic-ray.png?branch=master
    :target: https://travis-ci.org/sixty-north/cosmic-ray
