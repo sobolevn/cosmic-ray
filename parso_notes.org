@@ -1,9 +1,5 @@
 * TODO Update docs
 
-* TODO All tests need to pass
-
-* TODO Verify that celery tests work
- 
 * TODO Do we have secret deployment credentials in the travis config?!
 
 * TODO Multi-anchor issue
@@ -17,7 +13,12 @@
   I've seen adam.py left in a corrupt state when killing execution
   and/or celery executors...not sure where the culprit is.
 
+  I think this is related to sigint/sigkill where we don't get a chance to clean
+  up.
+
 * Need to thread python version down to parso calls
+
+* Adding "not" doesn't seem to add a space. E.g. "x is 3" becomes "x is not3".
 
 FOR LATER
 
@@ -39,4 +40,8 @@ FOR LATER
 * TODO Consider alternatives to celery
 
   rq: https://github.com/rq/rq
+
+ * TODO Verify that celery tests work
+
+ * TODO Consider using interceptors to skip operator replacements that we want to avoid.
   
