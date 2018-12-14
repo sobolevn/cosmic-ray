@@ -1,28 +1,10 @@
-* TODO Exclusion should be done via interceptors
-
-    Rather than exclude modules at init time, we should exclude them using the interceptor system.
-
 * TODO Update docs
 
 * TODO All tests need to pass
 
 * TODO Verify that celery tests work
-
-* TODO Remove test-runner plugins from pypi?
-
-* TODO Add "command line" command for producing a command line
-  Don't forget to update _print_item to use this.
-  
+ 
 * TODO Do we have secret deployment credentials in the travis config?!
-
-* TODO test_e2e.py is failing apparently because it's launching pytest using python2.
-
-  We need to somehow ensure that the pytest that runs is the right one, i.e. the one
-  belonging to the current environment.
-
-  Perhaps we need to interpolate sys.executable into the command if it's requested.
-
-  I've implemented this...need to update the conf files, and make a note of it somewhere.
 
 * TODO Multi-anchor issue
   We have an issue where multiple anchors could, in principle, cause a WorkItem
@@ -30,13 +12,26 @@
   if it tries to add multiple work results for the same work item it fails. We
   need an "update result" or "set result" API on the work db. 
 
-* TODO Re-enable comparison operator replacement "special rules"
-
 * TODO worker not reverting changes in all cases
 
   I've seen adam.py left in a corrupt state when killing execution
   and/or celery executors...not sure where the culprit is.
 
+* Need to thread python version down to parso calls
+
+FOR LATER
+
+* TODO Re-enable comparison operator replacement "special rules"
+
+* TODO Exclusion should be done via interceptors
+
+    Rather than exclude modules at init time, we should exclude them using the interceptor system.
+
+* TODO Remove test-runner plugins from pypi?
+
+* TODO Add "command line" command for producing a command line
+  Don't forget to update _print_item to use this.
+ 
 * TODO celery worker must limit self to one process!
 
   We can't let celery start up multiple "threads" else it'll collide with itself.
