@@ -70,7 +70,9 @@ OPERATOR_SAMPLES = [
          'try: pass\nexcept: pass', 'try: pass\nexcept: pass'),
         (ReplaceUnaryOperator_USub_UAdd, 'x = -1', 'x = +1'),
         (ReplaceUnaryOperator_UAdd_USub, 'x = +1', 'x = -1'),
-        (ReplaceUnaryOperator_Delete_Not, 'return not x', 'return x'),
+        (ReplaceUnaryOperator_Delete_Not, 'return not x', 'return  x'),
+        (ReplaceUnaryOperator_Delete_USub, "x = -1", "x = 1"),
+        (ReplaceUnaryOperator_USub_Not, "x = -1", "x = not 1"),
 
         # Make sure unary and binary op mutators don't pick up the wrong kinds of operators
         (ReplaceUnaryOperator_USub_UAdd, 'x + 1', 'x + 1'),
