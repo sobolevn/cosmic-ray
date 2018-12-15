@@ -147,21 +147,23 @@ class WorkDB:
         count = self._conn.execute("SELECT COUNT(*) FROM results")
         return list(count)[0][0]
 
-    def add_result(self, job_id, result):
-        """Add a sequence of WorkResults to the db.
+    def set_result(self, job_id, result):
+        """Set the result for a job. 
+
+        This will overwrite any existing results for the job.
 
         Args:
-          result: An iterable of `(job-id, WorkResult)`s.
+          job_id: The ID of the WorkItem to set the result for.
+          result: A WorkResult indicating the result of the job.
 
         Raises:
            KeyError: If there is no work-item with a matching job-id.
-           KeyError: If there is an existing result with a matching job-id.
         """
         with self._conn:
             try:
                 self._conn.execute(
                     '''
-                    INSERT INTO results
+                    REPLACE INTO results
                     VALUES (?, ?, ?, ?, ?)
                     ''',
                     _work_result_to_row(job_id, result))

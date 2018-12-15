@@ -45,7 +45,7 @@ def execute(db_name):
             executor = get_execution_engine(engine_config['name'])
 
             def on_task_complete(job_id, work_result):
-                work_db.add_result(job_id, work_result)
+                work_db.set_result(job_id, work_result)
                 _update_progress(work_db)
                 log.info("Job %s complete", job_id)
 

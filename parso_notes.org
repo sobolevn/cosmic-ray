@@ -18,8 +18,6 @@
 
 * Need to thread python version down to parso calls
 
-* Adding "not" doesn't seem to add a space. E.g. "x is 3" becomes "x is not3".
-
 FOR LATER
 
 * TODO Re-enable comparison operator replacement "special rules"
@@ -44,4 +42,6 @@ FOR LATER
  * TODO Verify that celery tests work
 
  * TODO Consider using interceptors to skip operator replacements that we want to avoid.
+
+ * TODO Each operator should provide a series of "samples" that can be used in testing.
   

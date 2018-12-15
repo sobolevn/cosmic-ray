@@ -42,7 +42,7 @@ def intercept(work_db):
                 log.info('spor skipping %s %s %s', item.job_id,
                          item.operator_name, item.occurrence)
 
-                work_db.add_result(
+                work_db.set_result(
                     item.job_id,
                     WorkResult(
                         output=None,

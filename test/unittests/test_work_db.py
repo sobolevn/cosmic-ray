@@ -35,7 +35,7 @@ def test_jobs_with_results_are_not_pending(work_db):
                  (0, 0),
                  (0, 1),
                  'job_id'))
-    work_db.add_result(
+    work_db.set_result(
         'job_id',
         WorkResult(
             output='data',
@@ -45,9 +45,9 @@ def test_jobs_with_results_are_not_pending(work_db):
     assert not list(work_db.pending_work_items)
 
 
-def test_add_result_throws_KeyError_if_no_matching_work_item(work_db):
+def test_set_result_throws_KeyError_if_no_matching_work_item(work_db):
     with pytest.raises(KeyError):
-        work_db.add_result(
+        work_db.set_result(
             'job_id',
             WorkResult(
                 output='data',
@@ -56,7 +56,7 @@ def test_add_result_throws_KeyError_if_no_matching_work_item(work_db):
                 diff='diff'))
 
 
-def test_add_result_throws_KeyError_if_result_exists(work_db):
+def test_set_multiple_results_works(work_db):
     work_db.add_work_item(
         WorkItem('path',
                  'operator',
@@ -65,22 +65,25 @@ def test_add_result_throws_KeyError_if_result_exists(work_db):
                  (0, 1),
                  'job_id'))
 
-    work_db.add_result(
+    work_db.set_result(
         'job_id',
         WorkResult(
-            output='data',
+            output='first result',
             test_outcome=TestOutcome.KILLED,
             worker_outcome=WorkerOutcome.NORMAL,
             diff='diff'))
 
-    with pytest.raises(KeyError):
-        work_db.add_result(
-            'job_id',
-            WorkResult(
-                output='data',
-                test_outcome=TestOutcome.KILLED,
-                worker_outcome=WorkerOutcome.NORMAL,
-                diff='diff'))
+    work_db.set_result(
+        'job_id',
+        WorkResult(
+            output='second result',
+            test_outcome=TestOutcome.KILLED,
+            worker_outcome=WorkerOutcome.NORMAL,
+            diff='diff'))
+
+    results = [r for job_id, r in work_db.results if job_id == 'job_id']
+    assert len(results) == 1
+    assert results[0].output == 'second result'
 
 
 def test_num_work_items(work_db):
@@ -113,7 +116,7 @@ def test_clear_work_items_removes_results(work_db):
     for idx in range(10):
         work_db.add_work_item(
             WorkItem('path', 'operator', 0, (0, 0), (0, 1), 'job_id_{}'.format(idx)))
-        work_db.add_result(
+        work_db.set_result(
             'job_id_{}'.format(idx),
             WorkResult(WorkerOutcome.NORMAL))
 
@@ -159,7 +162,7 @@ def test_results(work_db):
         for idx in range(10)]
 
     for result in original:
-        work_db.add_result(*result)
+        work_db.set_result(*result)
 
     actual = list(work_db.results)
 
@@ -203,7 +206,7 @@ def test_adding_result_clears_pending(work_db):
                 test_outcome=TestOutcome.KILLED,
                 worker_outcome=WorkerOutcome.NORMAL,
                 diff='diff_{}'.format(idx)))
-        work_db.add_result(*result)
+        work_db.set_result(*result)
 
 
 def test_adding_result_completes_work_item(work_db):
@@ -228,7 +231,7 @@ def test_adding_result_completes_work_item(work_db):
                 test_outcome=TestOutcome.KILLED,
                 worker_outcome=WorkerOutcome.NORMAL,
                 diff='diff_{}'.format(idx)))
-        work_db.add_result(*result)
+        work_db.set_result(*result)
 
 
 def test_set_config(work_db):
