@@ -105,8 +105,7 @@ def handle_init(args):
         baseline_mult = config['baseline']
 
         command = '{} -m cosmic_ray.cli baseline {}'.format(
-            sys.executable,
-            args['<config-file>'])
+            sys.executable, args['<config-file>'])
 
         # We run the baseline in a subprocess to more closely emulate the
         # runtime of a worker subprocess.
@@ -120,9 +119,7 @@ def handle_init(args):
 
     log.info('timeout = %f seconds', timeout)
 
-    modules = set(
-        cosmic_ray.modules.find_modules(
-            Path(config['module-path'])))
+    modules = set(cosmic_ray.modules.find_modules(Path(config['module-path'])))
 
     print(config['module-path'])
     log.info('Modules discovered: %s', [m for m in modules])
@@ -130,11 +127,7 @@ def handle_init(args):
     db_name = get_db_name(args['<session-file>'])
 
     with use_db(db_name) as database:
-        cosmic_ray.commands.init(
-            modules,
-            database,
-            config,
-            timeout)
+        cosmic_ray.commands.init(modules, database, config, timeout)
 
     return ExitCode.OK
 
@@ -161,8 +154,7 @@ def handle_exec(args):
     This requires that the rest of your mutation testing
     infrastructure (e.g. worker processes) are already running.
     """
-    session_file = get_db_name(
-        args.get('<session-file>'))
+    session_file = get_db_name(args.get('<session-file>'))
     cosmic_ray.commands.execute(session_file)
 
     return ExitCode.OK
@@ -238,13 +230,12 @@ def handle_apply(args):
 
     python_version = args['--python-version']
     if python_version is None:
-        python_version = "{}.{}".format(sys.version_info.major, sys.version_info.minor)
-
+        python_version = "{}.{}".format(sys.version_info.major,
+                                        sys.version_info.minor)
 
     apply_mutation(
         Path(args['<module-path>']),
-        cosmic_ray.plugins.get_operator(
-            args['<operator>'])(python_version),
+        cosmic_ray.plugins.get_operator(args['<operator>'])(python_version),
         int(args['<occurrence>']))
 
     return ExitCode.OK
@@ -273,11 +264,8 @@ def handle_worker(args):
         with redirect_stdout(sys.stdout if args['--keep-stdout'] else devnull):
             work_item = cosmic_ray.worker.worker(
                 Path(args['<module-path>']),
-                config.python_version,
-                args['<operator>'],
-                int(args['<occurrence>']),
-                config['test-command'],
-                None)
+                config.python_version, args['<operator>'],
+                int(args['<occurrence>']), config['test-command'], None)
 
     sys.stdout.write(json.dumps(work_item, cls=WorkItemJsonEncoder))
 
@@ -305,8 +293,9 @@ def common_option_handler(args):
     :param config: holds the configuration values
     """
     if args['--verbose']:
-        logging.basicConfig(level=logging.INFO,
-                            format='%(asctime)s %(name)s %(levelname)s %(message)s')
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s %(name)s %(levelname)s %(message)s')
 
 
 _SIGNAL_EXIT_CODE_BASE = 128
@@ -317,12 +306,14 @@ def main(argv=None):
 
     :param argv: the command line arguments
     """
-    signal.signal(signal.SIGINT,
-                  lambda *args: sys.exit(_SIGNAL_EXIT_CODE_BASE + signal.SIGINT))
+    signal.signal(
+        signal.SIGINT,
+        lambda *args: sys.exit(_SIGNAL_EXIT_CODE_BASE + signal.SIGINT))
 
     if hasattr(signal, 'SIGINFO'):
-        signal.signal(getattr(signal, 'SIGINFO'),
-                      lambda *args: report_progress(sys.stderr))
+        signal.signal(
+            getattr(signal, 'SIGINFO'),
+            lambda *args: report_progress(sys.stderr))
 
     try:
         return dsc.main(

@@ -20,6 +20,7 @@ class WorkDB:
     executed in some run. These initially start off with no results, and
     results are added as they're completed.
     """
+
     class Mode(Enum):
         "Modes in which a WorkDB may be opened."
 
@@ -43,8 +44,7 @@ class WorkDB:
         """
 
         if (mode == WorkDB.Mode.open) and (not os.path.exists(path)):
-            raise FileNotFoundError(
-                'Requested file {} not found'.format(path))
+            raise FileNotFoundError('Requested file {} not found'.format(path))
 
         self._path = path
         self._conn = sqlite3.connect(path)
@@ -73,8 +73,7 @@ class WorkDB:
         with self._conn:
             self._conn.execute("DELETE FROM config")
             self._conn.execute('INSERT INTO config VALUES(?, ?)',
-                               (kfg.yaml.serialize_config(config),
-                                timeout))
+                               (kfg.yaml.serialize_config(config), timeout))
 
     def get_config(self):
         """Get the work parameters (if set) for the session.
@@ -89,8 +88,7 @@ class WorkDB:
             raise ValueError("work-db has no config")
         config_str, timeout = rows[0]
 
-        return (kfg.yaml.load_config(StringIO(config_str),
-                                     config=Config()),
+        return (kfg.yaml.load_config(StringIO(config_str), config=Config()),
                 timeout)
 
     @property
@@ -121,8 +119,7 @@ class WorkDB:
                 '''
                 INSERT INTO work_items
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ''',
-                _work_item_to_row(work_item))
+                ''', _work_item_to_row(work_item))
 
     def clear(self):
         """Clear all work items from the session.
@@ -165,23 +162,26 @@ class WorkDB:
                     '''
                     REPLACE INTO results
                     VALUES (?, ?, ?, ?, ?)
-                    ''',
-                    _work_result_to_row(job_id, result))
+                    ''', _work_result_to_row(job_id, result))
             except sqlite3.IntegrityError as exc:
-                raise KeyError('Can not add result with job-id {}'.format(job_id)) from exc
+                raise KeyError('Can not add result with job-id {}'.format(
+                    job_id)) from exc
 
     @property
     def pending_work_items(self):
         "Iterable of all pending work items."
-        pending = self._conn.execute("SELECT * FROM work_items WHERE job_id NOT IN (SELECT job_id FROM results)")
+        pending = self._conn.execute(
+            "SELECT * FROM work_items WHERE job_id NOT IN (SELECT job_id FROM results)"
+        )
         return (_row_to_work_item(p) for p in pending)
 
     @property
     def completed_work_items(self):
-        completed = self._conn.execute("SELECT * FROM work_items, results WHERE work_items.job_id == results.job_id")
-        return (
-            (_row_to_work_item(result), _row_to_work_result(result))
-            for result in completed)
+        completed = self._conn.execute(
+            "SELECT * FROM work_items, results WHERE work_items.job_id == results.job_id"
+        )
+        return ((_row_to_work_item(result), _row_to_work_result(result))
+                for result in completed)
 
     # @property
     # def num_pending_work_items(self):
@@ -226,41 +226,40 @@ class WorkDB:
 
 
 def _row_to_work_item(row):
-    return WorkItem(module_path=row['module_path'],
-                    operator_name=row['operator'],
-                    occurrence=row['occurrence'],
-                    start_pos=(row['start_line'], row['start_col']),
-                    end_pos=(row['end_line'], row['end_col']),
-                    job_id=row['job_id'])
+    return WorkItem(
+        module_path=row['module_path'],
+        operator_name=row['operator'],
+        occurrence=row['occurrence'],
+        start_pos=(row['start_line'], row['start_col']),
+        end_pos=(row['end_line'], row['end_col']),
+        job_id=row['job_id'])
 
 
 def _work_item_to_row(work_item):
-    return (str(work_item.module_path),
-            work_item.operator_name,
-            work_item.occurrence,
-            work_item.start_pos[0],
-            work_item.start_pos[1],
-            work_item.end_pos[0],
-            work_item.end_pos[1],
-            work_item.job_id)
+    return (str(
+        work_item.module_path), work_item.operator_name, work_item.occurrence,
+            work_item.start_pos[0], work_item.start_pos[1],
+            work_item.end_pos[0], work_item.end_pos[1], work_item.job_id)
 
 
 def _row_to_work_result(row):
     test_outcome = row['test_outcome']
     test_outcome = None if test_outcome is None else TestOutcome(test_outcome)
 
-    return WorkResult(worker_outcome = WorkerOutcome(row['worker_outcome']),
-                      output = row['output'],
-                      test_outcome = test_outcome,
-                      diff = row['diff'])
+    return WorkResult(
+        worker_outcome=WorkerOutcome(row['worker_outcome']),
+        output=row['output'],
+        test_outcome=test_outcome,
+        diff=row['diff'])
 
 
 def _work_result_to_row(job_id, result):
-    return (result.worker_outcome.value,  # should never be None
-            result.output,
-            None if result.test_outcome is None else result.test_outcome.value,
-            result.diff,
-            job_id)
+    return (
+        result.worker_outcome.value,  # should never be None
+        result.output,
+        None if result.test_outcome is None else result.test_outcome.value,
+        result.diff,
+        job_id)
 
 
 @contextlib.contextmanager
@@ -279,7 +278,7 @@ def use_db(path, mode=WorkDB.Mode.create):
       FileNotFoundError: If `mode` is `Mode.open` and `path` does not
         exist.
     """
-    database=WorkDB(path, mode)
+    database = WorkDB(path, mode)
     try:
         yield database
     finally:

@@ -7,8 +7,8 @@ import cosmic_ray.modules
 from cosmic_ray.plugins import get_interceptor, interceptor_names, get_operator
 from cosmic_ray.work_item import WorkItem
 
-
 log = logging.getLogger()
+
 
 class WorkDBInitVisitor(Visitor):
     """An AST visitor that initializes a WorkDB for a specific module and operator.
@@ -44,10 +44,7 @@ class WorkDBInitVisitor(Visitor):
         self.occurrence += 1
 
 
-def init(module_paths,
-         work_db,
-         config,
-         timeout):
+def init(module_paths, work_db, config, timeout):
     """Clear and initialize a work-db with work items.
 
     Any existing data in the work-db will be cleared and replaced with entirely
@@ -61,17 +58,17 @@ def init(module_paths,
       timeout: The timeout to apply to the work in the session.
     """
     operator_names = cosmic_ray.plugins.operator_names()
-    work_db.set_config(
-        config=config,
-        timeout=timeout)
+    work_db.set_config(config=config, timeout=timeout)
 
     work_db.clear()
 
     for module_path in module_paths:
         for op_name in operator_names:
             operator = get_operator(op_name)(config.python_version)
-            visitor = WorkDBInitVisitor(module_path, op_name, work_db, operator)
-            module_ast = get_ast(module_path, python_version=config.python_version)
+            visitor = WorkDBInitVisitor(module_path, op_name, work_db,
+                                        operator)
+            module_ast = get_ast(
+                module_path, python_version=config.python_version)
 
             visitor.walk(module_ast)
 

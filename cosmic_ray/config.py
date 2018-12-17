@@ -31,6 +31,7 @@ class Config(kfg.config.Config):
     The primary job of this subclass is to configure the transforms for CR's
     configuration.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

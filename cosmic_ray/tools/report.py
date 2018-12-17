@@ -26,15 +26,12 @@ options:
 
     with use_db(arguments['<session-file>'], WorkDB.Mode.open) as db:
         for work_item, result in db.completed_work_items:
-            print('{} {} {} {}'.format(
-                work_item.job_id,
-                work_item.module_path,
-                work_item.operator_name,
-                work_item.occurrence))
+            print('{} {} {} {}'.format(work_item.job_id, work_item.module_path,
+                                       work_item.operator_name,
+                                       work_item.occurrence))
 
             print('worker outcome: {}, test outcome: {}'.format(
-                result.worker_outcome,
-                result.test_outcome))
+                result.worker_outcome, result.test_outcome))
 
             if show_output:
                 print('=== OUTPUT ===')
@@ -49,10 +46,8 @@ options:
         if show_pending:
             for work_item in db.pending_work_items:
                 print('{} {} {} {}'.format(
-                    work_item.job_id,
-                    work_item.module_path,
-                    work_item.operator_name,
-                    work_item.occurrence))
+                    work_item.job_id, work_item.module_path,
+                    work_item.operator_name, work_item.occurrence))
 
         num_items = db.num_work_items
         num_complete = db.num_results
@@ -62,7 +57,6 @@ options:
         if num_complete > 0:
             print('complete: {} ({:.2f}%)'.format(
                 num_complete, num_complete / num_items * 100))
-            print('survival rate: {:.2f}%'.format(
-                survival_rate(db)))
+            print('survival rate: {:.2f}%'.format(survival_rate(db)))
         else:
             print('no jobs completed')

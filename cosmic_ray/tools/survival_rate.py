@@ -12,9 +12,10 @@ def format_survival_rate():
 
     Calculate the survival rate of a session.
     """
-    arguments = docopt.docopt(format_survival_rate.__doc__, version='cr-rate 1.0')
+    arguments = docopt.docopt(
+        format_survival_rate.__doc__, version='cr-rate 1.0')
     with use_db(arguments['<session-file>'], WorkDB.Mode.open) as db:
-        rate = survival_rate(db) 
+        rate = survival_rate(db)
 
     print('{:.2f}'.format(rate))
 

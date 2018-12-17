@@ -33,7 +33,7 @@ def _create_replace_unary_operators(from_op, to_op):
             if _is_unary_operator(node):
                 op = node.children[0]
                 if op.value.strip() == from_op.value.strip():
-                    yield (op.start_pos, op.end_pos) 
+                    yield (op.start_pos, op.end_pos)
 
         def mutate(self, node, index):
             assert index == 0
@@ -42,7 +42,7 @@ def _create_replace_unary_operators(from_op, to_op):
             if to_op.value is None:
                 # This is a bit goofy since it can result in "return not x"
                 # becoming "return  x" (i.e. with two spaces). But it's correct
-                # enough. 
+                # enough.
                 node.children[0].value = ''
             else:
                 node.children[0].value = to_op.value
@@ -53,15 +53,12 @@ def _create_replace_unary_operators(from_op, to_op):
 
 def _is_factor(node):
     return (isinstance(node, PythonNode)
-            and node.type in {'factor', 'not_test'}
-            and len(node.children) > 0
-            and isinstance(node.children[0],
-                           Operator))
+            and node.type in {'factor', 'not_test'} and len(node.children) > 0
+            and isinstance(node.children[0], Operator))
 
 
 def _is_not_test(node):
-    return (isinstance(node, PythonNode)
-            and node.type == 'not_test'
+    return (isinstance(node, PythonNode) and node.type == 'not_test'
             and len(node.children) > 0
             and isinstance(node.children[0], Keyword)
             and node.children[0].value == 'not')
@@ -89,11 +86,8 @@ def _prohibited(from_op, to_op):
 
 _MUTATION_OPERATORS = tuple(
     _create_replace_unary_operators(from_op, to_op)
-    for (from_op, to_op)
-    in permutations(UnaryOperators, 2)
-    if from_op.value is not None
-    if not _prohibited(from_op, to_op))
-
+    for (from_op, to_op) in permutations(UnaryOperators, 2)
+    if from_op.value is not None if not _prohibited(from_op, to_op))
 
 for op_cls in _MUTATION_OPERATORS:
     globals()[op_cls.__name__] = op_cls
@@ -101,5 +95,3 @@ for op_cls in _MUTATION_OPERATORS:
 
 def operators():
     return _MUTATION_OPERATORS
-
-

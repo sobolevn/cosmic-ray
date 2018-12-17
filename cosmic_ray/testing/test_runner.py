@@ -6,7 +6,6 @@ import traceback
 
 from cosmic_ray.work_item import TestOutcome
 
-
 # TODO: We can probably lift this module out of the subpackage and remove the
 # subpackage.
 
@@ -43,4 +42,3 @@ def run_tests(command, timeout=None):
         return (TestOutcome.KILLED, exc.output)
     except Exception:
         return (TestOutcome.INCOMPETENT, traceback.format_exc())
-

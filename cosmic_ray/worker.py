@@ -12,7 +12,7 @@ from cosmic_ray.work_item import TestOutcome, WorkerOutcome, WorkResult
 
 # TODO: Is this still necessary?
 try:
-    import typing      # the typing module does some fancy stuff at import time
+    import typing  # the typing module does some fancy stuff at import time
     # which we shall not do twice... by loading it here,
     # preserve_modules does not delete it and therefore
     # fancy stuff happens only once
@@ -20,12 +20,8 @@ except ImportError:
     pass
 
 
-def worker(module_path,
-           python_version,
-           operator_name,
-           occurrence,
-           test_command,
-           timeout):
+def worker(module_path, python_version, operator_name, occurrence,
+           test_command, timeout):
     """Mutate the OCCURRENCE-th site for OPERATOR_NAME in MODULE_PATH, run the
     tests, and report the results.
 
@@ -66,17 +62,15 @@ def worker(module_path,
         operator_class = cosmic_ray.plugins.get_operator(operator_name)
         operator = operator_class(python_version)
 
-        with cosmic_ray.mutating.use_mutation(module_path, operator, occurrence) as (original_code, mutated_code):
+        with cosmic_ray.mutating.use_mutation(module_path, operator,
+                                              occurrence) as (original_code,
+                                                              mutated_code):
             if mutated_code is None:
-                return WorkResult(
-                    worker_outcome=WorkerOutcome.NO_TEST)
+                return WorkResult(worker_outcome=WorkerOutcome.NO_TEST)
 
             test_outcome, output = run_tests(test_command, timeout)
 
-            diff = _make_diff(
-                original_code,
-                mutated_code,
-                module_path)
+            diff = _make_diff(original_code, mutated_code, module_path)
 
             return WorkResult(
                 output=output,
@@ -93,10 +87,11 @@ def worker(module_path,
 
 def _make_diff(original_source, mutated_source, module_path):
     module_diff = ["--- mutation diff ---"]
-    for line in difflib.unified_diff(original_source.split('\n'),
-                                     mutated_source.split('\n'),
-                                     fromfile="a" + str(module_path),
-                                     tofile="b" + str(module_path),
-                                     lineterm=""):
+    for line in difflib.unified_diff(
+            original_source.split('\n'),
+            mutated_source.split('\n'),
+            fromfile="a" + str(module_path),
+            tofile="b" + str(module_path),
+            lineterm=""):
         module_diff.append(line)
     return module_diff

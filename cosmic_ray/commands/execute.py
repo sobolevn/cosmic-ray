@@ -23,10 +23,10 @@ def _update_progress(work_db):
 def _report_progress(stream):
     for db_name, progress_message in _progress_messages.items():
         session = os.path.splitext(db_name)[0]
-        print("{session} : {progress_message}"
-              .format(session=session,
-                      progress_message=progress_message),
-              file=stream)
+        print(
+            "{session} : {progress_message}".format(
+                session=session, progress_message=progress_message),
+            file=stream)
 
 
 @reports_progress(_report_progress)
@@ -50,12 +50,14 @@ def execute(db_name):
                 log.info("Job %s complete", job_id)
 
             log.info("Beginning execution")
-            executor(timeout,
-                     work_db.pending_work_items,
-                     config,
-                     on_task_complete=on_task_complete)
+            executor(
+                timeout,
+                work_db.pending_work_items,
+                config,
+                on_task_complete=on_task_complete)
             log.info("Execution finished")
 
     except FileNotFoundError as exc:
-        raise FileNotFoundError(str(exc).replace(
-            'Requested file', 'Corresponding database', 1)) from exc
+        raise FileNotFoundError(
+            str(exc).replace('Requested file', 'Corresponding database',
+                             1)) from exc

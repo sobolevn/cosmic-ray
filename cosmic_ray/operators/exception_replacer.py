@@ -14,8 +14,7 @@ class CosmicRayTestingException(Exception):
 
 # We inject this into builtins so we can easily replace other exceptions
 # without necessitating the import of other modules.
-setattr(builtins,
-        CosmicRayTestingException.__name__,
+setattr(builtins, CosmicRayTestingException.__name__,
         CosmicRayTestingException)
 
 
@@ -40,7 +39,7 @@ class ExceptionReplacer(Operator):
     @staticmethod
     def _name_nodes(node):
         if isinstance(node.children[1], Name):
-            return (node.children[1],)
+            return (node.children[1], )
         else:
             atom = node.children[1]
             test_list = atom.children[1]

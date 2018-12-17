@@ -5,7 +5,6 @@ import parso
 
 from .operator import Operator
 
-
 # List of offsets that we apply to numbers in the AST. Each index into the list
 # corresponds to single mutation.
 OFFSETS = [

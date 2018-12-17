@@ -19,7 +19,8 @@ Print an XML formatted report of test results for continuos integration systems
     arguments = docopt.docopt(report_xml.__doc__, version='cr-rate 1.0')
     with use_db(arguments['<session-file>'], WorkDB.Mode.open) as db:
         xml_elem = _create_xml_report(db)
-        xml_elem.write(sys.stdout.buffer, encoding='utf-8', xml_declaration=True)
+        xml_elem.write(
+            sys.stdout.buffer, encoding='utf-8', xml_declaration=True)
 
 
 def _create_xml_report(db):
@@ -29,7 +30,9 @@ def _create_xml_report(db):
     root_elem = xml.etree.ElementTree.Element('testsuite')
 
     for work_item, result in db.completed_work_items:
-        if result.worker_outcome in {WorkerOutcome.EXCEPTION, WorkerOutcome.ABNORMAL}:
+        if result.worker_outcome in {
+                WorkerOutcome.EXCEPTION, WorkerOutcome.ABNORMAL
+        }:
             errors += 1
         if result.is_killed:
             failed += 1

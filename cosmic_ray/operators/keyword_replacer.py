@@ -6,6 +6,7 @@ from .operator import Operator
 class KeywordReplacementOperator(Operator):
     """A base class for operators that replace one keyword with another
     """
+
     def __init__(self, from_keyword, to_keyword, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if from_keyword == to_keyword:
@@ -25,5 +26,3 @@ class KeywordReplacementOperator(Operator):
 
         node.value = self._to
         return node
-
-

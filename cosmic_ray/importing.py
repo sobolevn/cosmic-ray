@@ -7,7 +7,6 @@ from importlib.machinery import ModuleSpec
 
 
 class ASTLoader:
-
     """
     An `importlib.abc.Loader` which loads an AST for a particular name.
 
@@ -22,8 +21,9 @@ class ASTLoader:
         self._ast = ast
         self._name = name
 
-    def create_module(self,  # pylint: disable=no-self-use
-                      spec):  # pylint: disable=unused-argument
+    def create_module(
+            self,  # pylint: disable=no-self-use
+            spec):  # pylint: disable=unused-argument
         "Default module creation semantics."
         return None
 
@@ -34,7 +34,6 @@ class ASTLoader:
 
 
 class ASTFinder(MetaPathFinder):
-
     """
     An `importlib.ast.MetaPathFinder` that associates a module name
     with an AST.
@@ -50,12 +49,10 @@ class ASTFinder(MetaPathFinder):
         self._fullname = fullname
         self._ast = ast
 
-    def find_spec(self, fullname,
-                  path, target=None):  # pylint:disable=unused-argument
+    def find_spec(self, fullname, path, target=None):  # pylint:disable=unused-argument
         "Find modules matching `self._fullname`."
         if fullname == self._fullname:
-            return ModuleSpec(fullname,
-                              ASTLoader(self._ast, fullname))
+            return ModuleSpec(fullname, ASTLoader(self._ast, fullname))
 
 
 @contextlib.contextmanager

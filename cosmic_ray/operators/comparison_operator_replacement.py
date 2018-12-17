@@ -8,7 +8,6 @@ import parso.python.tree
 from .operator import Operator
 from .util import extend_name
 
-
 _OPERATOR_DESCRIPTIONS = (
     ('==', 'Eq'),
     ('!=', 'NotEq'),
@@ -40,11 +39,12 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
 
     return ReplaceComparisonOperator
 
+
 # Build all of the binary replacement operators
 _OPERATORS = tuple(
     _create_operator(from_op, from_name, to_op, to_name)
-    for (from_op, from_name), (to_op, to_name)
-    in itertools.permutations(_OPERATOR_DESCRIPTIONS, 2))
+    for (from_op, from_name), (
+        to_op, to_name) in itertools.permutations(_OPERATOR_DESCRIPTIONS, 2))
 
 # Inject the operators into the module namespace
 for op_cls in _OPERATORS:
@@ -54,6 +54,7 @@ for op_cls in _OPERATORS:
 def operators():
     "Iterable of all binary operator replacement mutation operators."
     return iter(_OPERATORS)
+
 
 # We have some complex exceptions that we need to take care of. Here's the
 # old code that did that.
@@ -65,16 +66,13 @@ def operators():
 
 # _RHS_IS_INTEGER_OPS = (ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE)
 
-
 # def _rhs_is_none_ops(from_op):
 #     assert issubclass(from_op, ast.AST)
 #     return _RHS_IS_NONE_OPS.get(from_op, ())
 
-
 # def _rhs_is_integer_ops(from_op):
 #     assert issubclass(from_op, ast.AST)
 #     return _RHS_IS_INTEGER_OPS
-
 
 # def _comparison_rhs_is_none(node):
 #     "Determine if the node is a comparison with `None` on the RHS."
@@ -82,12 +80,10 @@ def operators():
 #             and
 #             (compare_ast(node.comparators[0], ast.NameConstant(None))))
 
-
 # def _comparison_rhs_is_integer(node):
 #     return ((len(node.comparators) == 1)
 #             and
 #             isinstance(node.comparators[0], ast.Num))
-
 
 # def _build_mutations(node):
 #     """Given a Compare node, produce the list of mutated operations.
@@ -105,7 +101,6 @@ def operators():
 #     assert isinstance(node, ast.Compare)
 #     ops = _find_to_ops(node)
 #     return build_mutations(map(type, node.ops), ops)
-
 
 # def _find_to_ops(node):
 #     """Iterable of possible operators the node could be mutated to.

@@ -12,13 +12,13 @@ def _log_extension_loading_failure(_mgr, ep, err):
     # We have to log at the `error` level here as opposed to, say, `info`
     # because logging isn't configure when we reach here. We need this infor to
     # print with the default logging settings.
-    log.error('Operator provider load failure: extension-point="%s", err="%s"', ep, err)
+    log.error('Operator provider load failure: extension-point="%s", err="%s"',
+              ep, err)
 
 
 OPERATOR_PROVIDERS = {
     extension.name: extension.plugin()
-    for extension in
-    ExtensionManager(
+    for extension in ExtensionManager(
         'cosmic_ray.operator_providers',
         on_load_failure_callback=_log_extension_loading_failure)
 }
@@ -45,10 +45,9 @@ def operator_names():
 
     Returns: A sequence of operator names.
     """
-    return tuple(
-        '{}/{}'.format(provider_name, operator_name)
-        for provider_name, provider in OPERATOR_PROVIDERS.items()
-        for operator_name in provider)
+    return tuple('{}/{}'.format(provider_name, operator_name)
+                 for provider_name, provider in OPERATOR_PROVIDERS.items()
+                 for operator_name in provider)
 
 
 def get_interceptor(name):

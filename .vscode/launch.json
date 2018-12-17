@@ -35,7 +35,7 @@
             "console": "externalTerminal"
         },
         {
-            "name": "Adam worker, bool replace, 0",
+            "name": "worker",
             "type": "python",
             "request": "launch",
             "module": "cosmic_ray.cli",
@@ -43,7 +43,7 @@
             "args": [
                 "worker",
                 "adam.py",
-                "core/ReplaceTrueWithFalse",
+                "core/ReplaceUnaryOperator_UAdd_USub",
                 "0",
                 "cosmic-ray.unittest.local.conf"
             ]

@@ -16,7 +16,5 @@ def find_modules(module_path):
         if module_path.suffix == '.py':
             yield module_path
     elif module_path.is_dir():
-        pyfiles = glob.glob('{}/**/*.py'.format(module_path),
-                            recursive=True)
-        yield from (Path(pyfile) 
-                    for pyfile in pyfiles)
+        pyfiles = glob.glob('{}/**/*.py'.format(module_path), recursive=True)
+        yield from (Path(pyfile) for pyfile in pyfiles)

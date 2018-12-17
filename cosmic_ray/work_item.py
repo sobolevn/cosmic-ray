@@ -12,11 +12,11 @@ class StrEnum(str, enum.Enum):
 class WorkerOutcome(StrEnum):
     """Possible outcomes for a worker.
     """
-    NORMAL = 'normal'       # The worker exited normally, producing valid output
+    NORMAL = 'normal'  # The worker exited normally, producing valid output
     EXCEPTION = 'exception'  # The worker exited with an exception
-    ABNORMAL = 'abnormal'   # The worker did not exit normally or with an exception (e.g. a segfault)
-    NO_TEST = 'no-test'     # The worker had no test to run
-    SKIPPED = 'skipped'     # The job was skipped (worker was not executed)
+    ABNORMAL = 'abnormal'  # The worker did not exit normally or with an exception (e.g. a segfault)
+    NO_TEST = 'no-test'  # The worker had no test to run
+    SKIPPED = 'skipped'  # The job was skipped (worker was not executed)
 
 
 class TestOutcome(StrEnum):
@@ -100,7 +100,8 @@ class WorkItem:
 
         if start_pos[0] == end_pos[0]:
             if start_pos[1] >= end_pos[1]:
-                raise ValueError('End position must come after start position.')
+                raise ValueError(
+                    'End position must come after start position.')
 
         self._module_path = pathlib.Path(module_path)
         self._operator_name = operator_name
@@ -161,20 +162,13 @@ class WorkItem:
 class WorkItemJsonEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, WorkItem):
-            return {
-                "_type": "WorkItem",
-                "values": o.as_dict()
-            }
+            return {"_type": "WorkItem", "values": o.as_dict()}
         elif isinstance(o, WorkResult):
-            return {
-                "_type": "WorkResult",
-                "values": o.as_dict()
-            }
+            return {"_type": "WorkResult", "values": o.as_dict()}
         return super().default(o)
 
 
 class WorkItemJsonDecoder(json.JSONDecoder):
-
     def __init__(self):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook)
 

@@ -20,7 +20,8 @@ def use_mutation(module_path, operator, occurrence):
     Yields: A `(unmutated-code, mutated-code)` tuple to the with-block. If there was 
         no mutation performed, the `mutated-code` is `None`.
     """
-    original_code, mutated_code = apply_mutation(module_path, operator, occurrence)
+    original_code, mutated_code = apply_mutation(module_path, operator,
+                                                 occurrence)
     try:
         yield original_code, mutated_code
     finally:

@@ -26,9 +26,11 @@ def new_config():
     """
     conf = {"module_path": qprompt.ask_str("Top-level module path")}
 
-    python_version = qprompt.ask_str('Python version (blank for auto detection)')
+    python_version = qprompt.ask_str(
+        'Python version (blank for auto detection)')
     if python_version:
-        conf['python_version'] = '\npython-version: {}\n'.format(python_version)
+        conf['python_version'] = '\npython-version: {}\n'.format(
+            python_version)
     else:
         conf['python_version'] = ''
 
