@@ -1,5 +1,3 @@
-* TODO Update docs
-
 * TODO Do we have secret deployment credentials in the travis config?!
 
 * TODO worker not reverting changes in all cases
@@ -41,3 +39,4 @@ FOR LATER
 
  * TODO Each operator should provide a series of "samples" that can be used in testing.
   
+* TODO Can we use value-added to insert help from each command into the rst docs?
