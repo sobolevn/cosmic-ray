@@ -22,25 +22,35 @@ def intercept(work_db):
     @lru_cache()
     def file_contents(file_path):
         "A simple cache of file contents."
-        with file_path.open(mode='rt') as handle:
+        with file_path.open(mode="rt") as handle:
             return handle.readlines()
 
     for item in work_db.work_items:
         try:
             repo = open_repository(item.module_path)
         except ValueError:
-            log.info('No spor repository for %s', item.module_path)
+            log.info("No spor repository for %s", item.module_path)
             continue
 
         for _, anchor in repo.items():
+            if anchor.file_path != item.module_path.absolute():
+                continue
+
             metadata = anchor.metadata
 
             lines = file_contents(item.module_path)
             if _item_in_context(
                     lines, item,
-                    anchor.context) and not metadata.get('mutate', True):
-                log.info('spor skipping %s %s %s', item.job_id,
-                         item.operator_name, item.occurrence)
+                    anchor.context) and not metadata.get("mutate", True):
+                log.info(
+                    "spor skipping %s %s %s %s %s %s",
+                    item.job_id,
+                    item.operator_name,
+                    item.occurrence,
+                    item.module_path,
+                    item.start_pos,
+                    item.end_pos,
+                )
 
                 work_db.set_result(
                     item.job_id,
@@ -48,7 +58,9 @@ def intercept(work_db):
                         output=None,
                         test_outcome=None,
                         diff=None,
-                        worker_outcome=WorkerOutcome.SKIPPED))
+                        worker_outcome=WorkerOutcome.SKIPPED,
+                    ),
+                )
 
 
 def _line_and_col_to_offset(lines, line, col):
@@ -75,7 +87,7 @@ def _line_and_col_to_offset(lines, line, col):
 
         offset += len(contents)
 
-    raise ValueError('Offset {}:{} not found'.format(line, col))
+    raise ValueError("Offset {}:{} not found".format(line, col))
 
 
 def _item_in_context(lines, item, context):
