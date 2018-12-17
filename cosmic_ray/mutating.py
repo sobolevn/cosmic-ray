@@ -40,8 +40,7 @@ def apply_mutation(module_path, operator, occurrence):
     Returns: A `(unmutated-code, mutated-code)` tuple to the with-block. If there was 
         no mutation performed, the `mutated-code` is `None`.
     """
-    # TODO: how do we communicate the python version?
-    module_ast = get_ast(module_path, python_version="3.6")
+    module_ast = get_ast(module_path, python_version=operator.python_version)
     original_code = module_ast.get_code()
     visitor = MutationVisitor(occurrence, operator)
     mutated_ast = visitor.walk(module_ast)

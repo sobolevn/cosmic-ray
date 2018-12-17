@@ -11,6 +11,7 @@ class LocalExecutionEngine(ExecutionEngine):
         for work_item in pending_work_items:
             work_result = worker(
                 work_item.module_path,
+                config.python_version,
                 work_item.operator_name,
                 work_item.occurrence,
                 config["test-command"],

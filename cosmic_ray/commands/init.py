@@ -69,10 +69,9 @@ def init(module_paths,
 
     for module_path in module_paths:
         for op_name in operator_names:
-            operator = get_operator(op_name)()
+            operator = get_operator(op_name)(config.python_version)
             visitor = WorkDBInitVisitor(module_path, op_name, work_db, operator)
-            # TODO: How do we get python version in here?
-            module_ast = get_ast(module_path, python_version="3.6")
+            module_ast = get_ast(module_path, python_version=config.python_version)
 
             visitor.walk(module_ast)
 

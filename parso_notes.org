@@ -2,12 +2,6 @@
 
 * TODO Do we have secret deployment credentials in the travis config?!
 
-* TODO Multi-anchor issue
-  We have an issue where multiple anchors could, in principle, cause a WorkItem
-  to be skipped. We need to account for that in the spor interceptor. Currently,
-  if it tries to add multiple work results for the same work item it fails. We
-  need an "update result" or "set result" API on the work db. 
-
 * TODO worker not reverting changes in all cases
 
   I've seen adam.py left in a corrupt state when killing execution
@@ -16,9 +10,13 @@
   I think this is related to sigint/sigkill where we don't get a chance to clean
   up.
 
-* Need to thread python version down to parso calls
+* Since we only work on 3.5+, remove impl of redirect_stdout/err.
 
 FOR LATER
+
+* Adam tests should use a full package
+
+  Adam.py should be adam/part1.py and adam/part2.py or something. A bit more realistic.
 
 * TODO Re-enable comparison operator replacement "special rules"
 

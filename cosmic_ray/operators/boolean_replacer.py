@@ -8,26 +8,26 @@ from .operator import Operator
 
 class ReplaceTrueWithFalse(KeywordReplacementOperator):
     """An that replaces True with False."""
-    def __init__(self):
-        super().__init__('True', 'False')
+    def __init__(self, *args, **kwargs):
+        super().__init__('True', 'False', *args, **kwargs)
 
 
 class ReplaceFalseWithTrue(KeywordReplacementOperator):
     """An that replaces False with True."""
-    def __init__(self):
-        super().__init__('False', 'True')
+    def __init__(self, *args, **kwargs):
+        super().__init__('False', 'True', *args, **kwargs)
 
 
 class ReplaceAndWithOr(KeywordReplacementOperator):
     """An operator that swaps 'and' with 'or'."""
-    def __init__(self):
-        super().__init__('and', 'or')
+    def __init__(self, *args, **kwargs):
+        super().__init__('and', 'or', *args, **kwargs)
 
 
 class ReplaceOrWithAnd(KeywordReplacementOperator):
     """An operator that swaps 'or' with 'and'."""
-    def __init__(self):
-        super().__init__('or', 'and')
+    def __init__(self, *args, **kwargs):
+        super().__init__('or', 'and', *args, **kwargs)
 
 
 class AddNot(Operator):

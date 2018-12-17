@@ -3,11 +3,9 @@
 Here we manage command-line parsing and launching of the internal
 machinery that does mutation testing.
 """
-import itertools
 import json
 import logging
 import os
-import pprint
 import signal
 import subprocess
 import sys
@@ -232,12 +230,20 @@ def handle_apply(args):
 
     Apply the specified mutation to the files on disk. This is primarily a debugging
     tool.
+
+    options:
+      --python-version=VERSION  Python major.minor version (e.g. 3.6) of the code being mutated.
     """
+
+    python_version = args['--python-version']
+    if python_version is None:
+        python_version = "{}.{}".format(sys.version_info.major, sys.version_info.minor)
+
 
     apply_mutation(
         Path(args['<module-path>']),
         cosmic_ray.plugins.get_operator(
-            args['<operator>'])(),
+            args['<operator>'])(python_version),
         int(args['<occurrence>']))
 
     return ExitCode.OK
@@ -245,8 +251,7 @@ def handle_apply(args):
 
 @dsc.command()
 def handle_worker(args):
-    """usage: {program} worker \
-    [options] <module-path> <operator> <occurrence> [<config-file>]
+    """usage: {program} worker [options] <module-path> <operator> <occurrence> [<config-file>]
 
     Run a worker process which performs a single mutation and test run.
     Each worker does a minimal, isolated chunk of work: it mutates the
@@ -258,7 +263,7 @@ def handle_worker(args):
     its own for testing and debugging purposes.
 
     options:
-      --keep-stdout       Do not squelch stdout
+      --keep-stdout             Do not squelch stdout
 
     """
     config = load_config(args.get('<config-file>'))
@@ -267,6 +272,7 @@ def handle_worker(args):
         with redirect_stdout(sys.stdout if args['--keep-stdout'] else devnull):
             work_item = cosmic_ray.worker.worker(
                 Path(args['<module-path>']),
+                config.python_version,
                 args['<operator>'],
                 int(args['<occurrence>']),
                 config['test-command'],

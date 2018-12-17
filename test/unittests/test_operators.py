@@ -86,18 +86,18 @@ OPERATOR_SAMPLES = [
 
 
 @pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
-def test_mutation_changes_ast(sample):
+def test_mutation_changes_ast(sample, python_version):
     node = parso.parse(sample.from_code)
-    visitor = MutationVisitor(sample.index, sample.operator())
+    visitor = MutationVisitor(sample.index, sample.operator(python_version))
     mutant = visitor.walk(node)
 
     assert mutant.get_code() == sample.to_code
 
 
 @pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
-def test_no_mutation_leaves_ast_unchanged(sample):
+def test_no_mutation_leaves_ast_unchanged(sample, python_version):
     node = parso.parse(sample.from_code)
-    visitor = MutationVisitor(-1, sample.operator())
+    visitor = MutationVisitor(-1, sample.operator(python_version))
     mutant = visitor.walk(node)
     
     assert mutant.get_code() == sample.from_code

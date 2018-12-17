@@ -44,6 +44,19 @@ class Config(kfg.config.Config):
             raise ValueError('positive float expected. value={}'.format(x))
         return x
 
+    @property
+    def python_version(self):
+        """Get the configured Python version.
+
+        If this is not set in the config, then it defaults to the version of the current runtime.
+
+        Returns: A string of the form "MAJOR.MINOR", e.g. "3.6".
+        """
+        v = self.get('python-version', None)
+        if v is None:
+            v = "{}.{}".format(sys.version_info.major, sys.version_info.minor)
+        return v
+
 
 def load_config(filename=None):
     """Load a configuration from a file or stdin.

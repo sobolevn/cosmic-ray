@@ -6,7 +6,8 @@ from .operator import Operator
 class KeywordReplacementOperator(Operator):
     """A base class for operators that replace one keyword with another
     """
-    def __init__(self, from_keyword, to_keyword):
+    def __init__(self, from_keyword, to_keyword, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if from_keyword == to_keyword:
             raise ValueError('from and to keywords must be different')
 

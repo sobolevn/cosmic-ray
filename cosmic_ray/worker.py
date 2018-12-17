@@ -21,6 +21,7 @@ except ImportError:
 
 
 def worker(module_path,
+           python_version,
            operator_name,
            occurrence,
            test_command,
@@ -48,6 +49,8 @@ def worker(module_path,
 
     Args:
         module_name: The path to the module to mutate
+        python_version: The version of Python to use when interpreting the code in `module_path`. 
+            A string of the form "MAJOR.MINOR", e.g. "3.6" for Python 3.6.x.
         operator_name: The name of the operator plugin to use
         occurrence: The occurrence of the operator to apply
         test_command: The command to execute to run the tests
@@ -61,8 +64,9 @@ def worker(module_path,
     """
     try:
         operator_class = cosmic_ray.plugins.get_operator(operator_name)
+        operator = operator_class(python_version)
 
-        with cosmic_ray.mutating.use_mutation(module_path, operator_class(), occurrence) as (original_code, mutated_code):
+        with cosmic_ray.mutating.use_mutation(module_path, operator, occurrence) as (original_code, mutated_code):
             if mutated_code is None:
                 return WorkResult(
                     worker_outcome=WorkerOutcome.NO_TEST)
