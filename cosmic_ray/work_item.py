@@ -1,9 +1,12 @@
 """Classes for describing work and results.
 """
+import enum
 import json
 import pathlib
 
-from cosmic_ray.util import StrEnum
+
+class StrEnum(str, enum.Enum):
+    pass
 
 
 class WorkerOutcome(StrEnum):

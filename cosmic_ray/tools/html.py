@@ -5,7 +5,6 @@ from itertools import chain
 import docopt
 from yattag import Doc
 
-from cosmic_ray.util import index_of_first_difference, pairwise
 from cosmic_ray.work_db import WorkDB, use_db
 from cosmic_ray.work_item import TestOutcome
 

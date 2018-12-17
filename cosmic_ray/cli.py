@@ -25,7 +25,7 @@ from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.mutating import apply_mutation
 from cosmic_ray.progress import report_progress
 from cosmic_ray.timing import Timer
-from cosmic_ray.util import redirect_stdout
+from contextlib import redirect_stdout
 from cosmic_ray.version import __version__
 from cosmic_ray.work_db import WorkDB, use_db
 from cosmic_ray.work_item import TestOutcome, WorkItemJsonEncoder

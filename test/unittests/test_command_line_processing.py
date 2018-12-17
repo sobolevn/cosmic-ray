@@ -1,5 +1,6 @@
 "Tests for the command line interface and return codes."
 
+import contextlib
 import io
 import stat
 
@@ -9,10 +10,9 @@ import yaml
 import cosmic_ray.cli
 import cosmic_ray.modules
 import cosmic_ray.plugins
-import cosmic_ray.util
 import cosmic_ray.worker
 from cosmic_ray.exit_codes import ExitCode
-from cosmic_ray.work_item import TestOutcome, WorkerOutcome, WorkItem, WorkResult
+from cosmic_ray.work_item import TestOutcome
 
 
 @pytest.fixture
@@ -118,7 +118,7 @@ def test_config_success_returns_EX_OK(lobotomize, local_unittest_config, session
     cosmic_ray.cli.main(['init', local_unittest_config, str(session)])
 
     cfg_stream = io.StringIO()
-    with cosmic_ray.util.redirect_stdout(cfg_stream):
+    with contextlib.redirect_stdout(cfg_stream):
         errcode = cosmic_ray.cli.main(['config', str(session)])
     assert errcode == ExitCode.OK
 
