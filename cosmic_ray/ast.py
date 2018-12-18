@@ -1,3 +1,5 @@
+"Tools for working with parso ASTs."
+
 from abc import ABC, abstractmethod
 
 import parso.tree
@@ -8,6 +10,7 @@ class Visitor(ABC):
     """
 
     def walk(self, node):
+        "Walk a parse tree, calling visit for each node."
         node = self.visit(node)
 
         if node is None:
@@ -21,10 +24,18 @@ class Visitor(ABC):
 
     @abstractmethod
     def visit(self, node):
-        pass
+        "Called for each node in the walk."
 
 
 def get_ast(module_path, python_version):
+    """Get the AST for the code in a file.
+
+    Args:
+        module_path: pathlib.Path to the file containing the code.
+        python_version: Python version as a "MAJ.MIN" string.
+
+    Returns: The parso parse tree for the code in `module_path`.
+    """
     with module_path.open(mode='rt', encoding='utf-8') as handle:
         source = handle.read()
 

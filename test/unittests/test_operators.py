@@ -23,21 +23,24 @@ class Sample:
         self.to_code = to_code
         self.index = index
 
-# TODO: Think about having each operator provide its own sample code.
-OPERATOR_SAMPLES = [
-    Sample(*args)
-    for args in (
 
+OPERATOR_SAMPLES = [
+    Sample(*args) for args in (
         (ReplaceTrueWithFalse, 'True', 'False'),
         (ReplaceFalseWithTrue, 'False', 'True'),
-        (ReplaceAndWithOr, 'if True and False: pass', 'if True or False: pass'),
-        (ReplaceOrWithAnd, 'if True or False: pass', 'if True and False: pass'),
+        (ReplaceAndWithOr, 'if True and False: pass',
+         'if True or False: pass'),
+        (ReplaceOrWithAnd, 'if True or False: pass',
+         'if True and False: pass'),
         (AddNot, 'if True or False: pass', 'if not True or False: pass'),
         (AddNot, 'A if B else C', 'A if not B else C'),
-        (AddNot, 'assert isinstance(node, ast.Break)', 'assert not isinstance(node, ast.Break)'),
+        (AddNot, 'assert isinstance(node, ast.Break)',
+         'assert not isinstance(node, ast.Break)'),
         (AddNot, 'while True: pass', 'while not True: pass'),
-        (ReplaceBreakWithContinue, 'while True: break', 'while True: continue'),
-        (ReplaceContinueWithBreak, 'while False: continue', 'while False: break'),
+        (ReplaceBreakWithContinue, 'while True: break',
+         'while True: continue'),
+        (ReplaceContinueWithBreak, 'while False: continue',
+         'while False: break'),
         (NumberReplacer, 'x = 1', 'x = 2'),
         (NumberReplacer, 'x = 1', 'x = 0', 1),
         (NumberReplacer, 'x = 4.2', 'x = 5.2'),
@@ -46,28 +49,37 @@ OPERATOR_SAMPLES = [
         (NumberReplacer, 'x = 1j', 'x = (-1+1j)', 1),
         (ReplaceComparisonOperator_Eq_IsNot, 'x == y', 'x is not y'),
         (ReplaceComparisonOperator_Gt_Lt, 'if x > y: pass', 'if x < y: pass'),
-        (ReplaceComparisonOperator_Is_IsNot, 'if x is None: pass', 'if x is not None: pass'),
-        (ReplaceComparisonOperator_Gt_Eq, 'if x > 42: pass', 'if x == 42: pass'),
-        (ReplaceComparisonOperator_Gt_Eq, 'if x > 42 > 69: pass', 'if x > 42 == 69: pass', 1),
-        (ReplaceComparisonOperator_LtE_IsNot, 'if x <= 4 <= 5 <= 4.3: pass', 'if x <= 4 <= 5 is not 4.3: pass', 2),
+        (ReplaceComparisonOperator_Is_IsNot, 'if x is None: pass',
+         'if x is not None: pass'),
+        (ReplaceComparisonOperator_Gt_Eq, 'if x > 42: pass',
+         'if x == 42: pass'),
+        (ReplaceComparisonOperator_Gt_Eq, 'if x > 42 > 69: pass',
+         'if x > 42 == 69: pass', 1),
+        (ReplaceComparisonOperator_LtE_IsNot, 'if x <= 4 <= 5 <= 4.3: pass',
+         'if x <= 4 <= 5 is not 4.3: pass', 2),
         (ReplaceBinaryOperator_Mul_Add, 'x * y', 'x + y'),
         (ReplaceBinaryOperator_Sub_Mod, 'x - y', 'x % y'),
-        (ZeroIterationForLoop, 'for i in range(1,2): pass', 'for i in []: pass'),
+        (ZeroIterationForLoop, 'for i in range(1,2): pass',
+         'for i in []: pass'),
         (RemoveDecorator, '@foo\ndef bar(): pass', 'def bar(): pass'),
-        (RemoveDecorator, '@first\n@second\ndef bar(): pass', '@second\ndef bar(): pass'),
-        (RemoveDecorator, '@first\n@second\ndef bar(): pass', '@first\ndef bar(): pass', 1),
-        (RemoveDecorator, '@first\n@second\n@third\ndef bar(): pass', '@first\n@third\ndef bar(): pass', 1),
-        (ExceptionReplacer,
-         'try: raise OSError\nexcept OSError: pass',
+        (RemoveDecorator, '@first\n@second\ndef bar(): pass',
+         '@second\ndef bar(): pass'),
+        (RemoveDecorator, '@first\n@second\ndef bar(): pass',
+         '@first\ndef bar(): pass', 1),
+        (RemoveDecorator, '@first\n@second\n@third\ndef bar(): pass',
+         '@first\n@third\ndef bar(): pass', 1),
+        (ExceptionReplacer, 'try: raise OSError\nexcept OSError: pass',
          'try: raise OSError\nexcept CosmicRayTestingException: pass'),
         (ExceptionReplacer,
          'try: raise OSError\nexcept (OSError, ValueError): pass',
-         'try: raise OSError\nexcept (OSError, CosmicRayTestingException): pass', 1),
+         'try: raise OSError\nexcept (OSError, CosmicRayTestingException): pass',
+         1),
         (ExceptionReplacer,
          'try: raise OSError\nexcept (OSError, ValueError, KeyError): pass',
-         'try: raise OSError\nexcept (OSError, CosmicRayTestingException, KeyError): pass', 1),
-         (ExceptionReplacer,
-         'try: pass\nexcept: pass', 'try: pass\nexcept: pass'),
+         'try: raise OSError\nexcept (OSError, CosmicRayTestingException, KeyError): pass',
+         1),
+        (ExceptionReplacer, 'try: pass\nexcept: pass',
+         'try: pass\nexcept: pass'),
         (ReplaceUnaryOperator_USub_UAdd, 'x = -1', 'x = +1'),
         (ReplaceUnaryOperator_UAdd_USub, 'x = +1', 'x = -1'),
         (ReplaceUnaryOperator_Delete_Not, 'return not x', 'return  x'),
@@ -79,10 +91,6 @@ OPERATOR_SAMPLES = [
         (ReplaceBinaryOperator_Add_Mul, '+1', '+1'),
     )
 ]
-
-# TODO: Add tests that operators replacements only pick up the correct
-# operators. We had a bug where unary operator replacement operators were
-# triggering on *all* unary operators, not their specific from-op.
 
 
 @pytest.mark.parametrize('sample', OPERATOR_SAMPLES)
@@ -99,5 +107,5 @@ def test_no_mutation_leaves_ast_unchanged(sample, python_version):
     node = parso.parse(sample.from_code)
     visitor = MutationVisitor(-1, sample.operator(python_version))
     mutant = visitor.walk(node)
-    
+
     assert mutant.get_code() == sample.from_code

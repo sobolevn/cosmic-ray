@@ -1,3 +1,7 @@
+"Tests for the adam packages."
+
+# pylint: disable=C0111
+
 import copy
 import uuid
 import unittest
@@ -8,19 +12,13 @@ import adam.adam_2
 
 class Tests(unittest.TestCase):
     def test_constant_number(self):
-        self.assertEqual(
-            adam.adam_1.constant_number(),
-            42)
+        self.assertEqual(adam.adam_1.constant_number(), 42)
 
     def test_constant_true(self):
-        self.assertEqual(
-            adam.adam_1.constant_true(),
-            True)
+        self.assertEqual(adam.adam_1.constant_true(), True)
 
     def test_constant_false(self):
-        self.assertEqual(
-            adam.adam_1.constant_false(),
-            False)
+        self.assertEqual(adam.adam_1.constant_false(), False)
 
     def test_bool_and(self):
         self.assertFalse(adam.adam_1.bool_and())
@@ -41,34 +39,24 @@ class Tests(unittest.TestCase):
         self.assertTrue(adam.adam_1.assert_in_func())
 
     def test_unary_sub(self):
-        self.assertEqual(
-            adam.adam_1.unary_sub(),
-            -1)
+        self.assertEqual(adam.adam_1.unary_sub(), -1)
 
     def test_unary_add(self):
-        self.assertEqual(
-            adam.adam_1.unary_add(),
-            +1)
+        self.assertEqual(adam.adam_1.unary_add(), +1)
 
     def test_binary_add(self):
         self.assertEqual(adam.adam_1.binary_add(), 11)
 
     def test_equals(self):
-        vals = [uuid.uuid4(),
-                uuid.uuid4()]
+        vals = [uuid.uuid4(), uuid.uuid4()]
         vals.append(copy.copy(vals[0]))
-        self.assertTrue(
-            adam.adam_1.equals(vals))
+        self.assertTrue(adam.adam_1.equals(vals))
 
     def test_break_to_continue(self):
-        self.assertEqual(
-            adam.adam_1.use_break(10),
-            0)
+        self.assertEqual(adam.adam_1.use_break(10), 0)
 
     def test_continue_to_break(self):
-        self.assertEqual(
-            adam.adam_1.use_continue(10),
-            9)
+        self.assertEqual(adam.adam_1.use_continue(10), 9)
 
     def test_trigger_infinite_loop(self):
         self.assertTrue(adam.adam_2.trigger_infinite_loop())

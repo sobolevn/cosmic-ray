@@ -30,3 +30,8 @@ FOR LATER
  * TODO Each operator should provide a series of "samples" that can be used in testing.
   
 * TODO Can we use value-added to insert help from each command into the rst docs?
+
+* TODO: Add tests that operators replacements only pick up the correct operators. 
+  
+  We had a bug where unary operator replacement operators were triggering on
+  *all* unary operators, not their specific from-op.

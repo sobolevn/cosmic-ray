@@ -4,7 +4,6 @@ from pathlib import Path
 import sys
 
 
-
 @contextlib.contextmanager
 def excursion(directory):
     """Context manager for temporarily setting `directory` as the current working

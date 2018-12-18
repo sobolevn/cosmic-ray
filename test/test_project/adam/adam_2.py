@@ -1,6 +1,8 @@
 """adam.adam_2
 """
 
+# pylint: disable=C0111
+
 import ctypes
 import functools
 import operator
@@ -25,9 +27,9 @@ def trigger_infinite_loop():
 
 def single_iteration():
     result = None
-    iter = [object()]
+    iterable = [object()]
 
-    for i in iter:
+    for i in iterable:  # pylint: disable=W0612
         result = True
 
     return result
@@ -69,4 +71,3 @@ def use_ctypes(size):
     size = functools.reduce(operator.mul, [10, 10, 10, 10, 10, 10])
     ctypes.memmove(chars_a, chars_b, size)
     return chars_a.value
-

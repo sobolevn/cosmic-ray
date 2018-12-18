@@ -9,6 +9,7 @@ import os
 import signal
 import subprocess
 import sys
+from contextlib import redirect_stdout
 from pathlib import Path
 
 import docopt
@@ -25,7 +26,6 @@ from cosmic_ray.exit_codes import ExitCode
 from cosmic_ray.mutating import apply_mutation
 from cosmic_ray.progress import report_progress
 from cosmic_ray.timing import Timer
-from contextlib import redirect_stdout
 from cosmic_ray.version import __version__
 from cosmic_ray.work_db import WorkDB, use_db
 from cosmic_ray.work_item import TestOutcome, WorkItemJsonEncoder
@@ -164,11 +164,12 @@ def handle_exec(args):
 def handle_dump(args):
     """usage: cosmic-ray dump <session-file>
 
-    JSON dump of session data. This output is typically run through
-    other programs to produce reports.
+    JSON dump of session data. This output is typically run through other
+    programs to produce reports.
 
-    Each line of output is a list with two elements: a WorkItem and a WorkResult, both JSON-serialized. The WorkResult 
-    can be null, indicating a WorkItem with no results.
+    Each line of output is a list with two elements: a WorkItem and a
+    WorkResult, both JSON-serialized. The WorkResult can be null, indicating a
+    WorkItem with no results.
     """
     session_file = get_db_name(args['<session-file>'])
 
@@ -341,8 +342,6 @@ def main(argv=None):
         print('Error in subprocess', file=sys.stderr)
         print(exc, file=sys.stderr)
         return exc.returncode
-    # TODO: It might be nice to show traceback at very high verbosity
-    # levels.
 
 
 if __name__ == '__main__':

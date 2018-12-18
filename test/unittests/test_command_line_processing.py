@@ -1,5 +1,7 @@
 "Tests for the command line interface and return codes."
 
+# pylint: disable=C0111,W0621,W0613
+
 import contextlib
 import io
 import stat
@@ -34,10 +36,11 @@ test-command: {test_command}
 
 execution-engine:
   name: {engine}
-'''.format(test_command=test_command,
-           timeout_type='timeout' if baseline is None else 'baseline',
-           timeout_val=timeout if baseline is None else baseline,
-           engine=engine)
+'''.format(
+        test_command=test_command,
+        timeout_type='timeout' if baseline is None else 'baseline',
+        timeout_val=timeout if baseline is None else baseline,
+        engine=engine)
 
 
 @pytest.fixture
@@ -84,8 +87,7 @@ def test_unreadable_file_returns_EX_PERM(tmpdir):
 
 
 def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
-    monkeypatch.setattr(cosmic_ray.testing.test_runner,
-                        'run_tests',
+    monkeypatch.setattr(cosmic_ray.testing.test_runner, 'run_tests',
                         lambda *args: (TestOutcome.KILLED, ''))
 
     errcode = cosmic_ray.cli.main(['baseline', local_unittest_config])
@@ -93,8 +95,7 @@ def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
 
 
 def test_baseline_success_returns_EX_OK(monkeypatch, local_unittest_config):
-    monkeypatch.setattr(cosmic_ray.testing.test_runner,
-                        'run_tests',
+    monkeypatch.setattr(cosmic_ray.testing.test_runner, 'run_tests',
                         lambda *args: (TestOutcome.SURVIVED, ''))
 
     errcode = cosmic_ray.cli.main(['baseline', local_unittest_config])
@@ -107,14 +108,19 @@ def test_new_config_success_returns_EX_OK(monkeypatch, config_file):
     assert errcode == ExitCode.OK
 
 
-def test_init_with_invalid_baseline_returns_EX_CONFIG(invalid_baseline_config, session):
-    errcode = cosmic_ray.cli.main(['init', invalid_baseline_config, str(session)])
+def test_init_with_invalid_baseline_returns_EX_CONFIG(invalid_baseline_config,
+                                                      session):
+    errcode = cosmic_ray.cli.main(
+        ['init', invalid_baseline_config,
+         str(session)])
     assert errcode == ExitCode.Config
+
 
 # NOTE: We have integration tests for the happy-path for many commands, so we don't cover them explicitly here.
 
 
-def test_config_success_returns_EX_OK(lobotomize, local_unittest_config, session):
+def test_config_success_returns_EX_OK(lobotomize, local_unittest_config,
+                                      session):
     cosmic_ray.cli.main(['init', local_unittest_config, str(session)])
 
     cfg_stream = io.StringIO()
@@ -128,8 +134,11 @@ def test_config_success_returns_EX_OK(lobotomize, local_unittest_config, session
     assert orig_cfg == stored_cfg
 
 
-def test_dump_success_returns_EX_OK(lobotomize, local_unittest_config, session):
-    errcode = cosmic_ray.cli.main(['init', local_unittest_config, str(session)])
+def test_dump_success_returns_EX_OK(lobotomize, local_unittest_config,
+                                    session):
+    errcode = cosmic_ray.cli.main(
+        ['init', local_unittest_config,
+         str(session)])
     assert errcode == ExitCode.OK
 
     errcode = cosmic_ray.cli.main(['dump', str(session)])
@@ -141,5 +150,8 @@ def test_operators_success_returns_EX_OK():
 
 
 def test_worker_success_returns_EX_OK(lobotomize, local_unittest_config):
-    cmd = ['worker', 'some_module', 'core/ReplaceTrueWithFalse', '0', local_unittest_config]
+    cmd = [
+        'worker', 'some_module', 'core/ReplaceTrueWithFalse', '0',
+        local_unittest_config
+    ]
     assert cosmic_ray.cli.main(cmd) == ExitCode.OK

@@ -1,7 +1,6 @@
 """Implementation of the WorkDB."""
 
 import contextlib
-import json
 import os
 import sqlite3
 from enum import Enum
@@ -145,7 +144,7 @@ class WorkDB:
         return list(count)[0][0]
 
     def set_result(self, job_id, result):
-        """Set the result for a job. 
+        """Set the result for a job.
 
         This will overwrite any existing results for the job.
 
@@ -177,6 +176,7 @@ class WorkDB:
 
     @property
     def completed_work_items(self):
+        "Iterable of `(work-item, result)`s for all completed items."
         completed = self._conn.execute(
             "SELECT * FROM work_items, results WHERE work_items.job_id == results.job_id"
         )

@@ -7,11 +7,7 @@ from spor.anchor import Context
 
 @pytest.fixture
 def lines():
-    return [
-        '123\n',
-        '456\n',
-        '789'
-    ]
+    return ['123\n', '456\n', '789']
 
 
 class Test_line_and_col_to_offset:
@@ -47,11 +43,7 @@ class Test_item_in_context:
             job_id='jobid')
 
         context = Context(
-            offset=0,
-            topic=' ' * 11,
-            before='',
-            after='',
-            width=0)
+            offset=0, topic=' ' * 11, before='', after='', width=0)
 
         assert _item_in_context(lines, item, context)
 
@@ -65,11 +57,7 @@ class Test_item_in_context:
             job_id='jobid')
 
         context = Context(
-            offset=0,
-            topic=' ' * 11,
-            before='',
-            after='',
-            width=0)
+            offset=0, topic=' ' * 11, before='', after='', width=0)
 
         assert _item_in_context(lines, item, context)
 
@@ -82,12 +70,7 @@ class Test_item_in_context:
             end_pos=(1, 2),
             job_id='jobid')
 
-        context = Context(
-            offset=5,
-            topic='',
-            before='',
-            after='',
-            width=3)
+        context = Context(offset=5, topic='', before='', after='', width=3)
 
         assert not _item_in_context(lines, item, context)
 
@@ -100,12 +83,7 @@ class Test_item_in_context:
             end_pos=(2, 0),
             job_id='jobid')
 
-        context = Context(
-            offset=1,
-            topic='',
-            before='',
-            after='',
-            width=2)
+        context = Context(offset=1, topic='', before='', after='', width=2)
 
         assert not _item_in_context(lines, item, context)
 
@@ -118,12 +96,6 @@ class Test_item_in_context:
             end_pos=(3, 3),
             job_id='jobid')
 
-        context = Context(
-            offset=5,
-            topic='',
-            before='',
-            after='',
-            width=6)
+        context = Context(offset=5, topic='', before='', after='', width=6)
 
         assert not _item_in_context(lines, item, context)
-

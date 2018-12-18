@@ -11,12 +11,8 @@ from path_utils import excursion
 def test_no_test_return_value(data_dir, python_version):
     with excursion(data_dir):
         result = worker(
-            Path("a/b.py"),
-            python_version,
-            'core/ReplaceTrueWithFalse',
-            100,
-            'python -m unittest tests',
-            1000)
+            Path("a/b.py"), python_version, 'core/ReplaceTrueWithFalse', 100,
+            'python -m unittest tests', 1000)
         expected = WorkResult(
             output=None,
             test_outcome=None,
