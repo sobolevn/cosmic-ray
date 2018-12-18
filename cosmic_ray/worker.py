@@ -10,15 +10,6 @@ import cosmic_ray.plugins
 from cosmic_ray.testing.test_runner import run_tests
 from cosmic_ray.work_item import TestOutcome, WorkerOutcome, WorkResult
 
-# TODO: Is this still necessary?
-try:
-    import typing  # the typing module does some fancy stuff at import time
-    # which we shall not do twice... by loading it here,
-    # preserve_modules does not delete it and therefore
-    # fancy stuff happens only once
-except ImportError:
-    pass
-
 
 def worker(module_path, python_version, operator_name, occurrence,
            test_command, timeout):
@@ -45,7 +36,7 @@ def worker(module_path, python_version, operator_name, occurrence,
 
     Args:
         module_name: The path to the module to mutate
-        python_version: The version of Python to use when interpreting the code in `module_path`. 
+        python_version: The version of Python to use when interpreting the code in `module_path`.
             A string of the form "MAJOR.MINOR", e.g. "3.6" for Python 3.6.x.
         operator_name: The name of the operator plugin to use
         occurrence: The occurrence of the operator to apply
