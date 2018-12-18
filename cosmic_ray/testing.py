@@ -6,9 +6,6 @@ import traceback
 
 from cosmic_ray.work_item import TestOutcome
 
-# TODO: We can probably lift this module out of the subpackage and remove the
-# subpackage.
-
 
 def run_tests(command, timeout=None):
     """Run test command in a subprocess.
@@ -19,7 +16,7 @@ def run_tests(command, timeout=None):
 
     Tests which time out are considered 'incompetent' as well.
 
-    Args: 
+    Args:
         command (str): The command to execute.
         timeout (number): The maximum number of seconds to allow the tests to run.
 
@@ -40,5 +37,5 @@ def run_tests(command, timeout=None):
         return (TestOutcome.SURVIVED, proc.stdout)
     except subprocess.CalledProcessError as exc:
         return (TestOutcome.KILLED, exc.output)
-    except Exception:
+    except Exception:  # pylint: disable=W0703
         return (TestOutcome.INCOMPETENT, traceback.format_exc())

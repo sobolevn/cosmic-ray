@@ -87,7 +87,7 @@ def test_unreadable_file_returns_EX_PERM(tmpdir):
 
 
 def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
-    monkeypatch.setattr(cosmic_ray.testing.test_runner, 'run_tests',
+    monkeypatch.setattr(cosmic_ray.testing, 'run_tests',
                         lambda *args: (TestOutcome.KILLED, ''))
 
     errcode = cosmic_ray.cli.main(['baseline', local_unittest_config])
@@ -95,7 +95,7 @@ def test_baseline_failure_returns_2(monkeypatch, local_unittest_config):
 
 
 def test_baseline_success_returns_EX_OK(monkeypatch, local_unittest_config):
-    monkeypatch.setattr(cosmic_ray.testing.test_runner, 'run_tests',
+    monkeypatch.setattr(cosmic_ray.testing, 'run_tests',
                         lambda *args: (TestOutcome.SURVIVED, ''))
 
     errcode = cosmic_ray.cli.main(['baseline', local_unittest_config])

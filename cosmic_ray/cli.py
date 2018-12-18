@@ -19,7 +19,7 @@ from kfg.config import ConfigError, ConfigValueError
 import cosmic_ray.commands
 import cosmic_ray.modules
 import cosmic_ray.plugins
-import cosmic_ray.testing.test_runner
+import cosmic_ray.testing
 import cosmic_ray.worker
 from cosmic_ray.config import get_db_name, load_config, serialize_config
 from cosmic_ray.exit_codes import ExitCode
@@ -46,7 +46,7 @@ def handle_baseline(args):
 
     test_cmd = config['test-command']
 
-    outcome, data = cosmic_ray.testing.test_runner.run_tests(test_cmd)
+    outcome, data = cosmic_ray.testing.run_tests(test_cmd)
 
     # note: test_runner() results are meant to represent
     # status codes when executed against mutants.

@@ -13,4 +13,3 @@ class ExecutionEngine(metaclass=abc.ABCMeta):
         Spend no more than `timeout` seconds for
         a single job, using `config` to control the work.
         """
-        pass

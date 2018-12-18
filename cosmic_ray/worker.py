@@ -7,7 +7,7 @@ import traceback
 import cosmic_ray.compat.json
 import cosmic_ray.mutating
 import cosmic_ray.plugins
-from cosmic_ray.testing.test_runner import run_tests
+from cosmic_ray.testing import run_tests
 from cosmic_ray.work_item import TestOutcome, WorkerOutcome, WorkResult
 
 

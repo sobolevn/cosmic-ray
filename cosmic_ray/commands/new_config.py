@@ -1,7 +1,5 @@
 "Implementation of the 'new-config' command."
 
-import sys
-
 import qprompt
 
 from cosmic_ray.plugins import execution_engine_names
