@@ -23,6 +23,7 @@ env:
 env:
   global:
   - TOXENV=py-coverage
+  - PYTEST_ADDOPTS="--e2e-engine=local --e2e-tester=unittest --e2e-tester=pytest"
 
 install:
 - pip install tox
@@ -30,9 +31,10 @@ install:
 services: rabbitmq
 
 # before_script:
-# - pushd test/test_project
-# - celery -A cosmic_ray_celery3_engine.worker worker &
-# - popd
+#  - pushd test/test_project
+#  - celery -A cosmic_ray_celery3_engine.worker worker &
+#  - celery -A cosmic_ray_celery4_engine.worker worker --concurrency=1 --purge &
+#  - popd
 
 script:
 - tox

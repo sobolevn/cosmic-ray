@@ -12,7 +12,6 @@ class CeleryExecutionEngine(ExecutionEngine):
         purge_queue = config['execution-engine'].get('purge-queue', True)
 
         def celery_task_complete(task_id, result):
-            print(result)
             on_task_complete(*result)
 
         try:
