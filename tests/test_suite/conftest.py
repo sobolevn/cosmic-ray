@@ -42,8 +42,8 @@ def pytest_generate_tests(metafunc):
     "Resolve the 'engine' and 'tester' fixtures."
     if 'engine' in metafunc.fixturenames:
         metafunc.parametrize("engine",
-                             metafunc.config.getoption('--e2e-engine'))
+                             set(metafunc.config.getoption('--e2e-engine')))
 
     if 'tester' in metafunc.fixturenames:
         metafunc.parametrize("tester",
-                             metafunc.config.getoption('--e2e-tester'))
+                             set(metafunc.config.getoption('--e2e-tester')))
