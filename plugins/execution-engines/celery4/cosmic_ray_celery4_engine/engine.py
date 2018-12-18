@@ -11,6 +11,10 @@ class CeleryExecutionEngine(ExecutionEngine):
     def __call__(self, timeout, pending_work, config, on_task_complete):
         purge_queue = config['execution-engine'].get('purge-queue', True)
 
+        def celery_task_complete(task_id, result):
+            print(result)
+            on_task_complete(*result)
+
         try:
             job = execute_work_items(
                 timeout,
@@ -18,7 +22,7 @@ class CeleryExecutionEngine(ExecutionEngine):
                 config)
 
             result = job.apply_async()
-            result.get(callback=on_task_complete)
+            result.get(callback=celery_task_complete)
         finally:
             if purge_queue:
                 APP.control.purge()

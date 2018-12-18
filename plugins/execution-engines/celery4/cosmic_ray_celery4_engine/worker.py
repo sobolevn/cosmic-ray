@@ -1,5 +1,6 @@
 """Celery specific details for routing work requests to Cosmic Ray workers."""
 import celery
+import celery.signals
 from celery.utils.log import get_logger
 
 from cosmic_ray.worker import worker
@@ -24,13 +25,15 @@ def worker_task(work_item, timeout, config):
 
     Returns: An updated WorkItem
     """
-    return worker(
+    result = worker(
         work_item.module_path,
+        config.python_version,
         work_item.operator_name,
         work_item.occurrence,
         config["test-command"],
         timeout,
     )
+    return work_item.job_id, result
 
 
 def execute_work_items(timeout, work_items, config):
@@ -43,7 +46,14 @@ def execute_work_items(timeout, work_items, config):
 
     Returns: An iterable of WorkItems.
     """
-    print("execute_work_items")
     return celery.group(
-        worker_task.s(work_item, timeout, config) for work_item in work_items
+        worker_task.s(work_item, timeout, config) 
+        for work_item in work_items
     )
+
+
+def foo(*args, **kwargs):
+    print("worker_process_init", args, kwargs)
+
+
+celery.signals.worker_process_init.connect(foo)
