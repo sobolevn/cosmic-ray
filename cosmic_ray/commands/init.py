@@ -63,13 +63,13 @@ def init(module_paths, work_db, config, timeout):
     work_db.clear()
 
     for module_path in module_paths:
+        module_ast = get_ast(
+            module_path, python_version=config.python_version)
+
         for op_name in operator_names:
             operator = get_operator(op_name)(config.python_version)
             visitor = WorkDBInitVisitor(module_path, op_name, work_db,
                                         operator)
-            module_ast = get_ast(
-                module_path, python_version=config.python_version)
-
             visitor.walk(module_ast)
 
     apply_interceptors(work_db)
