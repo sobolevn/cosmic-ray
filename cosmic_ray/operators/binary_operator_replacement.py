@@ -1,6 +1,7 @@
 """Implementation of the binary-operator-replacement operator.
 """
 
+from enum import Enum
 import itertools
 
 import parso
@@ -8,38 +9,38 @@ import parso
 from .operator import Operator
 from .util import extend_name
 
-_BINARY_OPERATORS = (
-    ('+', 'Add'),
-    ('-', 'Sub'),
-    ('*', 'Mul'),
-    ('/', 'Div'),
-    ('//', 'FloorDiv'),
-    ('%', 'Mod'),
-    ('**', 'Pow'),
-    ('>>', 'RShift'),
-    ('<<', 'LShift'),
-    ('|', 'BitOr'),
-    ('&', 'BitAnd'),
-    ('^', 'BitXor'),
-)
+
+class BinaryOperators(Enum):
+    Add = '+'
+    Sub = '-'
+    Mul = '*'
+    Div = '/'
+    FloorDiv = '//'
+    Mod = '%'
+    Pow = '**'
+    RShift = '>>'
+    LShift = '<<'
+    BitOr = '|'
+    BitAnd = '&'
+    BitXor = '^'
 
 
-def _create_replace_binary_operator(from_op, from_name, to_op, to_name):
-    @extend_name('_{}_{}'.format(from_name, to_name))
+def _create_replace_binary_operator(from_op, to_op):
+    @extend_name('_{}_{}'.format(from_op.name, to_op.name))
     class ReplaceBinaryOperator(Operator):
         "An operator that replaces binary {} with binary {}.".format(
-            from_name, to_name)
+            from_op.name, to_op.name)
 
         def mutation_positions(self, node):
             if _is_binary_operator(node):
-                if node.value == from_op:
+                if node.value == from_op.value:
                     yield (node.start_pos, node.end_pos)
 
         def mutate(self, node, index):
             assert _is_binary_operator(node)
             assert index == 0
 
-            node.value = to_op
+            node.value = to_op.value
             return node
 
     return ReplaceBinaryOperator
@@ -49,18 +50,17 @@ def _is_binary_operator(node):
     if isinstance(node, parso.python.tree.Operator):
         if isinstance(node.parent, parso.python.tree.PythonNode):
             return node.parent.type != 'factor'
-        else:
-            return True
+
+        return True
 
     return False
 
 
 # Build all of the binary replacement operators
 _MUTATION_OPERATORS = tuple(
-    _create_replace_binary_operator(from_op, from_name, to_op, to_name)
-    for (from_op,
-         from_name), (to_op,
-                      to_name) in itertools.permutations(_BINARY_OPERATORS, 2))
+    _create_replace_binary_operator(from_op, to_op)
+    for from_op, to_op
+    in itertools.permutations(BinaryOperators, 2))
 
 # Inject operators into module namespace
 for op_cls in _MUTATION_OPERATORS:

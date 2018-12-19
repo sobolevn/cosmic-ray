@@ -1,6 +1,7 @@
 """This module contains mutation operators which replace one
 comparison operator with another.
 """
+from enum import Enum
 import itertools
 
 import parso.python.tree
@@ -8,32 +9,32 @@ import parso.python.tree
 from .operator import Operator
 from .util import extend_name
 
-_OPERATOR_DESCRIPTIONS = (
-    ('==', 'Eq'),
-    ('!=', 'NotEq'),
-    ('<', 'Lt'),
-    ('<=', 'LtE'),
-    ('>', 'Gt'),
-    ('>=', 'GtE'),
-    ('is', 'Is'),
-    ('is not', 'IsNot'),
-)
+
+class ComparisonOperators(Enum):
+    Eq = '=='
+    NotEq = '!='
+    Lt = '<'
+    LtE = '<='
+    Gt = '>'
+    GtE = '>='
+    Is = 'is'
+    IsNot = 'is not'
 
 
-def _create_operator(from_op, from_op_name, to_op, to_op_name):
-    @extend_name('_{}_{}'.format(from_op_name, to_op_name))
+def _create_operator(from_op, to_op):
+    @extend_name('_{}_{}'.format(from_op.name, to_op.name))
     class ReplaceComparisonOperator(Operator):
-        "An operator that replaces {} with {}".format(from_op_name, to_op_name)
+        "An operator that replaces {} with {}".format(from_op.name, to_op.name)
 
         def mutation_positions(self, node):
             if node.type == 'comparison':
                 # Every other child starting at 1 is a comparison operator of some sort
                 for comparison_op in node.children[1::2]:
-                    if comparison_op.get_code().strip() == from_op:
+                    if comparison_op.get_code().strip() == from_op.value:
                         yield (comparison_op.start_pos, comparison_op.end_pos)
 
         def mutate(self, node, index):
-            mutated_comparison_op = parso.parse(' ' + to_op)
+            mutated_comparison_op = parso.parse(' ' + to_op.value)
             node.children[index * 2 + 1] = mutated_comparison_op
             return node
 
@@ -42,9 +43,9 @@ def _create_operator(from_op, from_op_name, to_op, to_op_name):
 
 # Build all of the binary replacement operators
 _OPERATORS = tuple(
-    _create_operator(from_op, from_name, to_op, to_name)
-    for (from_op, from_name), (
-        to_op, to_name) in itertools.permutations(_OPERATOR_DESCRIPTIONS, 2))
+    _create_operator(from_op, to_op)
+    for from_op, to_op
+    in itertools.permutations(ComparisonOperators, 2))
 
 # Inject the operators into the module namespace
 for op_cls in _OPERATORS:
