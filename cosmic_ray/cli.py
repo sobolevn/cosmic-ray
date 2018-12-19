@@ -110,7 +110,9 @@ def handle_init(args):
         # We run the baseline in a subprocess to more closely emulate the
         # runtime of a worker subprocess.
         with Timer() as timer:
+            log.info('Running baseline')
             subprocess.check_call(command.split())
+            log.info('Baseline complete')
 
         timeout = baseline_mult * timer.elapsed.total_seconds()
     else:
